@@ -1,0 +1,15 @@
+setup.py
+whlib/__init__.py
+whlib/dbtable.py
+whlib/handler.py
+whlib/handler_helper.py
+whlib/rpfm4_wrapper.py
+whlib/rpfm_wrapper.py
+whlib/settings.py
+whlib/twschema.py
+whlib/utils.py
+whlib.egg-info/PKG-INFO
+whlib.egg-info/SOURCES.txt
+whlib.egg-info/dependency_links.txt
+whlib.egg-info/requires.txt
+whlib.egg-info/top_level.txt

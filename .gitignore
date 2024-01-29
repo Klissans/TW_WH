@@ -1,0 +1,13 @@
+/data/
+/mods/extract/
+/mods/output/
+/mods/all_stats/extract/
+/mods/all_stats/output/
+/mods/mp_ui/output
+/utils
+scripts
+.vscode
+.idea
+whlib/whlib/settings.py
+
+*.graphml
