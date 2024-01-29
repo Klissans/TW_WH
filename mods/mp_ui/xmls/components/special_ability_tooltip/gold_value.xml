@@ -1,0 +1,46 @@
+<gold_value
+        this="EB48F0E1-6118-455C-A318F26E1AA0EA00"
+        id="gold_value"
+        docking="Right"
+        dock_offset="0.00,-1.00"
+        offset="0.00,-1.00"
+        component_anchor_point="0.50,0.50"
+        priority="45"
+        tooltipslocalised="true"
+        uniqueguid="EB48F0E1-6118-455C-A318F26E1AA0EA00"
+        currentstate="C4AA8574-64C2-4175-B2E2E9454604B500"
+        defaultstate="C4AA8574-64C2-4175-B2E2E9454604B500">
+    <callbackwithcontextlist>
+        <callback_with_context
+                callback_id="ContextTextLabel"
+                context_object_id="CcoUnitAbility"
+                context_function_id="">
+        </callback_with_context>
+        <callback_with_context
+                callback_id="ContextVisibilitySetter"
+                context_object_id="CcoUnitAbility"
+                context_function_id="">
+        </callback_with_context>
+    </callbackwithcontextlist>
+    <states>
+        <newstate
+                this="C4AA8574-64C2-4175-B2E2E9454604B500"
+                name="NewState"
+                width="320"
+                height="34"
+                uniqueguid="C4AA8574-64C2-4175-B2E2E9454604B500">
+            <component_text
+                    text="[[img:ui/skins/default/icon_income.png]][[/img]]XXXX"
+                    texthalign="Right"
+                    textxoffset="0.00,0.00"
+                    textyoffset="11.00,0.00"
+                    texthbehaviour="Never split"
+                    textlocalised="true"
+                    textlabel="gold_value_NewState_Text_41"
+                    font_m_size="12"
+                    font_m_colour="#FFF8D7FF"
+                    font_m_leading="3"
+                    fontcat_name="body_12"/>
+        </newstate>
+    </states>
+</gold_value>

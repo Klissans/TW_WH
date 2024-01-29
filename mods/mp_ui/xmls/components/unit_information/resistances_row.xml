@@ -1,0 +1,44 @@
+<resistances_row
+        this="EB48F0E1-6118-455C-A318F26E1AA0SS00"
+        id="resistances_row"
+        offset="0.00,1.00"
+        priority="45"
+        tooltipslocalised="true"
+        tooltiplabel="label_score_Tooltip_e407SS10"
+        uniqueguid="EB48F0E1-6118-455C-A318F26E1AA0SS00"
+        currentstate="C4AA8574-64C2-4175-B2E2E9454604SS00"
+        defaultstate="C4AA8574-64C2-4175-B2E2E9454604SS00">
+    <callbackwithcontextlist>
+        <callback_with_context
+                callback_id="ContextTextLabel"
+                context_object_id="CcoUnitDetails"
+                context_function_id="">
+            <child_m_user_properties>
+                <property
+                        name="update_constant"
+                        value="100"/>
+            </child_m_user_properties>
+        </callback_with_context>
+    </callbackwithcontextlist>
+    <states>
+        <newstate
+                this="C4AA8574-64C2-4175-B2E2E9454604SS00"
+                name="NewState"
+                width="290"
+                height="34"
+                uniqueguid="C4AA8574-64C2-4175-B2E2E9454604SS00">
+            <component_text
+                    text="[[img:ui/skins/default/icon_income.png]][[/img]]XXXX"
+                    texthalign="Center"
+                    textxoffset="0.00,0.00"
+                    textyoffset="11.00,0.00"
+                    texthbehaviour="Never split"
+                    textlocalised="true"
+                    textlabel="gold_value_NewState_Text_41"
+                    font_m_size="12"
+                    font_m_colour="#FFF8D7FF"
+                    font_m_leading="3"
+                    fontcat_name="body_12"/>
+        </newstate>
+    </states>
+</resistances_row>
