@@ -1,9 +1,8 @@
 /data/
-/mods/extract/
-/mods/output/
-/mods/all_stats/extract/
-/mods/all_stats/output/
-/mods/mp_ui/output
+/mods/asmr/input/ui
+/mods/asmr/output
+/mods/mp_hui/output
+/mods/fruit_rules_caps/output
 /utils
 scripts
 .vscode
