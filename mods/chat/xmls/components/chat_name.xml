@@ -1,0 +1,37 @@
+<chat_name
+        this="EB48F0E1-6118-455C-A318F26E1AA0EA11"
+        id="chat_name"
+        offset="0.00,-1.00"
+        docking="Right Center External"
+        dock_offset="0.00,-1.00"
+        component_anchor_point="0.50,0.50"
+        priority="1"
+        tooltipslocalised="true"
+        uniqueguid="EB48F0E1-6118-455C-A318F26E1AA0EA11"
+        currentstate="C4AA8574-64C2-4175-B2E2E9454604B511"
+        defaultstate="C4AA8574-64C2-4175-B2E2E9454604B511">
+    <states>
+        <newstate
+                this="C4AA8574-64C2-4175-B2E2E9454604B511"
+                name="NewState"
+                width="200"
+                height="50"
+                uniqueguid="C4AA8574-64C2-4175-B2E2E9454604B511">
+            <component_text
+                    text="by Klissan"
+                    texthalign="Left"
+                    textxoffset="120.00,0.00"
+                    textyoffset="9.00,0.00"
+                    texthbehaviour="Never split"
+                    textlocalised="true"
+                    textlabel="chat_name_NewState_Text_41"
+                    tooltip="Hey!"
+                    font_m_size="10"
+                    font_m_colour="#FFF8D7FF"
+                    font_m_leading="3"
+                    fontcat_name="header_10"
+                    text_shader_name="drop_shadow_t0"
+                    textshadervars="-1.00,-1.00,1.00,0.00"/>
+        </newstate>
+    </states>
+</chat_name>
