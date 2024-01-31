@@ -29,9 +29,16 @@ def add_callbacks_to_chat(xml):
     
 def remove_lock_visibility_button(xml):
     # button_lock_chat
-    destroy_element(xml, '8C931C2A-64A1-47D0-81D746F7F0BA03A4')
+    # destroy_element(xml, '8C931C2A-64A1-47D0-81D746F7F0BA03A4')
+    blc = find_by_id(xml, 'button_lock_chat')
+    # zero index is '\n'
+    blc.component_image_uniqueguids.contents[1]['name'] = 'ui/skins/default/dev/icon_refresh.png'
+    blc.override_images.contents[1]['value'] = 'ui/skins/default/dev/icon_refresh.png'
+    lt = blc.localised_texts.contents[1]
+    lt['tooltip_label'] = 'button_refresh_chat_Tooltip_11005e'
+    lt['tooltip_text'] = 'Refresh chat'
     
-    elem = read_xml_component('chat_name') # add grudge emoji
+    elem = read_xml_component('chat_name')
     add_element(xml, elem, "tabgroup")
     
 

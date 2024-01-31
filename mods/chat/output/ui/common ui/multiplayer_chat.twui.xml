@@ -134,6 +134,7 @@
     </tabgroup>
     <button_enlarge_br this="BD64674D-44CE-4278-926231B87EFBD60A"/>
     <tr_button_docker this="C5832682-A479-4C6C-AC777013775B9583">
+     <button_lock_chat this="8C931C2A-64A1-47D0-81D746F7F0BA03A4"/>
      <button_toggle_chat this="F255B8E4-D73E-492A-A62D4F5FDBB459F0"/>
     </tr_button_docker>
     <context_menu_player this="4308176A-99E5-4C89-B4A398A03E67A02C">
@@ -212,6 +213,74 @@
     <element value=""/>
    </override_images>
   </button_cancel>
+  <button_lock_chat dimensions="30.00,30.00" id="button_lock_chat" part_of_template="true" sound_category="UI_GBL_TMP_Round_Small_Button" template_id="round_extra_small_button_toggle" this="8C931C2A-64A1-47D0-81D746F7F0BA03A4" uniqueguid="8C931C2A-64A1-47D0-81D746F7F0BA03A4" uniqueguid_in_template="A3B34991-F357-4E28-B8DBB77EC4174196">
+   <state_uniqueguids>
+    <state_uniqueguid name="active" uniqueguid="2F5DDD1B-43BC-4C47-A656C9ABB09A8777"/>
+    <state_uniqueguid name="down" uniqueguid="921F05FC-19D9-4E19-A6E036B1C6AA30C2"/>
+    <state_uniqueguid name="down_off" uniqueguid="F164B7F5-A4BA-4E74-95AFEFD3C25167CB"/>
+    <state_uniqueguid name="hover" uniqueguid="DE05C8D1-BD18-438D-95DDBDF1360644B1"/>
+    <state_uniqueguid name="inactive" uniqueguid="BBAA6757-9C00-46C6-B6D689850708A18D"/>
+    <state_uniqueguid name="selected" uniqueguid="5DBFE8E0-96DA-4151-BEE035A411299F1B"/>
+    <state_uniqueguid name="selected_down" uniqueguid="32AAFA06-364F-49BE-955E8AD278097945"/>
+    <state_uniqueguid name="selected_down_off" uniqueguid="FCD17372-128A-40E6-BD311EFD4B5AADBF"/>
+    <state_uniqueguid name="selected_hover" uniqueguid="338A2D3D-0175-4A16-8662E805B43FAFC4"/>
+    <state_uniqueguid name="selected_inactive" uniqueguid="D09CD073-81A5-474A-A9EA4B37E5559758"/>
+   </state_uniqueguids>
+   <component_image_uniqueguids>
+    <component_image_uniqueguid name="ui/skins/default/dev/icon_refresh.png" uniqueguid="BC32563F-B593-4422-BE2592935AE771FA"/>
+    <component_image_uniqueguid name="ui/skins/default/button_round_small_pressed.png" uniqueguid="01586F97-7306-46E4-A9902815C9525A01"/>
+    <component_image_uniqueguid name="ui/skins/default/button_round_small_selected_hover.png" uniqueguid="FB180566-4B99-494B-874734CF0B7AF618"/>
+    <component_image_uniqueguid name="ui/skins/default/button_round_small_hover.png" uniqueguid="A6E26E21-DD3D-483F-AB72CB104AF9451C"/>
+    <component_image_uniqueguid name="ui/skins/default/button_round_small_active.png" uniqueguid="25B16853-3703-4C63-B96C348D26A6839C"/>
+    <component_image_uniqueguid name="ui/skins/default/button_round_small_inactive.png" uniqueguid="6B0449E1-0793-45AA-B1126A836860CD94"/>
+    <component_image_uniqueguid name="ui/skins/default/button_round_small_selected.png" uniqueguid="267C8675-E702-4F0D-93FDE5C7419EF129"/>
+    <component_image_uniqueguid name="ui/skins/default/button_round_small_underlay.png" uniqueguid="91097497-B3FC-43E8-8550734431E558B1"/>
+    <component_image_uniqueguid name="ui/skins/default/button_round_small_selected_underlay.png" uniqueguid="8C9337F2-38E2-4340-A0BE59F0E96A9971"/>
+    <component_image_uniqueguid name="ui/skins/default/button_round_small_selected_inactive.png" uniqueguid="2C534C37-F715-441A-89CE2D257CDCD5D3"/>
+    <component_image_uniqueguid name="ui/skins/default/button_round_small_selected_pressed.png" uniqueguid="592F5959-E6EA-48FC-A666D31616D531C3"/>
+   </component_image_uniqueguids>
+   <callbacks_with_context>
+    <callback_with_context callback_id="Button"/>
+    <callback_with_context callback_id="StatePropagatorCallback">
+     <child_m_user_properties>
+      <property name="use_transitions" value=""/>
+     </child_m_user_properties>
+    </callback_with_context>
+    <callback_with_context callback_id="CallbackAnimTrigger"/>
+   </callbacks_with_context>
+   <user_properties>
+    <property name="disable_override" value="resizable"/>
+    <property name="disable_override0" value="CallbackAnimTrigger"/>
+    <property name="dynamic_image" value="0"/>
+   </user_properties>
+   <localised_texts>
+    <localised_text tooltip_label="button_refresh_chat_Tooltip_11005e" tooltip_text="Refresh chat"/>
+    <localised_text is_text_localised="false" state="active"/>
+    <localised_text is_text_localised="false" state="down"/>
+    <localised_text is_text_localised="false" state="down_off"/>
+    <localised_text is_text_localised="false" state="hover"/>
+    <localised_text is_text_localised="false" state="inactive"/>
+    <localised_text is_text_localised="false" state="selected"/>
+    <localised_text is_text_localised="false" state="selected_down"/>
+    <localised_text is_text_localised="false" state="selected_down_off"/>
+    <localised_text is_text_localised="false" state="selected_hover"/>
+    <localised_text is_text_localised="false" state="selected_inactive"/>
+   </localised_texts>
+   <override_images>
+    <element value="ui/skins/default/dev/icon_refresh.png"/>
+    <element value="ui/skins/default/button_round_small_pressed.png"/>
+    <element value="ui/skins/default/button_round_small_selected_hover.png"/>
+    <element value="ui/skins/default/button_round_small_hover.png"/>
+    <element value="ui/skins/default/button_round_small_active.png"/>
+    <element value="ui/skins/default/button_round_small_inactive.png"/>
+    <element value="ui/skins/default/button_round_small_selected.png"/>
+    <element value="ui/skins/default/button_round_small_underlay.png"/>
+    <element value="ui/skins/default/button_round_small_selected_underlay.png"/>
+    <element value="ui/skins/default/button_round_small_selected_inactive.png"/>
+    <element value="ui/skins/default/button_round_small_selected_pressed.png"/>
+    <element value=""/>
+   </override_images>
+  </button_lock_chat>
   <button_ok dimensions="56.00,56.00" dock_point="Bottom Center" id="button_ok" offset="-30.00,-10.00" part_of_template="true" priority="60" sound_category="UI_GBL_HUD_Generic_Accept_Confirm" template_id="round_medium_button" this="13ADB8BA-BF58-4AED-90B18297B67883BA" uniqueguid="13ADB8BA-BF58-4AED-90B18297B67883BA" uniqueguid_in_template="4E08AA99-2BAB-4DB6-AC47ACC0CEBD26BE">
    <state_uniqueguids>
     <state_uniqueguid name="active" uniqueguid="E04CC70B-783B-4B4D-871CA05FCDE63891"/>
@@ -3229,7 +3298,7 @@
   <chat_name component_anchor_point="0.50,0.50" currentstate="C4AA8574-64C2-4175-B2E2E9454604B511" defaultstate="C4AA8574-64C2-4175-B2E2E9454604B511" dock_offset="0.00,-1.00" docking="Right Center External" id="chat_name" offset="0.00,-1.00" priority="1" this="EB48F0E1-6118-455C-A318F26E1AA0EA11" tooltipslocalised="true" uniqueguid="EB48F0E1-6118-455C-A318F26E1AA0EA11">
    <states>
     <newstate height="50" name="NewState" this="C4AA8574-64C2-4175-B2E2E9454604B511" uniqueguid="C4AA8574-64C2-4175-B2E2E9454604B511" width="200">
-     <component_text font_m_colour="#FFF8D7FF" font_m_leading="3" font_m_size="10" fontcat_name="header_10" text="by Klissan" text_shader_name="drop_shadow_t0" texthalign="Left" texthbehaviour="Never split" textlabel="chat_name_NewState_Text_41" textlocalised="true" textshadervars="-1.00,-1.00,1.00,0.00" textxoffset="120.00,0.00" textyoffset="9.00,0.00" tooltip="Hey!"/>
+     <component_text font_m_colour="#FFF8D7FF" font_m_leading="3" font_m_size="10" fontcat_name="header_10" text="by Klissan" text_shader_name="drop_shadow_t0" texthalign="Left" texthbehaviour="Never split" textlabel="chat_name_NewState_Text_41" textlocalised="true" textshadervars="-1.00,-1.00,1.00,0.00" textxoffset="110.00,0.00" textyoffset="9.00,0.00" tooltip="Hey!"/>
     </newstate>
    </states>
   </chat_name>
