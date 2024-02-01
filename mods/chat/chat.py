@@ -1,7 +1,6 @@
 import os
 import shutil
 
-
 from whlib.rpfm4_wrapper import RPFM4Wrapper
 from whlib.twui import *
 
@@ -13,9 +12,15 @@ def remove_obsolete_elements(xml):
     destroy_element(xml, '83C3055C-A12F-4642-B45E0CC0674AFB49')
     # enabling drag & drop support
     find_by_id(xml, 'frame_tr').LayoutEngine.decompose()
-    
-    
+
+
+def add_chat_alert_icon_fe(xml):
+    elem = read_xml_component('chat_alert_icon')
+    add_element(xml, elem, "button_hud_chat")
+
+
 def add_callbacks_to_chat(xml):
+    # TODO add drag & drop support in minimized mode
     cb_shd = create_context_callback_as_string("SelfHandleDropCallback")
     cb_vs = create_context_callback_as_string("ContextVisibilitySetter", "CcoStaticObject", 'true', {'update_constant': ''})
     cb_tm = create_context_callback_as_string("TopmostObjectCallback", "CcoStaticObject", 'true', {'update_constant': ''})
@@ -23,10 +28,11 @@ def add_callbacks_to_chat(xml):
     tag.callbackwithcontextlist.append(replace_escape_characters(cb_shd))
     tag.callbackwithcontextlist.append(replace_escape_characters(cb_vs))
     tag.callbackwithcontextlist.append(replace_escape_characters(cb_tm))
-    
-    
-    
-    
+
+
+# .Replace(':gsl:', '[[img:ui/mod/images/grudge_sl.png]][[/img]]')
+# .Replace(':rb:', '[[img:ui/mod/images/roflanbuldiga.png]][[/img]]')
+
 def remove_lock_visibility_button(xml):
     # button_lock_chat
     # destroy_element(xml, '8C931C2A-64A1-47D0-81D746F7F0BA03A4')
@@ -37,11 +43,14 @@ def remove_lock_visibility_button(xml):
     lt = blc.localised_texts.contents[1]
     lt['tooltip_label'] = 'button_refresh_chat_Tooltip_11005e'
     lt['tooltip_text'] = 'Refresh chat'
-    
+
+
+def add_chat_name(xml):
     elem = read_xml_component('chat_name')
     add_element(xml, elem, "tabgroup")
-    
 
+
+# TODO notifications of new messages when chat is hidden via counting chat strings while chat is hidden and compare to the prev value when chat was opened
 
 if __name__ == '__main__':
     if os.path.exists('output'):
@@ -54,12 +63,14 @@ if __name__ == '__main__':
     edit_twui('ui/common ui/multiplayer_chat',
               lambda xml: (
                   add_callbacks_to_chat(xml),
-                  remove_lock_visibility_button(xml)
+                  remove_lock_visibility_button(xml),
+                  add_chat_name(xml)
               )
               )
     edit_twui('ui/frontend ui/sp_frame',
               lambda xml: (
-                  remove_obsolete_elements(xml)
+                  remove_obsolete_elements(xml),
+                  add_chat_alert_icon_fe(xml)
               )
               )
     
