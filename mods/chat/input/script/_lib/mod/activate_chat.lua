@@ -49,7 +49,10 @@ function cheat_chat:init_chat_hotkey_if_exists()
     self:out('Hotkey for chat is ' .. self._hotkey)
 end
 
-function cheat_chat:init_battle()
+function cheat_chat:init_battle_or_campaign()
+    if not (core:is_battle() and bm:is_multiplayer() or core:is_campaign() and cm:is_multiplayer()) then
+        return
+    end
     self:init_chat_hotkey_if_exists()
     core:get_tm():repeat_real_callback(function() self:edit_strings() end, 100, 'Klissan_chat_edit_strings')
     local chat_holder = UIComponent(core:get_ui_root():CreateComponent("chat_holder", "ui/templates/empty_frame.twui.xml"))
@@ -57,6 +60,7 @@ function cheat_chat:init_battle()
     local bhc = find_uicomponent(core:get_ui_root(), "menu_bar", "buttongroup", "button_hud_chat")
     bhc:SetVisible(true)
     bhc:SetState("active")
+    chat_holder:SetVisible(false)
 
     core:add_listener(
         "battle_menu_button_chat_clicked",
@@ -95,6 +99,9 @@ end
 
 
 function cheat_chat:init_frontend()
+    if not core:is_frontend() then
+        return
+    end
     self:init_chat_hotkey_if_exists()
     core:get_tm():repeat_real_callback(function() self:edit_strings() end, 100, 'Klissan_chat_edit_strings')
     local tr = get_chat_parent()
@@ -284,22 +291,21 @@ function cheat_chat:check_if_mp_lobby()
     bhc:SetState('down_off')
 end
 
-
-
-if core:is_battle() and bm:is_multiplayer() then
-    core:get_tm():real_callback(function() cheat_chat:init_battle() end, 1000, 'Klissan_init_chat_battle_rc')
+if not core:is_battle() then
+	core:add_ui_created_callback(
+		function()
+			if core:is_campaign() then 
+				cm:add_post_first_tick_callback(function()
+					cheat_chat:init_battle_or_campaign()
+				end)
+			elseif core:is_frontend() then
+				cheat_chat:init_frontend()
+			end
+		end
+	)
+else
+	bm:register_phase_change_callback("Deployment", function() cheat_chat:init_battle_or_campaign() end)
 end
-
-if core:is_campaign() and cm:is_multiplayer() then
-    core:get_tm():real_callback(function() cheat_chat:init_battle() end, 1000, 'Klissan_init_chat_campaign_rc')
-end
-
-
-
-if core:is_frontend() then
-    core:get_tm():real_callback(function() cheat_chat:init_frontend() end, 1000, 'Klissan_init_chat_rc')
-end
-
 
 
 core:add_listener(
@@ -340,16 +346,16 @@ core:add_listener(
 )
 
 
-    -- https://discord.com/channels/373745291289034763/1021968669946953758/1022089976168583248
-    math.randomseed(os.clock())
-    math.randomseed(os.clock())
-    math.randomseed(os.clock())
-    math.randomseed(os.clock())
-    math.randomseed(os.clock())
-    math.randomseed(os.clock())
-    math.randomseed(os.clock())
-    math.randomseed(os.clock())
+-- https://discord.com/channels/373745291289034763/1021968669946953758/1022089976168583248
+math.randomseed(os.clock())
+math.randomseed(os.clock())
+math.randomseed(os.clock())
+math.randomseed(os.clock())
+math.randomseed(os.clock())
+math.randomseed(os.clock())
+math.randomseed(os.clock())
+math.randomseed(os.clock())
 
-    for i=1, math.random(math.random(100)) do
-        math.random(i)
-    end
+for i=1, math.random(math.random(100)) do
+    math.random(i)
+end
