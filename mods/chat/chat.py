@@ -81,6 +81,8 @@ if __name__ == '__main__':
     
     shutil.copytree('input', 'output', dirs_exist_ok=True)
     
-    MOD_NAME = '!Klissan_cheat_chat'
+    RELEASE = False
+    MOD_NAME = '!Klissan_Cheat_Chad_Chit_Chat' if RELEASE else '!Klissan_cheat_chat'
+    
     OUTPUT_DIR = 'output'
     rpfm.make_package(MOD_NAME, OUTPUT_DIR)
