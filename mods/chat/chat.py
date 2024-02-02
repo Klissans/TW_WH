@@ -46,6 +46,7 @@ def remove_lock_visibility_button(xml):
 
 
 def add_chat_name(xml):
+    find_by_id(xml, 'TabGroup')['offset'] = "455.00,6.00"
     elem = read_xml_component('chat_name')
     add_element(xml, elem, "tabgroup")
 
