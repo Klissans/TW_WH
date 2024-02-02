@@ -18,18 +18,18 @@
                 height="50"
                 uniqueguid="C4AA8574-64C2-4175-B2E2E9454604B511">
             <component_text
-                    text="by Klissan"
+                    text="[[img:ui/mod/emojis/chat.png]][[/img]]by Klissan"
                     texthalign="Left"
-                    textxoffset="110.00,0.00"
+                    textxoffset="102.00,0.00"
                     textyoffset="9.00,0.00"
                     texthbehaviour="Never split"
                     textlocalised="true"
                     textlabel="chat_name_NewState_Text_41"
                     tooltip="Hey!"
-                    font_m_size="10"
+                    font_m_size="9"
                     font_m_colour="#FFF8D7FF"
                     font_m_leading="3"
-                    fontcat_name="header_10"
+                    fontcat_name="header_9"
                     text_shader_name="drop_shadow_t0"
                     textshadervars="-1.00,-1.00,1.00,0.00"/>
         </newstate>
