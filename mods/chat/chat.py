@@ -19,6 +19,9 @@ def add_chat_alert_icon_fe(xml):
     add_element(xml, elem, "button_hud_chat")
 
 
+def move_chat_button_fe(xml):
+    find_by_id(xml, 'button_hud_chat')['dock_point'] = 'Top Left'
+
 def add_callbacks_to_chat(xml):
     # TODO add drag & drop support in minimized mode
     cb_shd = create_context_callback_as_string("SelfHandleDropCallback")
@@ -71,7 +74,8 @@ if __name__ == '__main__':
     edit_twui('ui/frontend ui/sp_frame',
               lambda xml: (
                   remove_obsolete_elements(xml),
-                  add_chat_alert_icon_fe(xml)
+                  add_chat_alert_icon_fe(xml),
+                  move_chat_button_fe(xml)
               )
               )
     
