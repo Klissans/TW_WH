@@ -244,6 +244,7 @@ function format_nickname(s)
     es = es:gsub('^(Risum)', '%1[[img:ui/mod/emojis/nerisum.png]][[/img]]')
     es = es:gsub('^(Ahashra) (Riel)', '[[img:ui/mod/emojis/cb.png]][[/img]][[col:yellow]]%1[[/col]][[img:ui/mod/emojis/cb.png]][[/img]][[col:red]]%2[[/col]][[img:ui/mod/emojis/cb.png]][[/img]]')
     es = es:gsub('^(Deobald) (of) (Bretonnia)', '[[img:ui/mod/emojis/deo.png]][[/img]][[col:red]]%1[[/col]] [[col:yellow]]%2[[/col]] [[col:magic]]%3[[/col]][[img:ui/flags/wh_main_brt_bretonnia/mon_64.png]][[/img]]')
+    es = es:gsub('^(GapaKtus)', '%1[[img:ui/mod/emojis/q.png]][[/img]]')
     return es
 end
 
