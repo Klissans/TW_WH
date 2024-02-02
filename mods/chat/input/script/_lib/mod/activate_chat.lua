@@ -196,7 +196,7 @@ end
 function edit_string(s, i)
     local edited_string = s
     if s:find('/help') and i == 0 then
-        edited_string = edited_string .. '\nThe [[col:yellow]]Chat[[/col]] has been resurrected by Klissan for MP community. Enjoy!'
+        edited_string = edited_string .. '\nThe [[col:yellow]]Chat[[/col]][[img:ui/mod/emojis/chat.png]][[/img]] has been resurrected by Klissan for MP community. Enjoy!'
     end
     -- edited_string = edited_string.gsub()
     -- emoji replacer
@@ -219,15 +219,6 @@ end
 function  randomly_colorize_string(s)
     local colors = {'red', 'green', 'yellow', 'magic'}
     local li = -1
-    -- https://discord.com/channels/373745291289034763/1021968669946953758/1022089976168583248
-    math.randomseed(os.clock())
-    math.randomseed(os.clock())
-    math.randomseed(os.clock())
-    math.randomseed(os.clock())
-    math.randomseed(os.clock())
-    math.randomseed(os.clock())
-    math.randomseed(os.clock())
-    math.randomseed(os.clock())
     while s:find('__col__') do
         local ri = nil
         repeat
@@ -240,7 +231,12 @@ function  randomly_colorize_string(s)
 end
 
 function format_nickname(s)
-    es = s:gsub('^Klissan', '[[img:ui/mod/emojis/gsl.png]][[/img]]~Klissan~[[img:ui/mod/emojis/gsl.png]][[/img]]')
+    es = s
+    es = es:gsub('^(Klissan)', '[[img:ui/mod/emojis/gsl.png]][[/img]]~%1~[[img:ui/mod/emojis/gsl.png]][[/img]]')
+    es = es:gsub('^(Roflan)(Buldiga)', '[[col:yellow]]%1[[/col]][[img:ui/mod/emojis/komar.png]][[/img]][[col:red]]%2[[/col]]')
+    es = es:gsub('^(Risum)', '%1[[img:ui/mod/emojis/nerisum.png]][[/img]]')
+    es = es:gsub('^(Ahashra) (Riel)', '[[img:ui/mod/emojis/cb.png]][[/img]][[col:yellow]]%1[[/col]][[img:ui/mod/emojis/cb.png]][[/img]][[col:red]]%2[[/col]][[img:ui/mod/emojis/cb.png]][[/img]]')
+    es = es:gsub('^(Deobald) (of) (Bretonnia)', '[[img:ui/mod/emojis/deo.png]][[/img]][[col:red]]%1[[/col]] [[col:yellow]]%2[[/col]] [[col:magic]]%3[[/col]][[img:ui/flags/wh_main_brt_bretonnia/mon_64.png]][[/img]]')
     return es
 end
 
@@ -344,3 +340,16 @@ core:add_listener(
 )
 
 
+    -- https://discord.com/channels/373745291289034763/1021968669946953758/1022089976168583248
+    math.randomseed(os.clock())
+    math.randomseed(os.clock())
+    math.randomseed(os.clock())
+    math.randomseed(os.clock())
+    math.randomseed(os.clock())
+    math.randomseed(os.clock())
+    math.randomseed(os.clock())
+    math.randomseed(os.clock())
+
+    for i=1, math.random(math.random(100)) do
+        math.random(i)
+    end
