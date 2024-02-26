@@ -11,7 +11,9 @@ local reinforcement_panel = {
     }
 }
 
+
 function reinforcement_panel:init()
+
     local parent_uic = find_uicomponent(core:get_ui_root(), "hud_battle", "battle_orders", "battle_orders_pane", "orders_parent", "reinforcement_hud_parent", "spawn_toggle_parent", "button_reinforcements", "parent_reinforcement_purchase");
     self._uic = parent_uic;
     --self._uic:SetDockOffset(0,-400);
@@ -42,9 +44,9 @@ function reinforcement_panel:init()
     find_uicomponent(self._uic_el, "footer"):CreateComponent("reinf_panel_supplies", "ui/mod/reinf_panel_supplies.twui.xml");
     -- uic_ping_marker:SetContextObject(cco("CcoBattleRoot", self.unit:unique_ui_id()));
 
-    -- add chat button
-    find_uicomponent(core:get_ui_root(), "menu_bar", "buttongroup", "button_hud_chat"):SetVisible(true);
-    find_uicomponent(core:get_ui_root(), "menu_bar", "buttongroup", "button_hud_chat"):SetState("active");
+    -- -- add chat button
+    -- find_uicomponent(core:get_ui_root(), "menu_bar", "buttongroup", "button_hud_chat"):SetVisible(true);
+    -- find_uicomponent(core:get_ui_root(), "menu_bar", "buttongroup", "button_hud_chat"):SetState("active");
 
 
 
