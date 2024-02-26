@@ -63,7 +63,7 @@
                     font_m_size="10"
                     font_m_colour="#FFF8D7FF"
                     font_m_leading="3"
-                    fontcat_name="body_12"
+                    fontcat_name="body_10"
                     text_shader_name="drop_shadow_t0"
                     textshadervars="-1.00,-1.00,1.00,0.00"/>
         </default>
