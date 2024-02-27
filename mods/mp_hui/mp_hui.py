@@ -318,6 +318,15 @@ def add_unit_info_resistances(xml):
                     )
                 )
             }
+        ) +
+        Format("%S",
+            (a = StatList.FirstContext(Key == "stat_armour").ModifierIconList.FirstContext(Icon.Contains('modifier_icon_shield')) ) => {
+                GetIfElse(
+                    IsContextValid(a),
+                    (us = a.Tooltip, li = us.Find("%"), fi = us.RFind(GetIfElse(IsLocChinese, Loc("chinese_shield_prefix"), ' '), li) + 1, uss = us.Substr(fi, li - fi), s = StringSubString(uss, 0) ) => {Format("[[img:%S]][[/img]][[col:green]]%S[[/col]]", a.Icon, StringReplace(s, " ", ""))},
+                    ""
+                )
+            }
         )
     '''
     # 遠程抗性：40% - trd chineese &#xff1a; us.RFind("&#xff1a;") \uff1a
@@ -637,6 +646,7 @@ def prepare_mod_team_list(xml):
         + GetIf(PlayerName.Contains("BERRSERK"), "ui/mod/images/players/berrserk.png")
         + GetIf(PlayerName.Contains("VoinS"), "ui/mod/images/players/voins.png")
         + GetIf(PlayerName.Contains("GapaKtus"), "ui/mod/images/players/gapaktus.png")
+        + GetIf(PlayerName.Contains("komerdinner12"), "ui/mod/images/players/komerdinner.png")
     '''
     set_context_callback(find_by_id(xml, elem_id), 'ContextImageSetter', s)
     # language=javascript
@@ -646,19 +656,20 @@ def prepare_mod_team_list(xml):
         + GetIf(PlayerName.Contains("BERRSERK"), Loc("player_berrserk"))
         + GetIf(PlayerName.Contains("VoinS"), Loc("player_voins"))
         + GetIf(PlayerName.Contains("GapaKtus"), Loc("player_gapaktus"))
+        + GetIf(PlayerName.Contains("komerdinner12"), Loc("player_komerdinner"))
     '''
     set_context_callback(find_by_id(xml, elem_id), 'ContextTooltipSetter', s)
     
     elem_id = "icon_clan"
     # language=javascript
     s = '''
-        GetIf(PlayerName.StartsWith("VM.") || PlayerName.StartsWith("V_M"), "ui/mod/images/clans/vm.png")
+        GetIf(PlayerName.StartsWith("VM.") || PlayerName.StartsWith("V_M") || PlayerName.StartsWith("VM "), "ui/mod/images/clans/vm.png")
         + GetIf(PlayerName.StartsWith("CB"), "ui/mod/images/clans/cb.png")
     '''
     set_context_callback(find_by_id(xml, elem_id), 'ContextImageSetter', s)
     # language=javascript
     s = '''
-        GetIf(PlayerName.StartsWith("VM.") || PlayerName.StartsWith("V_M"), Loc("clan_vm"))
+        GetIf(PlayerName.StartsWith("VM.") || PlayerName.StartsWith("V_M") || PlayerName.StartsWith("VM "), Loc("clan_vm"))
         + GetIf(PlayerName.StartsWith("CB"), Loc("clan_cb"))
     '''
     set_context_callback(find_by_id(xml, elem_id), 'ContextTooltipSetter', s)
