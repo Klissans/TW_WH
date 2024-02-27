@@ -90,6 +90,10 @@ def add_capture_weight(xml):
     add_element(xml, elem, "template_capture_point_icon")
 
 
+def remove_supplies_in_replays(xml):
+    set_context_callback(find_by_id(xml, 'supplies_display'), 'ContextVisibilitySetter', '''HasSupplies && !BattleRoot.IsReplay''')
+
+
 def change_unit_info_kill_count(xml):
     # language=javascript
     s = '''
@@ -201,7 +205,7 @@ def add_unit_info_gold_value(xml):
     # language=javascript
     s = '''
     (
-        exp_cost = RoundFloat(ExperienceLevel * (3 * UnitRecordContext.Cost / 100.0 + 11)),
+        exp_cost = RoundFloat(ExperienceLevel * (3 * UnitRecordContext.Cost / 100.0 + 11))
     ) =>
     {
         "[[img:ui/skins/default/icon_income.png]][[/img]]"
@@ -687,7 +691,8 @@ if __name__ == '__main__':
               lambda xml: (
                   add_timer_to_tickets(xml),
                   add_vp_owner_icon(xml),
-                  add_capture_weight(xml)
+                  add_capture_weight(xml),
+                  remove_supplies_in_replays(xml)
               )
               )
     edit_twui('ui/battle ui/hud_battle_reinforcement_purchase', increase_reinforcement_size)
