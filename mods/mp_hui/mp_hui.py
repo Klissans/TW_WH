@@ -181,42 +181,33 @@ def add_unit_info_gold_value(xml):
     elem = read_xml_component('unit_information/gold_value')
     
     # language=javascript
-    s = '''"[[img:ui/skins/default/icon_income.png]][[/img]]"
-                + RoundFloat(UnitRecordContext.Cost
-                    + GetIfElse(UnitRecordContext.IsRenown, 0, ExperienceLevel * (3 * UnitRecordContext.Cost / 100.0 + 11) )
-                    + GetIfElse(
-                        IsCharacter,
-                        AbilityDetailsList
-                            .Transform(DatabaseRecordContext("CcoUnitAbilityRecord", Key))
-                            .Filter(IsUnitUpgrade)
-                            .Transform(DatabaseRecordContext("CcoUnitSpecialAbilityRecord", Key))
-                            .Sum(AdditionalMeleeCp + AdditionalMissileCp),
-                        0
-                    )
-                )
-                + GetIf(IsBattle, " [" +
-                    RoundFloat( (UnitRecordContext.Cost
-                        + GetIfElse(UnitRecordContext.IsRenown, 0, ExperienceLevel * (3 * UnitRecordContext.Cost / 100.0 + 11))
-                        + GetIfElse(
-                            IsCharacter,
-                            AbilityDetailsList
-                                .Transform(DatabaseRecordContext("CcoUnitAbilityRecord", Key))
-                                .Filter(IsUnitUpgrade)
-                                .Transform(DatabaseRecordContext("CcoUnitSpecialAbilityRecord", Key))
-                                .Sum(AdditionalMeleeCp + AdditionalMissileCp),
-                            0
-                        )
-                    ) * BattleUnitContext.HealthPercent )
-                + "]")
-                '''
+    s = '''
+        (
+        exp_cost = GetIfElse(UnitRecordContext.IsRenown, 0, ExperienceLevel * (3 * UnitRecordContext.Cost / 100.0 + 11)),
+        al = GetIf(IsCharacter,
+            AbilityDetailsList
+                .Transform(DatabaseRecordContext("CcoUnitAbilityRecord", Key))
+                .Filter(IsUnitUpgrade)
+                .Transform(DatabaseRecordContext("CcoUnitSpecialAbilityRecord", Key))
+                .Sum(AdditionalMeleeCp + AdditionalMissileCp))
+        ) =>
+        {
+    "[[img:ui/skins/default/icon_income.png]][[/img]]"
+                + RoundFloat(UnitRecordContext.Cost + exp_cost + al)
+                + GetIf(IsBattle, " [" + RoundFloat( (UnitRecordContext.Cost + exp_cost + al) * BattleUnitContext.HealthPercent ) + "]")
+       } '''
     set_context_callback(elem, 'ContextTextLabel', s)
     
     # language=javascript
     s = '''
+    (
+        exp_cost = RoundFloat(ExperienceLevel * (3 * UnitRecordContext.Cost / 100.0 + 11)),
+    ) =>
+    {
         "[[img:ui/skins/default/icon_income.png]][[/img]]"
         + Format("%d%S%S",
             UnitRecordContext.Cost,
-            GetIf(ExperienceLevel > 0, GetIfElse(UnitRecordContext.IsRenown, "", Format(" [[img:ui/skins/default/experience_%d.png]][[/img]]%d", ExperienceLevel, RoundFloat(ExperienceLevel * (3 * UnitRecordContext.Cost / 100.0 + 11)) ) )),
+            GetIf(ExperienceLevel > 0, GetIfElse(UnitRecordContext.IsRenown, "", Format(" [[img:ui/skins/default/experience_%d.png]][[/img]]%d", ExperienceLevel, exp_cost) )),
             GetIf(IsCharacter,
                 Format(" %S",
                     AbilityDetailsList
@@ -226,6 +217,8 @@ def add_unit_info_gold_value(xml):
                     .JoinString(Format("[[img:%S]][[/img]]%d", BaseRecordContext.IconPath.ToLower, RoundFloat(AdditionalMeleeCp + AdditionalMissileCp)), " ")
             ))
         )
+    }
+
     '''
     set_context_callback(elem, 'ContextTooltipSetter', s)
     
@@ -592,22 +585,22 @@ def prepare_mod_team_list(xml):
     # language=javascript
     s = '''
         RoundFloat(
-            UnitList.Filter(IsAlive && !IsShattered)
-                .Sum(HealthPercent *
-                    (UnitRecordContext.Cost
-                    + GetIfElse(UnitRecordContext.IsRenown, 0, ExperienceLevel * (3 * UnitRecordContext.Cost / 100.0 + 11) )
-                    + GetIfElse(
+            UnitList.Filter(IsAlive && !IsShattered).Sum(
+                (
+                    exp_cost = GetIfElse(UnitRecordContext.IsRenown, 0, ExperienceLevel * (3 * UnitRecordContext.Cost / 100.0 + 11) ),
+                    al = GetIf(
                         IsCharacter,
                         UnitDetailsContext.AbilityDetailsList
                             .Transform(DatabaseRecordContext("CcoUnitAbilityRecord", Key))
                             .Filter(IsUnitUpgrade)
                             .Transform(DatabaseRecordContext("CcoUnitSpecialAbilityRecord", Key))
-                            .Sum(AdditionalMeleeCp + AdditionalMissileCp),
-                        0
+                            .Sum(AdditionalMeleeCp + AdditionalMissileCp)
                     )
-                    )
-                )
+                ) =>
+                {HealthPercent * (UnitRecordContext.Cost + exp_cost + al)}
+            )
         )
+
     '''
     set_context_callback(find_by_id(xml, elem_id), 'ContextTextLabel', s)
     
