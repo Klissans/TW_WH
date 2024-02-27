@@ -196,10 +196,10 @@ def add_unit_info_gold_value(xml):
                 .Sum(AdditionalMeleeCp + AdditionalMissileCp))
         ) =>
         {
-    "[[img:ui/skins/default/icon_income.png]][[/img]]"
-                + RoundFloat(UnitRecordContext.Cost + exp_cost + al)
-                + GetIf(IsBattle, " [" + RoundFloat( (UnitRecordContext.Cost + exp_cost + al) * BattleUnitContext.HealthPercent ) + "]")
-       } '''
+            "[[img:ui/skins/default/icon_income.png]][[/img]]"
+                + GetIf(IsBattle, RoundFloat( (UnitRecordContext.Cost + exp_cost + al) * BattleUnitContext.HealthPercent ))
+                + " (" + RoundFloat(UnitRecordContext.Cost + exp_cost + al) + ")"
+        } '''
     set_context_callback(elem, 'ContextTextLabel', s)
     
     # language=javascript
