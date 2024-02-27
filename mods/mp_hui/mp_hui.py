@@ -584,7 +584,7 @@ def prepare_mod_team_list(xml):
     
     # language=javascript
     s = '''
-        (BattleRoot.IsSpectator || BattleRoot.IsReplay || !BattleRoot.IsMultiplayer) && HasRealmOfSouls
+        (BattleRoot.IsSpectator || BattleRoot.IsReplay || !BattleRoot.IsMultiplayer) && (HasRealmOfSouls && FactionContext.SubcultureContext.Key == "wh2_dlc09_sc_tmb_tomb_kings")
     '''
     set_context_callback(find_by_id(xml, elem_id), 'ContextVisibilitySetter', s)
     
@@ -625,12 +625,46 @@ def prepare_mod_team_list(xml):
     '''
     set_context_callback(find_by_id(xml, elem_id), 'ContextTextLabel', s)
     
+    elem_id = "wom_reserves"
+    # language=javascript
+    s = '''
+        WindsOfMagicPoolContext.ReserveWind + GetIf(WindsOfMagicPoolContext.DepletionModifierPhaseList.Size > 0, "(" + WindsOfMagicPoolContext.DepletionModifierPhaseList.Sum(ManaMaxDepletionMod) + ")")
+    '''
+    set_context_callback(find_by_id(xml, elem_id), 'ContextTextLabel', s)
+    
     elem_id = "icon_player"
     # language=javascript
     s = '''
-        GetIf(PlayerName == "RoflanBuldiga", "ui/mod/images/roflanbuldiga.png")
+        GetIf(PlayerName.Contains("RoflanBuldiga"), "ui/mod/images/players/roflanbuldiga.png")
+        + GetIf(PlayerName.Contains("Lord_Leaver"), "ui/mod/images/players/lord_leaver.png")
+        + GetIf(PlayerName.Contains("BERRSERK"), "ui/mod/images/players/berrserk.png")
+        + GetIf(PlayerName.Contains("VoinS"), "ui/mod/images/players/voins.png")
+        + GetIf(PlayerName.Contains("GapaKtus"), "ui/mod/images/players/gapaktus.png")
     '''
     set_context_callback(find_by_id(xml, elem_id), 'ContextImageSetter', s)
+    # language=javascript
+    s = '''
+        GetIf(PlayerName.Contains("RoflanBuldiga"), Loc("player_roflanbuldiga"))
+        + GetIf(PlayerName.Contains("Lord_Leaver"), Loc("player_lord_leaver"))
+        + GetIf(PlayerName.Contains("BERRSERK"), Loc("player_berrserk"))
+        + GetIf(PlayerName.Contains("VoinS"), Loc("player_voins"))
+        + GetIf(PlayerName.Contains("GapaKtus"), Loc("player_gapaktus"))
+    '''
+    set_context_callback(find_by_id(xml, elem_id), 'ContextTooltipSetter', s)
+    
+    elem_id = "icon_clan"
+    # language=javascript
+    s = '''
+        GetIf(PlayerName.StartsWith("VM.") || PlayerName.StartsWith("V_M"), "ui/mod/images/clans/vm.png")
+        + GetIf(PlayerName.StartsWith("CB"), "ui/mod/images/clans/cb.png")
+    '''
+    set_context_callback(find_by_id(xml, elem_id), 'ContextImageSetter', s)
+    # language=javascript
+    s = '''
+        GetIf(PlayerName.StartsWith("VM.") || PlayerName.StartsWith("V_M"), Loc("clan_vm"))
+        + GetIf(PlayerName.StartsWith("CB"), Loc("clan_cb"))
+    '''
+    set_context_callback(find_by_id(xml, elem_id), 'ContextTooltipSetter', s)
     
     elem_id = "label_supplies"
     # language=javascript

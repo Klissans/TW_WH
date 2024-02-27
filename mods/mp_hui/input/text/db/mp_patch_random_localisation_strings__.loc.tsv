@@ -7,3 +7,10 @@ random_localisation_strings_string_tooltip_fatigue_effects_3	[[col:fatigue_tired
 random_localisation_strings_string_tooltip_fatigue_effects_4	[[col:fatigue_very_tired]][[img:ui/skins/default/icon_stat_attack.png]][[/img]]-25% [[img:ui/skins/default/icon_stat_speed.png]][[/img]]-15% [[img:ui/skins/default/modifier_icon_armour_piercing.png]][[/img]]-10% [[img:ui/skins/default/icon_stat_charge_bonus.png]][[/img]]-25% [[img:ui/skins/default/icon_stat_armour.png]][[/img]]-10% [[img:ui/skins/default/icon_stat_morale.png]][[/img]]-2[[/col]]	false
 random_localisation_strings_string_tooltip_fatigue_effects_5	[[col:fatigue_exhausted]][[img:ui/skins/default/icon_stat_attack.png]][[/img]]-30% [[img:ui/skins/default/icon_stat_speed.png]][[/img]]-15% [[img:ui/skins/default/modifier_icon_armour_piercing.png]][[/img]]-10% [[img:ui/skins/default/icon_stat_charge_bonus.png]][[/img]]-30% [[img:ui/skins/default/icon_stat_armour.png]][[/img]]-25% [[img:ui/skins/default/icon_stat_defence.png]][[/img]]-10% [[img:ui/skins/default/icon_stat_reload_time.png]][[/img]]-10% [[img:ui/skins/default/icon_stat_morale.png]][[/img]]-6[[/col]]	false
 random_localisation_strings_string_chinese_colon	：	false
+random_localisation_strings_string_clan_vm	Via Militera - largest Russian-speaking TW clan. \\ndiscord.com/invite/ANG9sR8Vpm	false
+random_localisation_strings_string_clan_cb	Crying Beastmen - Russian-speaking TW clan. \\ndiscord.gg/S8WJU5k2wz	false
+random_localisation_strings_string_player_roflanbuldiga	Roflan: - No.\\nBuldiga: - Okay, fine.\\n Has his own youtube channel oriented for audience of all ages and languages.\\nyoutube.com/@RoflanBuldiga	false
+random_localisation_strings_string_player_lord_leaver	PLACEHOLDER	false
+random_localisation_strings_string_player_berrserk	The winner of TWWH Russian Championship 2023 in both domination and land battles. \\nBERRSERK has his own youtube channel oriented for russian-speaking audience.\\nyoutube.com/@TotalWarriorsteam	false
+random_localisation_strings_string_player_voins	PLACEHOLDER	false
+random_localisation_strings_string_player_gapaktus	Where is RoR Tank, mr. GapaKtus ?!?!?!	false

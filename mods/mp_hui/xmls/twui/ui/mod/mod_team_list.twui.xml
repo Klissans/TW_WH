@@ -7,13 +7,14 @@
         <root this="18966C8E-E129-43DA-8B0E4D2E2E555053">
             <mp_team_list this="4CAE4558-C3B2-4B69-82C26AF039CD1943">
                 <template_entry this="28A08C11-5039-4D95-894F3BC27CC213D7">
-                    <icon_faction this="19418290-4B88-418D-9F4DD23D19A9FCBA"/>
+                    <icon_clan this="19418290-4B88-418D-9F4DD23D19A9SS11"/>
                     <label_player this="7B390E06-63A3-49A1-AC41B7573DA3F54E"/>
                     <icon_player this="19418290-4B88-418D-9F4DD23D19A9SS00"/>
+                    <icon_faction this="19418290-4B88-418D-9F4DD23D19A9FCBA"/>
                     <label_supplies this="C6911C9C-6DFC-4C37-A593A3A94CC54B0C"/>
-                    <label_score this="BBB62593-8863-460B-ACD4BA7EDBAE6552"/>
                     <gold_value this="BBB62593-8863-460B-ACD4BA7EDBAESS04"/>
                     <!--<heal_value this="BBB62593-8863-460B-ACD4BA7EDBAESS05"/>-->
+                    <label_score this="BBB62593-8863-460B-ACD4BA7EDBAE6552"/>
                     <killed_entities this="BBB62593-8863-460B-ACD4BA7EDBAESS03"/>
                     <friendly_fire this="BBB62593-8863-460B-ACD4BA7EDBAESS10"/>
                     <dead_entities this="BBB62593-8863-460B-ACD4BA7EDBAESS02"/>
@@ -1742,7 +1743,7 @@
                 <callback_with_context
                         callback_id="ContextTextLabel"
                         context_object_id="CcoBattleArmy"
-                        context_function_id="WindsOfMagicPoolContext.ReserveWind"/>
+                        context_function_id=""/>
                 <callback_with_context
                         callback_id="ContextStateSetter"
                         context_object_id="CcoBattleArmy"
@@ -1767,7 +1768,7 @@
                 <false
                         this="0708ECB5-0298-4A78-B35800CB62B2SS01"
                         name="false"
-                        width="64"
+                        width="84"
                         text="0000"
                         textvalign="Center"
                         textxoffset="24.00,0.00"
@@ -1796,7 +1797,7 @@
                 <true
                         this="E3F7D9F8-F884-4122-A32F59A91FCBSS01"
                         name="true"
-                        width="64"
+                        width="84"
                         text="0000"
                         textvalign="Center"
                         textxoffset="24.00,0.00"
@@ -2106,6 +2107,7 @@
                         width="130"
                         height="26"
                         text="dy_name"
+                        texthalign="Center"
                         textvalign="Center"
                         texthbehaviour="Never split"
                         textlabel="label_player_NewState_Text_7a003f"
@@ -2121,6 +2123,7 @@
                         width="130"
                         height="26"
                         text="dy_name"
+                        texthalign="Center"
                         textvalign="Center"
                         texthbehaviour="Never split"
                         textlabel="label_player_NewState_Text_7a003f"
@@ -2176,6 +2179,49 @@
                 </newstate>
             </states>
         </icon_faction>
+        <icon_clan
+                this="19418290-4B88-418D-9F4DD23D19A9SS11"
+                id="icon_clan"
+                offset="0.00,-3.00"
+                allowhorizontalresize="false"
+                allowverticalresize="false"
+                tooltipslocalised="true"
+                uniqueguid="19418290-4B88-418D-9F4DD23D19A9SS11"
+                currentstate="F5B45FF2-32B4-4E30-839EA806D969SS11"
+                defaultstate="F5B45FF2-32B4-4E30-839EA806D969SS11">
+            <callbackwithcontextlist>
+                <callback_with_context
+                        callback_id="ContextImageSetter"
+                        context_object_id="CcoBattleArmy"
+                        context_function_id=""/>
+                <callback_with_context
+                        callback_id="ContextTooltipSetter"
+                        context_object_id="CcoBattleArmy"
+                        context_function_id=""/>
+            </callbackwithcontextlist>
+            <componentimages>
+                <component_image
+                        this="71B1DDE0-67D5-4C15-9FD82E6BCE34SS11"
+                        uniqueguid="71B1DDE0-67D5-4C15-9FD82E6BCE34SS11"
+                        imagepath="ui/skins/default/1x1_transparent_white.png"/>
+            </componentimages>
+            <states>
+                <newstate
+                        this="F5B45FF2-32B4-4E30-839EA806D969SS11"
+                        name="NewState"
+                        interactive="true"
+                        texthbehaviour="Never split"
+                        disabled="true"
+                        uniqueguid="F5B45FF2-32B4-4E30-839EA806D969SS11">
+                    <imagemetrics>
+                        <image
+                                this="C51CFD57-09F8-448A-A4D89CE1FE0CSS11"
+                                uniqueguid="C51CFD57-09F8-448A-A4D89CE1FE0CSS11"
+                                componentimage="71B1DDE0-67D5-4C15-9FD82E6BCE34SS11"/>
+                    </imagemetrics>
+                </newstate>
+            </states>
+        </icon_clan>
         <icon_player
                 this="19418290-4B88-418D-9F4DD23D19A9SS00"
                 id="icon_player"
@@ -2191,6 +2237,10 @@
                         callback_id="ContextImageSetter"
                         context_object_id="CcoBattleArmy"
                         context_function_id=""/>
+                <callback_with_context
+                        callback_id="ContextTooltipSetter"
+                        context_object_id="CcoBattleArmy"
+                        context_function_id=""/>
             </callbackwithcontextlist>
             <componentimages>
                 <component_image
@@ -2202,7 +2252,9 @@
                 <newstate
                         this="F5B45FF2-32B4-4E30-839EA806D969SS00"
                         name="NewState"
+                        interactive="true"
                         texthbehaviour="Never split"
+                        texthalign="Center"
                         disabled="true"
                         uniqueguid="F5B45FF2-32B4-4E30-839EA806D969SS00">
                     <imagemetrics>
