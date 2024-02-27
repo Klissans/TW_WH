@@ -1843,7 +1843,7 @@
                 <callback_with_context
                         callback_id="ContextList"
                         context_object_id="CcoStaticObject"
-                        context_function_id="BattleRoot.ArmyList.Sort(ArmyIndex, true)"/>
+                        context_function_id="BattleRoot.ArmyList.Sort(ArmyIndex, true).Sort(AllianceIndex, true)"/>
                 <callback_with_context
                         callback_id="ContextVisibilitySetter"
                         context_object_id="CcoStaticObject"
