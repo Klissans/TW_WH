@@ -27,6 +27,34 @@ function minify_bool(b)
 end
 
 
+function register_function_everywhere(func)
+    register_function{func, is_battle=true, is_campaign=true, is_frontend=true}
+end
+
+function register_function(t)
+    setmetatable(t,{__index={is_battle=false, is_campaign=false, is_frontend=false}})
+    local func, is_battle, is_campaign, is_frontend =
+        t[1],
+        t[2] or t.is_battle,
+        t[3] or t.is_campaign,
+        t[4] or t.is_frontend
+    if is_battle and core:is_battle() then
+        bm:register_phase_change_callback("Deployment", func)
+    else
+        core:add_ui_created_callback(
+                function()
+                    if is_campaign and core:is_campaign() then
+                        cm:add_post_first_tick_callback(func)
+                    elseif is_frontend and core:is_frontend() then
+                        func()
+                    end
+                end
+        )
+    end
+end
+
+
+
 --   function stringify_table(t)
 --     local s = ''
 --     for k,v in pairs(t) do

@@ -198,7 +198,7 @@ def add_unit_info_gold_value(xml):
         {
             "[[img:ui/skins/default/icon_income.png]][[/img]]"
                 + GetIf(IsBattle, RoundFloat( (UnitRecordContext.Cost + exp_cost + al) * BattleUnitContext.HealthPercent ))
-                + " (" + RoundFloat(UnitRecordContext.Cost + exp_cost + al) + ")"
+                + " (" + RoundFloat(UnitRecordContext.Cost + exp_cost + al) + ") "
         } '''
     set_context_callback(elem, 'ContextTextLabel', s)
     
@@ -271,7 +271,7 @@ def add_unit_info_resistances(xml):
                 GetIfElse(
                     IsContextValid(a),
                     ( us = a.Name, i = GetIfElse(IsLocChinese, us.RFind(Loc("chinese_colon")), us.RFind(":")) + 1, uss = us.Substr(i, us.RFind('%') - i), s = StringSubString(uss, 0) ) => {Format("[[col:green]]%S[[/col]]", StringReplace(s, " ", ""))},
-                    "0"
+                    "[[col:ui_font_faded_grey_beige]]0[[/col]]"
                 )
             }
         ) +
@@ -280,7 +280,7 @@ def add_unit_info_resistances(xml):
                 GetIfElse(
                     IsContextValid(a),
                     ( us = a.Name, i = GetIfElse(IsLocChinese, us.RFind(Loc("chinese_colon")), us.RFind(":")) + 1, uss = us.Substr(i, us.RFind('%') - i), s = StringSubString(uss, 0) ) => {Format("[[col:green]]%S[[/col]]", StringReplace(s, " ", ""))},
-                    "0"
+                    "[[col:ui_font_faded_grey_beige]]0[[/col]]"
                 )
             }
         ) +
@@ -289,7 +289,7 @@ def add_unit_info_resistances(xml):
                 GetIfElse(
                     IsContextValid(a),
                     ( us = a.Name, i = GetIfElse(IsLocChinese, us.RFind(Loc("chinese_colon")), us.RFind(":")) + 1, uss = us.Substr(i, us.RFind('%') - i), s = StringSubString(uss, 0) ) => {Format("[[col:green]]%S[[/col]]", StringReplace(s, " ", ""))},
-                    "0"
+                    "[[col:ui_font_faded_grey_beige]]0[[/col]]"
                 )
             }
         ) +
@@ -298,7 +298,7 @@ def add_unit_info_resistances(xml):
                 GetIfElse(
                     IsContextValid(a),
                     ( us = a.Name, i = GetIfElse(IsLocChinese, us.RFind(Loc("chinese_colon")), us.RFind(":")) + 1, uss = us.Substr(i, us.RFind('%') - i), s = StringSubString(uss, 0) ) => {Format("[[col:green]]%S[[/col]]", StringReplace(s, " ", ""))},
-                    "0"
+                    "[[col:ui_font_faded_grey_beige]]0[[/col]]"
                 )
             }
         ) +
@@ -312,7 +312,7 @@ def add_unit_info_resistances(xml):
                             GetIfElse(
                                 IsContextValid(w),
                                 ( us = w.Name.RemoveTextTags, i = us.RFind("-") + 1, uss = us.Substr(i, us.RFind('%') - i), s = StringSubString(uss, 0) ) => {Format("[[col:red]]%S[[/col]]", StringReplace(s, " ", ""))},
-                                "0"
+                                "[[col:ui_font_faded_grey_beige]]0[[/col]]"
                             )
                         }
                     )
@@ -338,42 +338,338 @@ def add_unit_info_resistances(xml):
 def mod_stats_fatigue(xml):
     # language=javascript
     s = '''
-        FormatNumber(DisplayedValue) +
-            GetIf(Key == "stat_melee_attack" && StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState > 0, " | " + FormatNumber(DisplayedValue * (
-                GetIf(StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState == 1, 0.95)
-                + GetIf(StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState == 2, 0.95)
-                + GetIf(StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState == 3, 0.85)
-                + GetIf(StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState == 4, 0.75)
-                + GetIf(StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState == 5, 0.70)
-                ))) +
-            GetIf(Key == "scalar_speed" && StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState > 1, " | " + FormatNumber( DisplayedValue * (
-                GetIf(StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState == 2, 0.95)
-                + GetIf(StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState == 3, 0.90)
-                + GetIf(StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState == 4, 0.85)
-                + GetIf(StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState == 5, 0.85)
-                ))) +
-            GetIf(Key == "stat_charge_bonus" && StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState > 2, " | " + FormatNumber( DisplayedValue * (
-                GetIf(StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState == 3, 0.90)
-                + GetIf(StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState == 4, 0.75)
-                + GetIf(StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState == 5, 0.70)
-                ))) +
-            GetIf(Key == "stat_armour" && StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState > 3, " | " + FormatNumber( DisplayedValue * (
-                GetIf(StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState == 0, 1)
-                + GetIf(StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState == 1, 1)
-                + GetIf(StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState == 2, 1)
-                + GetIf(StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState == 3, 1)
-                + GetIf(StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState == 4, 0.90)
-                + GetIf(StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState == 5, 0.75)
-                ))) +
-            GetIf(Key == "stat_melee_defence" && StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState > 4, " | " + FormatNumber( DisplayedValue * (
-                GetIfElse(StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState == 5, 0.90, 1.00)
-                ))) +
-            GetIf(Key == "stat_missile_damage_over_time" && StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState > 4, " | " + FormatNumber( DisplayedValue * (
-                GetIfElse(StoredContextFromParent("CcoUnitDetails").BattleUnitContext.FatigueState == 5, 0.90, 1.00)
-                )))
+    (
+        db_lookup = RootComponent.ChildContext("db_lookup"),
+        is_battle = IsContextValid(BattleRoot),
+        ud = StoredContextFromParent("CcoUnitDetails"),
+        buc = ud.BattleUnitContext,
+        f_state = GetIf(is_battle, Format("%d", buc.FatigueState)),
+        cmp = GetIf(is_battle, db_lookup.ChildContext("fatigue_effects").ChildContext(Key)),
+        fatigue_coeff = GetIfElse(is_battle, ToNumber(cmp.GetProperty(f_state)), 1.0),
+        
+        stat_ws_tp = ud.StatContextFromKey("stat_weapon_damage").Tooltip.Replace('||', ''),
+        rest_pattern = "]][[/img]]",
+        
+        BvL_png_pattern = "vs_large.png",
+        BvL_png_i = stat_ws_tp.RFind(BvL_png_pattern) + BvL_png_pattern.Length + rest_pattern.Length,
+        has_BvL = BvL_png_i > (BvL_png_pattern.Length + rest_pattern.Length),
+        BvL_png_str = GetIf(has_BvL, stat_ws_tp.Substr(BvL_png_i)),
+        BvL_colon_i = GetIf(has_BvL, BvL_png_str.Find(":") + 1),
+        BvL_colon_str = GetIf(has_BvL, BvL_png_str.Substr(BvL_colon_i)),
+        BvL_LF_i = GetIf(has_BvL, BvL_colon_str.Find(Loc("LF"))),
+        BvL_EoL_i = GetIf(has_BvL, GetIfElse(BvL_LF_i > 0, BvL_LF_i, BvL_colon_str.Length)),
+        BvL_uss = GetIf(has_BvL, BvL_colon_str.Substr(0, BvL_EoL_i)),
+        BvL_s = GetIf(has_BvL, StringSubString(BvL_uss, 0).RemoveLeadingWhitespace),
+        BvL = GetIf(has_BvL, RoundFloat(ToNumber(BvL_s))),
+        
+        Bvi_png_pattern = "vs_infantry.png",
+        Bvi_png_i = stat_ws_tp.RFind(Bvi_png_pattern) + Bvi_png_pattern.Length + rest_pattern.Length,
+        has_Bvi = Bvi_png_i > (Bvi_png_pattern.Length + rest_pattern.Length),
+        Bvi_png_str = GetIf(has_Bvi, stat_ws_tp.Substr(Bvi_png_i)),
+        Bvi_colon_i = GetIf(has_Bvi, Bvi_png_str.Find(":") + 1),
+        Bvi_colon_str = GetIf(has_Bvi, Bvi_png_str.Substr(Bvi_colon_i)),
+        Bvi_LF_i = GetIf(has_Bvi, Bvi_colon_str.Find(Loc("LF"))),
+        Bvi_EoL_i = GetIf(has_Bvi, GetIfElse(Bvi_LF_i > 0, Bvi_LF_i, Bvi_colon_str.Length)),
+        Bvi_uss = GetIf(has_Bvi, Bvi_colon_str.Substr(0, Bvi_EoL_i)),
+        Bvi_s = GetIf(has_Bvi, StringSubString(Bvi_uss, 0).RemoveLeadingWhitespace),
+        Bvi = GetIf(has_Bvi, RoundFloat(ToNumber(Bvi_s)))
+    ) =>
+    {
+        GetIf(Key == "stat_armour",
+            (
+                mass = RoundFloat(ud.Mass),
+                mass_str = Format("[[img:ui/mod/icons/icon_stat_mass.png]][[/img]][[col:ui_font_faded_grey_beige]]%d[[/col]]", mass),
+                r_armour = DisplayedValue,
+                f_armour = RoundFloat(fatigue_coeff * r_armour),
+                f_armour_str = Format("[[img:ui/mod/icons/icon_stat_armour.png]][[/img]]%d", f_armour),
+                avg_armour_res = GetIf(f_armour <= 100, RoundFloat(0.75 * f_armour))
+                    + GetIf(100 < f_armour && f_armour < 200,
+                        (
+                            half=0, _t1 = 0.5 * f_armour,
+                            diff=0, _t2 = f_armour - half,
+                            lh=0, _t3 = 100 - half,
+                            rh=0, _t4 = f_armour - 100
+                        ) => { RoundFloat((lh / diff) * (half + 100) / 2 + (rh / diff) * 100) }
+                    )
+                    + GetIf(f_armour >= 200, 100)
+            ) =>
+            {
+                Format("%S %S [%d%] ", mass_str, f_armour_str, avg_armour_res)
+            }
+        ) +
+        GetIf(Key == "stat_morale", Format("[[img:ui/mod/icons/icon_stat_morale.png]][[/img]]%d ", RoundFloat(DisplayedValue))) +
+        GetIf(Key == "scalar_speed", Format("[[img:ui/mod/icons/icon_stat_speed.png]][[/img]]%d ", RoundFloat(fatigue_coeff * DisplayedValue)) ) +
+        GetIf(Key == "stat_melee_attack",
+            (
+                r_ma = DisplayedValue,
+                f_ma = RoundFloat(fatigue_coeff * r_ma),
+                f_ma_str = Format("[[img:ui/mod/icons/icon_stat_melee_attack.png]][[/img]]%d", f_ma),
+                f_ma_BvL = f_ma + BvL,
+                f_ma_BvL_str = GetIfElse(has_BvL, Format("[[img:ui/skins/default/modifier_icon_bonus_vs_large.png]][[/img]]%d", f_ma_BvL), ""),
+                f_ma_Bvi = f_ma + Bvi,
+                f_ma_Bvi_str = GetIfElse(has_Bvi, Format("[[img:ui/skins/default/modifier_icon_bonus_vs_infantry.png]][[/img]]%d", f_ma_Bvi), "")
+            ) =>
+            {
+                Format("  %S%S %S ", f_ma_BvL_str, f_ma_Bvi_str, f_ma_str)
+            }
+        ) +
+        GetIf(Key == "stat_melee_defence",
+            (
+                r_md = DisplayedValue,
+                f_md = RoundFloat(fatigue_coeff * r_md),
+                f_md_str = Format("[[img:ui/mod/icons/icon_stat_defence.png]][[/img]]%d", f_md),
+                flank_md = RoundFloat(f_md * ScriptObjectContext('_kv_rules_table.melee_defence_direction_penalty_coefficient_flank').NumericValue),
+                flank_md_str = Format("[[img:ui/mod/icons/icon_stat_defence_flank.png]][[/img]]%d", flank_md),
+                rear_md = RoundFloat(f_md * ScriptObjectContext('_kv_rules_table.melee_defence_direction_penalty_coefficient_rear').NumericValue),
+                rear_md_str = Format("[[img:ui/mod/icons/icon_stat_defence_rear.png]][[/img]]%d", rear_md)
+            ) =>
+            {
+                Format("%S %S %S ", rear_md_str, flank_md_str, f_md_str)
+            }
+        ) +
+        GetIf(Key == "stat_weapon_damage",
+            (
+                bwd_png_pattern = "stat_damage_base.png",
+                bwd_png_i = stat_ws_tp.RFind(bwd_png_pattern) + bwd_png_pattern.Length + rest_pattern.Length,
+                has_bwd = bwd_png_i > (bwd_png_pattern.Length + rest_pattern.Length),
+                bwd_png_str = GetIf(has_bwd, stat_ws_tp.Substr(bwd_png_i)),
+                bwd_colon_i = GetIf(has_bwd, bwd_png_str.Find(":") + 1),
+                bwd_colon_str = GetIf(has_bwd, bwd_png_str.Substr(bwd_colon_i)),
+                bwd_LF_i = GetIf(has_bwd, bwd_colon_str.Find(Loc("LF"))),
+                bwd_EoL_i = GetIf(has_bwd, GetIfElse(bwd_LF_i > 0, bwd_LF_i, bwd_colon_str.Length)),
+                bwd_uss = GetIf(has_bwd, bwd_colon_str.Substr(0, bwd_EoL_i)),
+                bwd_s = GetIf(has_bwd, StringSubString(bwd_uss, 0).RemoveLeadingWhitespace),
+                bwd = GetIf(has_bwd, RoundFloat(ToNumber(bwd_s))),
+                
+                apwd_png_pattern = "icon_armour_piercing.png",
+                apwd_png_i = stat_ws_tp.RFind(apwd_png_pattern) + apwd_png_pattern.Length + rest_pattern.Length,
+                has_apwd = apwd_png_i > (apwd_png_pattern.Length + rest_pattern.Length),
+                apwd_png_str = GetIf(has_apwd, stat_ws_tp.Substr(apwd_png_i)),
+                apwd_colon_i = GetIf(has_apwd, apwd_png_str.Find(":") + 1),
+                apwd_colon_str = GetIf(has_apwd, apwd_png_str.Substr(apwd_colon_i)),
+                apwd_LF_i = GetIf(has_apwd, apwd_colon_str.Find(Loc("LF"))),
+                apwd_EoL_i = GetIf(has_apwd, GetIfElse(apwd_LF_i > 0, apwd_LF_i, apwd_colon_str.Length)),
+                apwd_uss = GetIf(has_apwd, apwd_colon_str.Substr(0, apwd_EoL_i)),
+                apwd_s = GetIf(has_apwd, StringSubString(apwd_uss, 0).RemoveLeadingWhitespace),
+                apwd = GetIf(has_apwd, RoundFloat(ToNumber(apwd_s))),
+        
+                bwd_fatigue_coeff = GetIfElse(is_battle, ToNumber(db_lookup.ChildContext("fatigue_effects").ChildContext("stat_melee_damage_base").GetProperty(f_state)), 1.0),
+                f_bwd = RoundFloat(bwd_fatigue_coeff * bwd),
+                f_bwd_str = Format("[[img:ui/skins/default/icon_stat_damage_base.png]][[/img]]%d", f_bwd),
+                apwd_fatigue_coeff = GetIfElse(is_battle, ToNumber(db_lookup.ChildContext("fatigue_effects").ChildContext("stat_melee_damage_ap").GetProperty(f_state)), 1.0),
+                f_apwd = RoundFloat(apwd_fatigue_coeff * apwd),
+                f_apwd_str = Format("[[img:ui/skins/default/modifier_icon_armour_piercing.png]][[/img]]%d", f_apwd),
+                
+                BvL_str = GetIfElse(has_BvL, Format("[[img:ui/skins/default/modifier_icon_bonus_vs_large.png]][[/img]]%d", BvL), ""),
+                Bvi_str = GetIfElse(has_Bvi, Format("[[img:ui/skins/default/modifier_icon_bonus_vs_infantry.png]][[/img]]%d", Bvi), "")
+            ) =>
+            {
+                Format("  %S%S %S%S ", BvL_str, Bvi_str, f_bwd_str, f_apwd_str)
+            }
+        ) +
+        GetIf(Key == "stat_charge_bonus",
+            (
+                stat_morale_tp = ud.StatContextFromKey("stat_morale").Tooltip.Replace('||', ''),
+                charging_png_i = stat_morale_tp.RFind("[[img:ui/skins/default/icon_stat_charge_bonus.png"),
+                is_charging = charging_png_i > 0,
+                charging_half_str = GetIf(is_charging, stat_morale_tp.Substr(charging_png_i-1)),
+                charging_colon_i = GetIf(is_charging, charging_half_str.Find(": ")),
+                charging_str = GetIfElse(is_charging, charging_half_str.Substr(1, charging_colon_i - 1), ""),
+        
+                r_cb = DisplayedValue,
+                f_cb = RoundFloat(fatigue_coeff * DisplayedValue),
+                f_cb_str = Format("%S  [[img:ui/mod/icons/icon_stat_charge_bonus.png]][[/img]]%d ", charging_str, f_cb)
+            ) =>
+            {
+                f_cb_str
+            }
+        ) +
+        GetIf(Key == "stat_ammo",
+            (
+                stat_mdot_tp = ud.StatContextFromKey("stat_missile_damage_over_time").Tooltip.Replace('||', ''),
+                
+                rt_png_pattern = "icon_stat_reload_time.png",
+                rt_png_i = stat_mdot_tp.RFind(rt_png_pattern),
+                has_rt = rt_png_i > 0,
+                rt_png_str = GetIf(has_rt, stat_mdot_tp.Substr(rt_png_i)),
+                rt_colon_i = GetIf(has_rt, rt_png_str.Find(":") + 1),
+                rt_colon_str = GetIf(has_rt, rt_png_str.Substr(rt_colon_i)),
+                rt_LF_i = GetIf(has_rt, rt_colon_str.Find(" ")),
+                rt_EoL_i = GetIf(has_rt, GetIfElse(rt_LF_i > 0, rt_LF_i, rt_colon_str.Length)),
+                rt_uss = GetIf(has_rt, rt_colon_str.Substr(0, rt_EoL_i)),
+                rt_s = GetIf(has_rt, StringSubString(rt_uss, 0).RemoveLeadingWhitespace),
+                rt = GetIf(has_rt, ToNumber(rt_s)),
+                
+                bs_png_pattern = "burst_size.png",
+                bs_png_i = stat_mdot_tp.RFind(bs_png_pattern),
+                has_bs = bs_png_i > 0,
+                bs_png_str = GetIf(has_bs, stat_mdot_tp.Substr(bs_png_i)),
+                bs_colon_i = GetIf(has_bs, bs_png_str.Find(":") + 1),
+                bs_colon_str = GetIf(has_bs, bs_png_str.Substr(bs_colon_i)),
+                bs_LF_i = GetIf(has_bs, bs_colon_str.Find(Loc("LF"))),
+                bs_EoL_i = GetIf(has_bs, GetIfElse(bs_LF_i > 0, bs_LF_i, bs_colon_str.Length)),
+                bs_uss = GetIf(has_bs, bs_colon_str.Substr(0, bs_EoL_i)),
+                bs_s = GetIf(has_bs, StringSubString(bs_uss, 0).RemoveLeadingWhitespace),
+                bs = GetIf(has_bs, RoundFloat(ToNumber(bs_s))),
+                
+                nop_png_pattern = "number_of_projectiles.png",
+                nop_png_i = stat_mdot_tp.RFind(nop_png_pattern),
+                has_nop = nop_png_i > 0,
+                nop_png_str = GetIf(has_nop, stat_mdot_tp.Substr(nop_png_i)),
+                nop_colon_i = GetIf(has_nop, nop_png_str.Find(":") + 1),
+                nop_colon_str = GetIf(has_nop, nop_png_str.Substr(nop_colon_i)),
+                nop_LF_i = GetIf(has_nop, nop_colon_str.Find(Loc("LF"))),
+                nop_EoL_i = GetIf(has_nop, GetIfElse(nop_LF_i > 0, nop_LF_i, nop_colon_str.Length)),
+                nop_uss = GetIf(has_nop, nop_colon_str.Substr(0, nop_EoL_i)),
+                nop_s = GetIf(has_nop, StringSubString(nop_uss, 0).RemoveLeadingWhitespace),
+                nop = GetIf(has_nop, RoundFloat(ToNumber(nop_s))),
+                
+                spv_png_pattern = "shots_per_volley.png",
+                spv_png_i = stat_mdot_tp.RFind(spv_png_pattern),
+                has_spv = spv_png_i > 0,
+                spv_png_str = GetIf(has_spv, stat_mdot_tp.Substr(spv_png_i)),
+                spv_colon_i = GetIf(has_spv, spv_png_str.Find(":") + 1),
+                spv_colon_str = GetIf(has_spv, spv_png_str.Substr(spv_colon_i)),
+                spv_LF_i = GetIf(has_spv, spv_colon_str.Find(Loc("LF"))),
+                spv_EoL_i = GetIf(has_spv, GetIfElse(spv_LF_i > 0, spv_LF_i, spv_colon_str.Length)),
+                spv_uss = GetIf(has_spv, spv_colon_str.Substr(0, spv_EoL_i)),
+                spv_s = GetIf(has_spv, StringSubString(spv_uss, 0).RemoveLeadingWhitespace),
+                spv = GetIf(has_spv, RoundFloat(ToNumber(spv_s))),
+                
+                bs_str = GetIfElse(has_bs, Format("[[img:ui/mod/icons/burst_size.png]][[/img]][[col:ui_font_faded_grey_beige]]%d[[/col]]", bs), ""),
+                nop_str = GetIfElse(has_nop, Format("[[img:ui/mod/icons/number_of_projectiles.png]][[/img]][[col:ui_font_faded_grey_beige]]%d[[/col]]", nop), ""),
+                spv_str = GetIfElse(has_spv, Format("[[img:ui/mod/icons/shots_per_volley.png]][[/img]][[col:ui_font_faded_grey_beige]]%d[[/col]]", spv), ""),
+                
+                ammo_str = Format("[[img:ui/mod/icons/icon_stat_ammo.png]][[/img]]%d", RoundFloat(DisplayedValue)),
+                rt_str = Format("[[img:ui/skins/default/icon_stat_reload_time.png]][[/img]][[col:ui_font_faded_grey_beige]]%f[[/col]]", rt)
+            ) =>
+            {
+                Format("  %S%S%S %S %S ", bs_str, nop_str, spv_str, ammo_str, rt_str)
+            }
+        ) +
+        GetIf(Key == "scalar_missile_range", Format("[[img:ui/mod/icons/icon_distance_to_target.png]][[/img]]%d ", RoundFloat(DisplayedValue))) +
+        GetIf(Key == "stat_missile_damage_over_time",
+            (
+                tp = Tooltip.Replace('||', ''),
+                
+                mdb_png_pattern = "icon_stat_ranged_damage_base.png",
+                mdb_png_i = tp.RFind(mdb_png_pattern),
+                has_mdb = mdb_png_i > 0,
+                mdb_png_str = GetIf(has_mdb, tp.Substr(mdb_png_i)),
+                mdb_colon_i = GetIf(has_mdb, mdb_png_str.Find(":") + 1),
+                mdb_colon_str = GetIf(has_mdb, mdb_png_str.Substr(mdb_colon_i)),
+                mdb_LF_i = GetIf(has_mdb, mdb_colon_str.Find(Loc("LF"))),
+                mdb_EoL_i = GetIf(has_mdb, GetIfElse(mdb_LF_i > 0, mdb_LF_i, mdb_colon_str.Length)),
+                mdb_uss = GetIf(has_mdb, mdb_colon_str.Substr(0, mdb_EoL_i)),
+                mdb_s = GetIf(has_mdb, StringSubString(mdb_uss, 0).RemoveLeadingWhitespace),
+                mdb = GetIf(has_mdb, RoundFloat(ToNumber(mdb_s))),
+                
+                mdap_png_pattern = "modifier_icon_armour_piercing_ranged.png",
+                mdap_png_i = tp.RFind(mdap_png_pattern),
+                has_mdap = mdap_png_i > 0,
+                mdap_png_str = GetIf(has_mdap, tp.Substr(mdap_png_i)),
+                mdap_colon_i = GetIf(has_mdap, mdap_png_str.Find(":") + 1),
+                mdap_colon_str = GetIf(has_mdap, mdap_png_str.Substr(mdap_colon_i)),
+                mdap_LF_i = GetIf(has_mdap, mdap_colon_str.Find(Loc("LF"))),
+                mdap_EoL_i = GetIf(has_mdap, GetIfElse(mdap_LF_i > 0, mdap_LF_i, mdap_colon_str.Length)),
+                mdap_uss = GetIf(has_mdap, mdap_colon_str.Substr(0, mdap_EoL_i)),
+                mdap_s = GetIf(has_mdap, StringSubString(mdap_uss, 0).RemoveLeadingWhitespace),
+                mdap = GetIf(has_mdap, RoundFloat(ToNumber(mdap_s))),
+                
+                medb_png_pattern = "icon_explosive_damage.png",
+                medb_png_i = tp.RFind(medb_png_pattern),
+                has_medb = medb_png_i > 0,
+                medb_png_str = GetIf(has_medb, tp.Substr(medb_png_i)),
+                medb_colon_i = GetIf(has_medb, medb_png_str.Find(":") + 1),
+                medb_colon_str = GetIf(has_medb, medb_png_str.Substr(medb_colon_i)),
+                medb_LF_i = GetIf(has_medb, medb_colon_str.Find(Loc("LF"))),
+                medb_EoL_i = GetIf(has_medb, GetIfElse(medb_LF_i > 0, medb_LF_i, medb_colon_str.Length)),
+                medb_uss = GetIf(has_medb, medb_colon_str.Substr(0, medb_EoL_i)),
+                medb_s = GetIf(has_medb, StringSubString(medb_uss, 0).RemoveLeadingWhitespace),
+                medb = GetIf(has_medb, RoundFloat(ToNumber(medb_s))),
+                
+                medap_png_pattern = "icon_stat_explosive_armour_piercing_damage.png",
+                medap_png_i = tp.RFind(medap_png_pattern),
+                has_medap = medap_png_i > 0,
+                medap_png_str = GetIf(has_medap, tp.Substr(medap_png_i)),
+                medap_colon_i = GetIf(has_medap, medap_png_str.Find(":") + 1),
+                medap_colon_str = GetIf(has_medap, medap_png_str.Substr(medap_colon_i)),
+                medap_LF_i = GetIf(has_medap, medap_colon_str.Find(Loc("LF"))),
+                medap_EoL_i = GetIf(has_medap, GetIfElse(medap_LF_i > 0, medap_LF_i, medap_colon_str.Length)),
+                medap_uss = GetIf(has_medap, medap_colon_str.Substr(0, medap_EoL_i)),
+                medap_s = GetIf(has_medap, StringSubString(medap_uss, 0).RemoveLeadingWhitespace),
+                medap = GetIf(has_medap, RoundFloat(ToNumber(medap_s))),
+                
+                mBvL_png_pattern = "vs_large.png",
+                mBvL_png_i = tp.RFind(mBvL_png_pattern),
+                has_mBvL = mBvL_png_i > 0,
+                mBvL_png_str = GetIf(has_mBvL, tp.Substr(mBvL_png_i)),
+                mBvL_colon_i = GetIf(has_mBvL, mBvL_png_str.Find(":") + 1),
+                mBvL_colon_str = GetIf(has_mBvL, mBvL_png_str.Substr(mBvL_colon_i)),
+                mBvL_LF_i = GetIf(has_mBvL, mBvL_colon_str.Find(Loc("LF"))),
+                mBvL_EoL_i = GetIf(has_mBvL, GetIfElse(mBvL_LF_i > 0, mBvL_LF_i, mBvL_colon_str.Length)),
+                mBvL_uss = GetIf(has_mBvL, mBvL_colon_str.Substr(0, mBvL_EoL_i)),
+                mBvL_s = GetIf(has_mBvL, StringSubString(mBvL_uss, 0).RemoveLeadingWhitespace),
+                mBvL = GetIf(has_mBvL, RoundFloat(ToNumber(mBvL_s))),
+                
+                mBvi_png_pattern = "vs_infantry.png",
+                mBvi_png_i = tp.RFind(mBvi_png_pattern),
+                has_mBvi = mBvi_png_i > 0,
+                mBvi_png_str = GetIf(has_mBvi, tp.Substr(mBvi_png_i)),
+                mBvi_colon_i = GetIf(has_mBvi, mBvi_png_str.Find(":") + 1),
+                mBvi_colon_str = GetIf(has_mBvi, mBvi_png_str.Substr(mBvi_colon_i)),
+                mBvi_LF_i = GetIf(has_mBvi, mBvi_colon_str.Find(Loc("LF"))),
+                mBvi_EoL_i = GetIf(has_mBvi, GetIfElse(mBvi_LF_i > 0, mBvi_LF_i, mBvi_colon_str.Length)),
+                mBvi_uss = GetIf(has_mBvi, mBvi_colon_str.Substr(0, mBvi_EoL_i)),
+                mBvi_s = GetIf(has_mBvi, StringSubString(mBvi_uss, 0).RemoveLeadingWhitespace),
+                mBvi = GetIf(has_mBvi, RoundFloat(ToNumber(mBvi_s))),
+        
+                fe = db_lookup.ChildContext("fatigue_effects"),
+        
+                mdb_fatigue_coeff = GetIfElse(is_battle, ToNumber(fe.ChildContext("scalar_missile_damage_base").GetProperty(f_state)), 1.0),
+                f_mdb = RoundFloat(mdb_fatigue_coeff * mdb),
+                f_mdb_str = Format("[[img:ui/skins/default/icon_stat_ranged_damage_base.png]][[/img]]%d", f_mdb),
+                
+                mdap_fatigue_coeff = GetIfElse(is_battle, ToNumber(fe.ChildContext("scalar_missile_damage_ap").GetProperty(f_state)), 1.0),
+                f_mdap = RoundFloat(mdap_fatigue_coeff * mdap),
+                f_mdap_str = Format("[[img:ui/skins/default/modifier_icon_armour_piercing_ranged.png]][[/img]]%d", f_mdap),
+                
+                medb_fatigue_coeff = GetIfElse(is_battle, ToNumber(fe.ChildContext("scalar_missile_explosion_damage_base").GetProperty(f_state)), 1.0),
+                f_medb = GetIf(has_medb, RoundFloat(medb_fatigue_coeff * medb)),
+                f_medb_str = GetIfElse(has_medb, Format(" [[img:ui/skins/default/icon_explosive_damage.png]][[/img]]%d", f_medb), ""),
+                
+                medap_fatigue_coeff = GetIfElse(is_battle, ToNumber(fe.ChildContext("scalar_missile_explosion_damage_ap").GetProperty(f_state)), 1.0),
+                f_medap = GetIf(has_medap, RoundFloat(medap_fatigue_coeff * medap)),
+                f_medap_str = GetIfElse(has_medap, Format("[[img:ui/skins/default/icon_stat_explosive_armour_piercing_damage.png]][[/img]]%d", f_medap), ""),
+                
+                mBvL_str = GetIfElse(has_mBvL, Format("[[img:ui/skins/default/modifier_icon_bonus_vs_large.png]][[/img]]%d", mBvL), ""),
+                mBvi_str = GetIfElse(has_mBvi, Format("[[img:ui/skins/default/modifier_icon_bonus_vs_infantry.png]][[/img]]%d", mBvi), "")
+            ) =>
+            {
+                Format("  %S%S %S%S%S%S ", mBvL_str, mBvi_str, f_mdb_str, f_mdap_str, f_medb_str, f_medap_str)
+            }
+        )
+    }
     '''
     cb = set_context_callback(find_by_guid(xml, 'F0F1DC3F-6E56-4627-81284E05CEE668E7'), 'ContextNumberFormatter', s)
     cb['callback_id'] = 'ContextTextLabel'
+    
+    # language=javascript
+    s = '''
+        GetIf(Key == "stat_armour", ModifierIconList.Filter(!Icon.Contains('icon_shield')) ) +
+        GetIf(Key == "stat_morale", ModifierIconList) +
+        GetIf(Key == "scalar_speed", ModifierIconList) +
+        GetIf(Key == "stat_melee_attack", ModifierIconList) +
+        GetIf(Key == "stat_melee_defence", ModifierIconList) +
+        GetIf(Key == "stat_weapon_damage", ModifierIconList.Filter( !(Icon.Contains('armour_piercing') || Icon.Contains('vs_large') || Icon.Contains('vs_infantry') ) )) +
+        GetIf(Key == "stat_charge_bonus", ModifierIconList) +
+        GetIf(Key == "stat_ammo", ModifierIconList) +
+        GetIf(Key == "scalar_missile_range", ModifierIconList) +
+        GetIf(Key == "stat_missile_damage_over_time", ModifierIconList.Filter( !(Icon.Contains('armour_piercing') || Icon.Contains('vs_large') || Icon.Contains('vs_infantry') ) ))
+    '''
+    set_context_callback(find_by_id(xml, 'mod_icon_list'), 'ContextList', s)
+    
+    set_context_callback(find_by_id(xml, 'stat_name'), 'ContextTextLabel', '""')
 
 
 def split_abilities(xml):
@@ -647,6 +943,11 @@ def prepare_mod_team_list(xml):
         + GetIf(PlayerName.Contains("VoinS"), "ui/mod/images/players/voins.png")
         + GetIf(PlayerName.Contains("GapaKtus"), "ui/mod/images/players/gapaktus.png")
         + GetIf(PlayerName.Contains("komerdinner12"), "ui/mod/images/players/komerdinner.png")
+        + GetIf(PlayerName.Contains("Crabling"), "ui/mod/images/players/crabling.png")
+        + GetIf(PlayerName.Contains("Risum"), "ui/mod/images/players/nerisum.png")
+        + GetIf(PlayerName.Contains("akkeinn"), "ui/mod/images/players/akkeinn.png")
+        + GetIf(PlayerName.Contains("Exul et ignotus"), "ui/mod/images/players/exul_et_ignotus.png")
+        + GetIf(PlayerName.Contains("lunacy"), "ui/mod/images/players/cb2.png")
     '''
     set_context_callback(find_by_id(xml, elem_id), 'ContextImageSetter', s)
     # language=javascript
@@ -657,20 +958,25 @@ def prepare_mod_team_list(xml):
         + GetIf(PlayerName.Contains("VoinS"), Loc("player_voins"))
         + GetIf(PlayerName.Contains("GapaKtus"), Loc("player_gapaktus"))
         + GetIf(PlayerName.Contains("komerdinner12"), Loc("player_komerdinner"))
+        + GetIf(PlayerName.Contains("Crabling"), Loc("player_crabling"))
+        + GetIf(PlayerName.Contains("Risum"), Loc("player_risum"))
+        + GetIf(PlayerName.Contains("akkeinn"), Loc("player_akkeinn"))
+        + GetIf(PlayerName.Contains("Exul et ignotus"), Loc("player_exul_et_ignotus"))
+        + GetIf(PlayerName.Contains("lunacy"), Loc("player_lunacy"))
     '''
     set_context_callback(find_by_id(xml, elem_id), 'ContextTooltipSetter', s)
     
     elem_id = "icon_clan"
     # language=javascript
     s = '''
-        GetIf(PlayerName.StartsWith("VM.") || PlayerName.StartsWith("V_M") || PlayerName.StartsWith("VM "), "ui/mod/images/clans/vm.png")
-        + GetIf(PlayerName.StartsWith("CB"), "ui/mod/images/clans/cb.png")
+        GetIf(PlayerName.StartsWith("VM.") || PlayerName.StartsWith("V_M") || PlayerName.StartsWith("VM ") || PlayerName.StartsWith("VM_"), "ui/mod/images/clans/vm.png")
+        + GetIf(PlayerName.StartsWith("CB ") || PlayerName.StartsWith("CBLord_") || PlayerName.Contains("lunacy"), "ui/mod/images/clans/cb.png")
     '''
     set_context_callback(find_by_id(xml, elem_id), 'ContextImageSetter', s)
     # language=javascript
     s = '''
-        GetIf(PlayerName.StartsWith("VM.") || PlayerName.StartsWith("V_M") || PlayerName.StartsWith("VM "), Loc("clan_vm"))
-        + GetIf(PlayerName.StartsWith("CB"), Loc("clan_cb"))
+        GetIf(PlayerName.StartsWith("VM.") || PlayerName.StartsWith("V_M") || PlayerName.StartsWith("VM ") || PlayerName.StartsWith("VM_"), Loc("clan_vm"))
+        + GetIf(PlayerName.StartsWith("CB ") || PlayerName.StartsWith("CBLord_") || PlayerName.Contains("lunacy"), Loc("clan_cb"))
     '''
     set_context_callback(find_by_id(xml, elem_id), 'ContextTooltipSetter', s)
     

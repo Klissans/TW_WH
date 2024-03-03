@@ -41,7 +41,9 @@ function reinforcement_panel:init()
     find_uicomponent(menu_bar, "mod_team_list"):SetInteractive(false);
     find_uicomponent(menu_bar, "buttongroup", "button_player_list"):SetVisible(true);
 
-    find_uicomponent(self._uic_el, "footer"):CreateComponent("reinf_panel_supplies", "ui/mod/reinf_panel_supplies.twui.xml");
+    if common.get_context_value("CcoBattleRoot", "IsDomination") then
+        find_uicomponent(self._uic_el, "footer"):CreateComponent("reinf_panel_supplies", "ui/mod/reinf_panel_supplies.twui.xml")
+    end
     -- uic_ping_marker:SetContextObject(cco("CcoBattleRoot", self.unit:unique_ui_id()));
 
     -- -- add chat button
@@ -165,3 +167,11 @@ if core:is_battle() then
     end)
     bm:register_phase_change_callback("Complete", init_save_replay_listener)
 end
+
+
+function add_fatigue_effects_component()
+    core:get_ui_root():CreateComponent("db_lookup", "ui/mod/db_lookup.twui.xml")
+end
+
+
+register_function_everywhere(add_fatigue_effects_component)

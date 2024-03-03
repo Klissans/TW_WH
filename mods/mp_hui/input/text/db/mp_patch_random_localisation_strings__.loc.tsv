@@ -6,11 +6,20 @@ random_localisation_strings_string_tooltip_fatigue_effects_2	[[col:fatigue_winde
 random_localisation_strings_string_tooltip_fatigue_effects_3	[[col:fatigue_tired]][[img:ui/skins/default/icon_stat_attack.png]][[/img]]-15% [[img:ui/skins/default/icon_stat_speed.png]][[/img]]-10% [[img:ui/skins/default/modifier_icon_armour_piercing.png]][[/img]]-10% [[img:ui/skins/default/icon_stat_charge_bonus.png]][[/img]]-10%[[/col]]	false
 random_localisation_strings_string_tooltip_fatigue_effects_4	[[col:fatigue_very_tired]][[img:ui/skins/default/icon_stat_attack.png]][[/img]]-25% [[img:ui/skins/default/icon_stat_speed.png]][[/img]]-15% [[img:ui/skins/default/modifier_icon_armour_piercing.png]][[/img]]-10% [[img:ui/skins/default/icon_stat_charge_bonus.png]][[/img]]-25% [[img:ui/skins/default/icon_stat_armour.png]][[/img]]-10% [[img:ui/skins/default/icon_stat_morale.png]][[/img]]-2[[/col]]	false
 random_localisation_strings_string_tooltip_fatigue_effects_5	[[col:fatigue_exhausted]][[img:ui/skins/default/icon_stat_attack.png]][[/img]]-30% [[img:ui/skins/default/icon_stat_speed.png]][[/img]]-15% [[img:ui/skins/default/modifier_icon_armour_piercing.png]][[/img]]-10% [[img:ui/skins/default/icon_stat_charge_bonus.png]][[/img]]-30% [[img:ui/skins/default/icon_stat_armour.png]][[/img]]-25% [[img:ui/skins/default/icon_stat_defence.png]][[/img]]-10% [[img:ui/skins/default/icon_stat_reload_time.png]][[/img]]-10% [[img:ui/skins/default/icon_stat_morale.png]][[/img]]-6[[/col]]	false
+random_localisation_strings_string_LF	\\n	false
 random_localisation_strings_string_chinese_colon	：	false
-random_localisation_strings_string_clan_vm	Via Militera - largest Russian-speaking TW clan. \\ndiscord.com/invite/ANG9sR8Vpm	false
-random_localisation_strings_string_clan_cb	Crying Beastmen - Russian-speaking TW clan. \\ndiscord.gg/S8WJU5k2wz	false
-random_localisation_strings_string_player_roflanbuldiga	Roflan: - No.\\nBuldiga: - Okay, fine.\\n Has his own youtube channel oriented for audience of all ages and languages.\\nyoutube.com/@RoflanBuldiga	false
-random_localisation_strings_string_player_lord_leaver	PLACEHOLDER	false
-random_localisation_strings_string_player_berrserk	The winner of TWWH Russian Championship 2023 in both domination and land battles. \\nBERRSERK has his own youtube channel oriented for russian-speaking audience.\\nyoutube.com/@TotalWarriorsteam	false
-random_localisation_strings_string_player_voins	PLACEHOLDER	false
+random_localisation_strings_string_chinese_shield_prefix	有	false
+random_localisation_strings_string_clan_vm	[[col:yellow]]Via Militera[[/col]] - largest Russian-speaking TW clan. \\n[[col:magic]]discord.com/invite/ANG9sR8Vpm[[/col]]	false
+random_localisation_strings_string_clan_cb	[[col:yellow]]Crying Beastmen[[/col]] - Russian-speaking TW clan. \\n[[col:magic]]discord.gg/S8WJU5k2wz[[/col]]	false
+random_localisation_strings_string_player_roflanbuldiga	Roflan: - No.\\nBuldiga: - Okay, fine.\\n Has his own youtube channel oriented for audience of all ages and languages.\\n[[col:magic]]youtube.com/@RoflanBuldiga[[/col]]	false
+random_localisation_strings_string_player_lord_leaver	It is Wednesday, my dudes	false
+random_localisation_strings_string_player_berrserk	The winner of TWWH Russian Championship 2023 in both domination and land battles. \\nBERRSERK has his own youtube channel oriented for russian-speaking audience.\\n[[col:magic]]youtube.com/@TotalWarriorsteam[[/col]]	false
+random_localisation_strings_string_player_voins	A dwarf in disguise	false
 random_localisation_strings_string_player_gapaktus	Where is RoR Tank, mr. GapaKtus ?!?!?!	false
+random_localisation_strings_string_player_komerdinner	The dude who has his own YouTube channel about multiplayer battles in TWW. He wholeheartedly prefers LAND BATTLES!\\n[[col:magic]]youtube.com/@komerdinner12[[/col]]\\n[[col:magic]]discord.gg/8mkcEUGRSh[[/col]] 	false
+random_localisation_strings_string_player_crabling	The leader of VM clan. Many-time Russian Championship winner. Has his channel dedicated to multiplayer battles.\\n[[col:magic]]youtube.com/@crabling[[/col]]	false
+random_localisation_strings_string_player_risum	Russian streamer and caster oriented to Warhammer multiplayer battles. Member of the Quantum Hut.\\n[[col:magic]]youtube.com/@RisumTV[[/col]]\\n[[col:magic]]twitch.tv/risumtv[[/col]]\\n[[col:magic]]discord.gg/RacdztC[[/col]]	false
+random_localisation_strings_string_player_akkeinn	Russian player. Play for fun and then all matches will be good.	false
+random_localisation_strings_string_player_exul_et_ignotus	Average turvin enjoyer	false
+random_localisation_strings_string_player_lunacy	Snegovichok	false
+random_localisation_strings_string_player_placeholder	PLACEHOLDER	false
