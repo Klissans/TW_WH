@@ -6,6 +6,11 @@ tooltip_fatigue_effects_2
 tooltip_fatigue_effects_3
 tooltip_fatigue_effects_4
 tooltip_fatigue_effects_5
+tooltip_unit_stat_ui
+tooltip_unit_stat_dmg_per_hit
+tooltip_unit_stat_dmg_per_shot
+tooltip_unit_stat_armour
+tooltip_unit_stat_md
 LF
 chinese_colon
 chinese_shield_prefix
