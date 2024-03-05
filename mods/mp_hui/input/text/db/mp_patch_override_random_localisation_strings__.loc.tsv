@@ -1,0 +1,6 @@
+key	text	tooltip
+#Loc;1;text/db/mp_patch_override_random_localisation_strings__.loc		
+random_localisation_strings_string_burst	[[img:ui/mod/icons/burst_size.png]][[/img]] Burst Size	false
+random_localisation_strings_string_num_projectiles	[[img:ui/mod/icons/number_of_projectiles.png]][[/img]] Number of Projectiles	false
+random_localisation_strings_string_shots_per_volley	[[img:ui/mod/icons/shots_per_volley.png]][[/img]] Shots per Volley	false
+random_localisation_strings_string_unit_encouraged_charging	[[img:ui/skins/default/icon_stat_charge_bonus.png]][[/img]] [[col:green]]Charging[[/col]]	false
