@@ -10,3 +10,5 @@ scripts
 whlib/whlib/settings.py
 
 *.graphml
+
+**/output/
