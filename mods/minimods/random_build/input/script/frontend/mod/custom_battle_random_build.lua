@@ -95,7 +95,7 @@ function pick_random_unit()
             unit_groups = DefaultDatabaseRecord('CcoUiUnitGroupParentRecord').RecordList.Filter(!Key.Contains('commander') && !Key.Contains('heroes_agents') ),
             faction_units= unit_groups.Transform((x=false, _) => pslot.UnitListForUnitGroupParent(x)),
             available_units = faction_units.Filter((x=false, _) => pslot.CanRecruitUnit(x.UnitContext, pslot.IsRecruitingReinforcements)),
-            affordable_units = available_units.Filter(Cost < funds_available)
+            affordable_units = available_units.Filter(Cost <= funds_available)
         ) =>
         {
             DoIf(unit_list_size < max_unit_list_size && affordable_units && affordable_units.Size > 0,
