@@ -77,6 +77,18 @@ def edit_twui(fp: str, fn):
     xml = BeautifulSoup(read_twui(fp, is_custom), 'lxml-xml')
     fn(xml)
     write(fp, xml)
+    
+    
+def edit_twui_decorator(fp: str):
+    def edit_twui(fn):
+        def inner(*args, **kwargs):
+            is_custom = '/mod/' in fp
+            xml = BeautifulSoup(read_twui(fp, is_custom), 'lxml-xml')
+            ret = fn(xml, **kwargs)
+            write(fp, xml)
+            return ret
+        return inner
+    return edit_twui
 
 
 def format_str(s: str):

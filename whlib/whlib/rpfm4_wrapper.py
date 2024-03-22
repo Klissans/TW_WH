@@ -54,7 +54,9 @@ class RPFM4Wrapper:
 
     def extract_data(self):
         shutil.rmtree(self.extract_path, ignore_errors=True)
-        for pf in glob.glob(f"{self.game_path}/data/data*.pack"):
+        pathes = glob.glob(f"{self.game_path}/data/*.pack")
+        data_pathes = [x for x in pathes if ('db.pack' in x or 'data_' in x)]
+        for pf in data_pathes:
             pack_name = f"{pf.split(os.sep)[-1]}"
             ex_data_pack_path = self.extract_path #os.path.join(self.extract_path, pack_name)
             os.makedirs(ex_data_pack_path, exist_ok=True)
@@ -64,6 +66,10 @@ class RPFM4Wrapper:
             self._execute_cmd(cli_args)
 
             ex_data_pack_path_str = f"{';'.join(['ui', ex_data_pack_path])}"
+            cli_args = ['pack', 'extract', '-t', self.schema_path, '-p', pf,  '-F', ex_data_pack_path_str]
+            self._execute_cmd(cli_args)
+
+            ex_data_pack_path_str = f"{';'.join(['script', ex_data_pack_path])}"
             cli_args = ['pack', 'extract', '-t', self.schema_path, '-p', pf,  '-F', ex_data_pack_path_str]
             self._execute_cmd(cli_args)
 
