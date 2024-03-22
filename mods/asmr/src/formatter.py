@@ -551,7 +551,7 @@ class Formatter:
         melee_weapon_info = self.hhelper.get_melee_info(info['primary_melee_weapon'])
         missile_weapon_info = self.hhelper.get_missile_info(info['primary_missile_weapon'])
         high_threat_str = f" {self.icon['high_threat']}" if main_unit_info is not None and main_unit_info['is_high_threat'] else ''
-        desc += _indentstr(indent) + self.beatify_unit_id(info['key']) + high_threat_str + self.endl
+        desc += _indentstr(indent) + high_threat_str + self.beatify_unit_id(info['key']) + self.endl
         if self.spawn_unit is not None:
             desc += self._get_unit_unbinding(info['land_units_to_unit_abilites_junctions_tables'], indent=indent)
             desc += self._get_unit_abilities_icons(info['attribute_group'], info['land_units_to_unit_abilites_junctions_tables'], indent=indent)

@@ -591,7 +591,7 @@ def modify_unit_tooltip(hh, formatter):
 
 
     key = 'unit_stat_localisations_tooltip_text_stat_charge_bonus'
-    tr_value_0 = loctr.add_auto('value', 'charge_cool_down_time', auto_formatter=highlight(roundf(rules_df.loc['charge_cool_down_time', 'value'])))
+    tr_value_0 = loctr.add_auto('value', 'charge_decay_duration', auto_formatter=highlight(roundf(rules_df.loc['charge_decay_duration', 'value'])))
     tr_text = f"||The charge bonus coefficient linearly declines from 1 to 0 over {tr_value_0}s after unit started charging{endl}" \
                                f"Charge bonus modifiers will have effect until the coefficient reaches 0."
     text = loctr.add_auto('chunks', 'stat_charge_bonus_0', auto_formatter=tr_text)
