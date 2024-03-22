@@ -1,0 +1,3 @@
+key	projectile	amount	launch_type	sector_angle
+#projectile_shrapnels_tables;0;db/projectile_shrapnels_tables/!Klissan_All_The_Units_data__				
+Klissan_all_the_units__army_ability_tier_3_shrapnel	Klissan_all_the_units__army_ability_tier_3_shrapnel_projectile	4	hemisphere	180.0000
