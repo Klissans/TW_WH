@@ -262,6 +262,8 @@ function lucky_priority_lock()
     local LOCK_PRIORITY = -111
     local army_roster_parent = find_uicomponent(core:get_ui_root(), "custom_battle", "ready_parent", "recruitment_visibility_parent", "recruitment_parent", "roster_holder", "army_roster_parent")
     local unit_list_holder = find_uicomponent(army_roster_parent, "recruited_army_parent", "army_recruitment_parent", "unit_list_holder")
+    local vslider = find_uicomponent(army_roster_parent, "recruitable_list_parent", "listview", "vslider")
+    local listview = find_uicomponent(army_roster_parent, "recruitable_list_parent", "listview")
     local unit_list = find_uicomponent(unit_list_holder, "unit_list")
     local reinforcing_list_holder = find_uicomponent(army_roster_parent, "recruited_army_parent", "army_recruitment_parent", "reinforcing_list_holder")
     local reinforcing_unit_list = find_uicomponent(reinforcing_list_holder, "reinforcing_unit_list")
@@ -270,22 +272,28 @@ function lucky_priority_lock()
     local customisation_options_holder = find_uicomponent(upgrades_and_recruitment_holder, "unit_upgrades_parent", "unit_upgrades_collapsible", "custom_battle_unit_upgrades", "upgrades_holder", "customisation_options_holder")
 
     local spell_browser_parent = find_uicomponent(unit_list_holder, "row_header", "button_bar_parent", "button_list", "spell_browser_parent")
+    local button_save_parent = find_uicomponent(unit_list_holder, "row_header", "button_bar_parent", "button_list", "load_save_parent", "button_save_preset")
     local clear_autogen_parent = find_uicomponent(unit_list_holder, "row_header", "button_bar_parent", "button_list", "clear_autogen_parent")
     local button_clear = find_uicomponent(clear_autogen_parent, "button_clear")
     local button_autogen = find_uicomponent(clear_autogen_parent, "button_autogen")
     local button_lucky = find_uicomponent(clear_autogen_parent, "button_lucky")
 
+    local button_clear_reinforcement = find_uicomponent(reinforcing_list_holder, "row_header", "clear_autogen_reinforcement_parent", "button_clear_reinforcements")
 
-    army_roster_parent:PropagatePriority(LOCK_PRIORITY) -- TODO UNCOMMENT
+
+    army_roster_parent:PropagatePriority(LOCK_PRIORITY)
     spell_browser_parent:PropagatePriority(NON_LOCK_PRIORITY)
     unit_list:PropagatePriority(NON_LOCK_PRIORITY)
     reinforcing_unit_list:PropagatePriority(NON_LOCK_PRIORITY)
     button_clear:PropagatePriority(NON_LOCK_PRIORITY)
-    --button_autogen:PropagatePriority(NON_LOCK_PRIORITY)
+    button_clear_reinforcement:PropagatePriority(NON_LOCK_PRIORITY)
+    button_save_parent:PropagatePriority(NON_LOCK_PRIORITY)
+    listview:PropagatePriority(NON_LOCK_PRIORITY)
+    upgrades_and_recruitment_holder:PropagatePriority(LOCK_PRIORITY)
     if button_lucky then
         button_lucky:PropagatePriority(NON_LOCK_PRIORITY)
     end
-    army_roster_parent:LockPriority(LOCK_PRIORITY + 1) -- TODO UNCOMMENT
+    army_roster_parent:LockPriority(LOCK_PRIORITY + 1)
 end
 
 
