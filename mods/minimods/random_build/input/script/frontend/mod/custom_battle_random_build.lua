@@ -49,24 +49,42 @@ end
 
 
 function RoflanBuildiga:report_to_chat(message)
-    local cexp = [=[
-        (
-            ftr = Component('frame_tr'),
-            cib = Component('chat_input_box'),
-            bsc = Component('button_send_chat')
-        ) =>
-        {
-            Do(
-                # ftr.SetVisible(true),
-                cib.SetText('[[img:ui/mod/dices.png]][[/img]] %s'),
-                bsc.SimulateLClick
-            )
-        }
-    ]=]
+    --local cexp = [=[
+    --    (
+    --        ftr = Component('frame_tr'),
+    --        cib = Component('chat_input_box'),
+    --        bsc = Component('button_send_chat'),
+    --        cache_clipboard = PasteStringFromClipboard
+    --    ) =>
+    --    {
+    --        Do(
+    --            CopyStringToClipboard('%s')
+    --            cib.SimulateLClick,
+    --            PasteStringFromClipboard
+    --        )
+    --    }
+    --]=]
+    --cco('CcoFrontendRoot', 'FrontendRoot'):Call(string.format(cexp, ))
+
     if self:if_chat_available() then
-        self:out('Reporting to Chat: '.. message)
-        ---@diagnostic disable-next-line: undefined-field
-        self.froot:Call(string.format(cexp, message))
+        --local ret_out = self.froot:Call(string.format(cexp, message))
+        local frame_tr = find_uicomponent(core:get_ui_root(), "sp_frame", 'frame_tr')
+        local chat_input = find_uicomponent(frame_tr, 'multiplayer_chat', 'chat_input_box')
+        local button_send_chat = find_uicomponent(chat_input, 'button_send_chat')
+        frame_tr:SetVisible(true)
+        core:get_tm():real_callback(
+            function()
+                chat_input:SimulateLClick()
+                for i = 1, #message do
+                    local c = message:sub(i,i)
+                    chat_input:SimulateKey(c)
+                end
+                button_send_chat:SimulateLClick()
+                self:out('Reporting to Chat: '.. message)
+            end,
+            50,
+            'Klissan_lucky_chat_report'
+        )
     end
 end
 
@@ -147,7 +165,7 @@ function RoflanBuildiga:pick_random_faction()
             Do(
                 pslot.SetSubculture(subculture),
                 soc.SetStringValue(soc.StringValue + explain_str)
-            ) + faction.NameWithIcon + '(' + subculture.Key + ')'
+            ) + subculture.Key
         }
     ]=]
     ---@diagnostic disable-next-line: undefined-field
@@ -612,7 +630,7 @@ function RoflanBuildiga:go_lucky()
 
     button_lucky:SetTooltipText(common.get_context_value('CcoScriptObject', 'klissan.lucky.build_explainer', 'StringValue'), true)
     self:increase_build_roll_count()
-    self:report_to_chat(string.format('Build Rolls: [[col:yellow]]%d[[/col]] Total Rolls: [[col:yellow]]%d[[/col]]', self.mp.build_rolls, self:get_total_mp_rolls_count()))
+    self:report_to_chat(string.format('Build Rolls: %d Total Rolls: %d', self.mp.build_rolls, self:get_total_mp_rolls_count()))
 end
 
 function RoflanBuildiga:go_lucky_factions()
@@ -622,7 +640,7 @@ function RoflanBuildiga:go_lucky_factions()
 
     button_lucky_factions:SetTooltipText(common.get_context_value('CcoScriptObject', 'klissan.lucky.faction_explainer', 'StringValue'), true)
     self:increase_faction_roll_count()
-    self:report_to_chat(string.format('%s Faction Rolls: [[col:yellow]]%d[[/col]] Total Rolls: [[col:yellow]]%d[[/col]]', key, self.mp.faction_rolls, self:get_total_mp_rolls_count()))
+    self:report_to_chat(string.format('%s Faction Rolls: %d Total Rolls: %d', key, self.mp.faction_rolls, self:get_total_mp_rolls_count()))
 end
 
 function RoflanBuildiga:create_button(parent_component, component_id)
