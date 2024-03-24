@@ -1,23 +1,36 @@
 
-function random_int(lower, upper)
+
+---@class RoflanBuildiga
+local RoflanBuildiga = {
+    froot = nil
+}
+
+function RoflanBuildiga:out(s)
+    out('[Roflan Buildiga]: ' .. tostring(s))
+end
+
+
+function RoflanBuildiga:random_int(lower, upper)
     --includes both sides
-    return cco('CcoFrontendRoot', 'FrontendRoot'):Call(string.format('RandomInRange(%d, %d)', lower, upper))
+    ---@diagnostic disable-next-line: undefined-field
+    return self.froot:Call(string.format('RandomInRange(%d, %d)', lower, upper))
 end
 
-function random_chance()
-    return random_int(1, 100)
+function RoflanBuildiga:random_chance()
+    return self:random_int(1, 100)
 end
 
-function if_chance_succeed()
-    local r = random_chance()
+function RoflanBuildiga:if_chance_succeed()
+    local r = self:random_chance()
     local v = common.get_context_value('CcoScriptObject', 'klissan.lucky.build_explainer', 'StringValue')
-    local loc_language = cco('CcoFrontendRoot', 'FrontendRoot'):Call('LocLanguage')
+    ---@diagnostic disable-next-line: undefined-field
+    local loc_language = self.froot:Call('LocLanguage')
     local explain_str = string.format(common.get_localised_string('random_localisation_strings_string_explain_second_char'), r)
-    common.set_context_value('klissan.lucky.build_explainer', v .. explain_str)
+    common:set_context_value('klissan.lucky.build_explainer', v .. explain_str)
     return r <= 50
 end
 
-function set_is_recruiting_reinforcements(is_reinforcement)
+function RoflanBuildiga:set_is_recruiting_reinforcements(is_reinforcement)
     local cexp = [[
         (
             pslot = Component('recruitment_parent').ContextsList[0]
@@ -26,12 +39,12 @@ function set_is_recruiting_reinforcements(is_reinforcement)
             pslot.SetIsRecruitingReinforcements(%s)
         }
     ]]
-    local froot = cco('CcoFrontendRoot', 'FrontendRoot')
-    froot:Call(string.format(cexp, tostring(is_reinforcement)))
+    ---@diagnostic disable-next-line: undefined-field
+    self.froot:Call(string.format(cexp, tostring(is_reinforcement)))
 end
 
 
-function is_using_reinforcements()
+function RoflanBuildiga:is_using_reinforcements()
     local cexp = [[
         (
             sc = FrontendRoot.CustomBattleLobbyContext.SettingsContext
@@ -40,11 +53,11 @@ function is_using_reinforcements()
             sc.IsUsingReinforcingUnits
         }
     ]]
-    local froot = cco('CcoFrontendRoot', 'FrontendRoot')
-    return froot:Call(cexp)
+    ---@diagnostic disable-next-line: undefined-field
+    return self.froot:Call(cexp)
 end
 
-function toggle_storm_of_magic()
+function RoflanBuildiga:toggle_storm_of_magic()
     local cexp = [[
         (
             sc = FrontendRoot.CustomBattleLobbyContext.SettingsContext
@@ -53,12 +66,12 @@ function toggle_storm_of_magic()
             DoIf(!sc.IsStormOfMagicEnabled, sc.ToggleStormOfMagic)
         }
     ]]
-    local froot = cco('CcoFrontendRoot', 'FrontendRoot')
-    return froot:Call(cexp)
+    ---@diagnostic disable-next-line: undefined-field
+    return self.froot:Call(cexp)
 end
 
 
-function get_unit_slots_left()
+function RoflanBuildiga:get_unit_slots_left()
     local cexp = [[
         (
             pslot = Component('recruitment_parent').ContextsList[0],
@@ -70,12 +83,12 @@ function get_unit_slots_left()
             max_unit_list_size - unit_list_size
         }
     ]]
-    local froot = cco('CcoFrontendRoot', 'FrontendRoot')
-    return froot:Call(cexp)
+    ---@diagnostic disable-next-line: undefined-field
+    return self.froot:Call(cexp)
 end
 
 
-function clear_units()
+function RoflanBuildiga:clear_units()
     local cexp = [[
         (
             pslot = Component('recruitment_parent').ContextsList[0]
@@ -84,11 +97,39 @@ function clear_units()
             pslot.ClearUnits
         }
     ]]
-    local froot = cco('CcoFrontendRoot', 'FrontendRoot')
-    froot:Call(cexp)
+    ---@diagnostic disable-next-line: undefined-field
+    self.froot:Call(cexp)
 end
 
-function pick_random_unit()
+function RoflanBuildiga:pick_random_faction()
+    cexp = [=[
+        (
+            soc = ScriptObjectContext('klissan.lucky.faction_explainer'),
+            pslot = Component('recruitment_parent').ContextsList[0],
+            subcultures = pslot.AvailableSubcultureList
+                .Sort((x=false, _) => DatabaseRecords("CcoCustomBattleFactionRecord").FirstContext(FactionContext.SubcultureContext == x).CultureSortOrder, true)
+                .Filter((x=false, _) =>
+                { (factions = false, __ = pslot.FactionsForCulture(x.Culture).Filter(OwnershipProductRequirementList.IsEmpty == false)) =>
+                    {!((x.Culture.Key.Contains("wh3_main_") == false || x.Culture.IsOgreKingdoms) && factions.IsEmpty == false && factions.All(OwnershipProductRequirementList.All(OwnershipProductRecordList.Any(IsOwned == false && IsFlc == false))))}
+                }),
+            rand = TrueRandomInRange(1, subcultures.Size),
+            subculture = subcultures[rand-1],
+            faction = pslot.FactionsForCulture(subculture.Culture).FirstContext(),
+            explain_str = Format(Loc('explain_faction'), rand, subcultures.Size, faction.NameWithIcon)
+        ) =>
+        {
+            Do(
+                pslot.SetSubculture(subculture),
+                soc.SetStringValue(soc.StringValue + explain_str)
+            ) + subculture.Key
+        }
+    ]=]
+    ---@diagnostic disable-next-line: undefined-field
+    local key = self.froot:Call(cexp)
+    return key
+end
+
+function RoflanBuildiga:pick_random_unit()
     -- TODO optimize using cache LIst
     cexp = [=[
         (
@@ -120,17 +161,16 @@ function pick_random_unit()
             )
         }
     ]=]
-
-    local froot = cco('CcoFrontendRoot', 'FrontendRoot')
-    local key = froot:Call(cexp)
+    ---@diagnostic disable-next-line: undefined-field
+    local key = self.froot:Call(cexp)
     if key then
         -- out('picked Unit: '..key)
-        key = randomize_unit_skills(key)
+        key = self:randomize_unit_skills(key)
     end
     return key
 end
 
-function pick_random_char(typee)
+function RoflanBuildiga:pick_random_char(typee)
     cexp = [=[
         (
             soc = ScriptObjectContext('klissan.lucky.build_explainer'),
@@ -149,42 +189,41 @@ function pick_random_char(typee)
             ) + runit.UnitContext.Key
         }
     ]=]
-
-    local froot = cco('CcoFrontendRoot', 'FrontendRoot')
-    local key = froot:Call(string.format(cexp, typee))
+    ---@diagnostic disable-next-line: undefined-field
+    local key = self.froot:Call(string.format(cexp, typee))
     -- out('picked character: '..key)
-    key = randomize_char_skills(key)
+    key = self:randomize_char_skills(key)
     return key
 end
 
-function randomize_char_skills(key)
+function RoflanBuildiga:randomize_char_skills(key)
     -- we will get the last unit expecting it to be a just picked character
     -- category is the first, TODO multi-category support
-    key = randomize_category(key)
+    key = self:randomize_category(key)
     -- lore second
-    key = randomize_lore(key)
+    key = self:randomize_lore(key)
     -- mount third
-    key = randomize_mount(key)
+    key = self:randomize_mount(key)
     --other doesn't matter - as they do not reset config
-    randomize_spells(key)
-    randomize_runes(key)
-    randomize_abilities(key)
-    randomize_items(key)
-    randomize_changeling_form(key)
+    self:randomize_spells(key)
+    self:randomize_runes(key)
+    self:randomize_abilities(key)
+    self:randomize_items(key)
+    self:randomize_changeling_form(key)
     return key
 end
 
 
-function randomize_unit_skills(key)
+function RoflanBuildiga:randomize_unit_skills(key)
     -- we will get the last unit expecting it to be a just picked character
     -- category is the first, TODO multi-category support
-    key = randomize_category(key)
+    key = self:randomize_category(key)
     --other doesn't matter - as they do not reset config
-    randomize_abilities(key)
+    self:randomize_abilities(key)
     return key
 end
 
-function randomize_category(key)
+function RoflanBuildiga:randomize_category(key)
     -- we will get the last unit expecting it to be a just picked character
     cexp = [=[
         (
@@ -222,14 +261,13 @@ function randomize_category(key)
             )
         }
     ]=]
-
-    local froot = cco('CcoFrontendRoot', 'FrontendRoot')
-    local x = froot:Call(string.format(cexp, key))
+    ---@diagnostic disable-next-line: undefined-field
+    local x = self.froot:Call(string.format(cexp, key))
     -- out('randomized category for '..key)
     return x
 end
 
-function randomize_lore(key)
+function RoflanBuildiga:randomize_lore(key)
     -- we will get the last unit expecting it to be a just picked character
     cexp = [=[
         (
@@ -260,15 +298,14 @@ function randomize_lore(key)
             )
         }
     ]=]
-
-    local froot = cco('CcoFrontendRoot', 'FrontendRoot')
-    local x = froot:Call(string.format(cexp, key))
+    ---@diagnostic disable-next-line: undefined-field
+    local x = self.froot:Call(string.format(cexp, key))
     -- out('randomized lore for '..key)
     return x
 end
 
 
-function randomize_mount(key)
+function RoflanBuildiga:randomize_mount(key)
     -- we will get the last unit expecting it to be a just picked character
     cexp = [=[
         (
@@ -301,14 +338,13 @@ function randomize_mount(key)
             )
         }
     ]=]
-
-    local froot = cco('CcoFrontendRoot', 'FrontendRoot')
-    local x = froot:Call(string.format(cexp, key))
+    ---@diagnostic disable-next-line: undefined-field
+    local x = self.froot:Call(string.format(cexp, key))
     -- out('randomized mount for '..key)
     return x
 end
 
-function randomize_spells(key)
+function RoflanBuildiga:randomize_spells(key)
     -- we will get the last unit expecting it to be a just picked character
     cexp = [=[
         (
@@ -338,13 +374,12 @@ function randomize_spells(key)
             )
         }
     ]=]
-
-    local froot = cco('CcoFrontendRoot', 'FrontendRoot')
-    froot:Call(string.format(cexp, key))
+    ---@diagnostic disable-next-line: undefined-field
+    self.froot:Call(string.format(cexp, key))
     -- out('randomized spells for '..key)
 end
 
-function randomize_runes(key)
+function RoflanBuildiga:randomize_runes(key)
     -- we will get the last unit expecting it to be a just picked character
     cexp = [=[
         (
@@ -374,14 +409,13 @@ function randomize_runes(key)
             )
         }
     ]=]
-
-    local froot = cco('CcoFrontendRoot', 'FrontendRoot')
-    froot:Call(string.format(cexp, key))
+    ---@diagnostic disable-next-line: undefined-field
+    self.froot:Call(string.format(cexp, key))
     -- out('randomized runes for '..key)
 end
 
 
-function randomize_abilities(key)
+function RoflanBuildiga:randomize_abilities(key)
     -- we will get the last unit expecting it to be a just picked character
     cexp = [=[
         (
@@ -411,14 +445,13 @@ function randomize_abilities(key)
             )
         }
     ]=]
-
-    local froot = cco('CcoFrontendRoot', 'FrontendRoot')
-    froot:Call(string.format(cexp, key))
+    ---@diagnostic disable-next-line: undefined-field
+    self.froot:Call(string.format(cexp, key))
     -- out('randomized abilities for '..key)
 end
 
 
-function randomize_items(key)
+function RoflanBuildiga:randomize_items(key)
     -- we will get the last unit expecting it to be a just picked character
     cexp = [=[
         (
@@ -448,13 +481,12 @@ function randomize_items(key)
             )
         }
     ]=]
-
-    local froot = cco('CcoFrontendRoot', 'FrontendRoot')
-    froot:Call(string.format(cexp, key))
+    ---@diagnostic disable-next-line: undefined-field
+    self.froot:Call(string.format(cexp, key))
     -- out('randomized items for '..key)
 end
 
-function randomize_changeling_form(key)
+function RoflanBuildiga:randomize_changeling_form(key)
     -- we will get the last unit expecting it to be a just picked character
     cexp = [=[
         (
@@ -482,14 +514,13 @@ function randomize_changeling_form(key)
             )
         }
     ]=]
-
-    local froot = cco('CcoFrontendRoot', 'FrontendRoot')
-    froot:Call(string.format(cexp, key))
+---@diagnostic disable-next-line: undefined-field
+    self.froot:Call(string.format(cexp, key))
     -- out('randomized form for '..key)
 end
 
 
-function lucky_priority_lock()
+function RoflanBuildiga:lucky_priority_lock()
     local NON_LOCK_PRIORITY = 888
     local LOCK_PRIORITY = -111
     local army_roster_parent = find_uicomponent(core:get_ui_root(), "custom_battle", "ready_parent", "recruitment_visibility_parent", "recruitment_parent", "roster_holder", "army_roster_parent")
@@ -529,26 +560,26 @@ function lucky_priority_lock()
 end
 
 
-function go_lucky()
-    clear_units()
-    common.set_context_value('klissan.lucky.build_explainer', '[[col:yellow]]'..common.get_localised_string('random_localisation_strings_string_main_army') .. ':\n[[/col]]')
-    set_is_recruiting_reinforcements(false)
+function RoflanBuildiga:go_lucky()
+    self:clear_units()
+    common:set_context_value('klissan.lucky.build_explainer', '[[col:yellow]]'..common.get_localised_string('random_localisation_strings_string_main_army') .. ':\n[[/col]]')
+    self:set_is_recruiting_reinforcements(false)
     local key = nil
-    key = pick_random_char('commander')
-    key = pick_random_char('heroes_agents')
-    if if_chance_succeed() then
-        key = pick_random_char('heroes_agents')
+    key = self:pick_random_char('commander')
+    key = self:pick_random_char('heroes_agents')
+    if self:if_chance_succeed() then
+        key = self:pick_random_char('heroes_agents')
     end
-    for _ = 0, get_unit_slots_left()-1 do
-        pick_random_unit()
+    for _ = 0, self:get_unit_slots_left()-1 do
+        self:pick_random_unit()
     end
 
-    if is_using_reinforcements() then
+    if self:is_using_reinforcements() then
         local v = common.get_context_value('CcoScriptObject', 'klissan.lucky.build_explainer', 'StringValue')
-        common.set_context_value('klissan.lucky.build_explainer', v ..'[[col:yellow]]'.. common.get_localised_string('uied_component_texts_localised_string_label_button_default_Text_42000d') .. ':\n[[/col]]')
-        set_is_recruiting_reinforcements(true)
-        for _ = 0, get_unit_slots_left()-1 do
-            pick_random_unit()
+        common:set_context_value('klissan.lucky.build_explainer', v ..'[[col:yellow]]'.. common.get_localised_string('uied_component_texts_localised_string_label_button_default_Text_42000d') .. ':\n[[/col]]')
+        self:set_is_recruiting_reinforcements(true)
+        for _ = 0, self:get_unit_slots_left()-1 do
+            self:pick_random_unit()
         end
     end
     local button_lucky = find_uicomponent(core:get_ui_root(), "custom_battle", "ready_parent", "recruitment_visibility_parent", "recruitment_parent", "roster_holder", "army_roster_parent", "recruited_army_parent", "army_recruitment_parent", "unit_list_holder", "row_header", "button_bar_parent", "button_list", "clear_autogen_parent", "button_lucky")
@@ -556,10 +587,29 @@ function go_lucky()
     button_lucky:SetTooltipText(common.get_context_value('CcoScriptObject', 'klissan.lucky.build_explainer', 'StringValue'), true)
 end
 
+function RoflanBuildiga:go_lucky_factions()
+    common:set_context_value('klissan.lucky.faction_explainer', '')
+    key = self:pick_random_faction()
+    local button_lucky_factions = find_uicomponent(core:get_ui_root(), "custom_battle", "ready_parent", "recruitment_visibility_parent", "recruitment_parent", "faction_holder", 'faction_pic_mask_parent', "button_lucky_factions")
 
---init_custom_battle_for_random_builds()
+    button_lucky_factions:SetTooltipText(common.get_context_value('CcoScriptObject', 'klissan.lucky.faction_explainer', 'StringValue'), true)
+end
 
-function lucky_check_if_mp_lobby()
+function RoflanBuildiga:create_button(parent_component, component_id)
+    self:out('creating button '..component_id)
+    button_lucky = UIComponent(parent_component:CreateComponent(component_id, 'ui/templates/square_small_button.twui.xml')) --"ui/mod/button_lucky.twui.xml"
+    local icon = find_uicomponent(button_lucky, "icon")
+    local icon_path = 'ui/mod/dices.png'
+    button_lucky:SetImagePath(icon_path)
+    icon:SetImagePath(icon_path)
+    button_lucky:Resize(36, 36)
+    icon:Resize(36, 36)
+    button_lucky:SetVisible(true)
+    button_lucky:SetDisabled(false)
+    return button_lucky
+end
+
+function RoflanBuildiga:lucky_check_if_mp_lobby()
     local cb = find_uicomponent(core:get_ui_root(), "custom_battle")
     if cb then
         local checkbox_parent =  find_uicomponent(cb, "ready_parent", "settings_parent", "custom_battle_map_settings", "settings_parent", "checkbox_parent")
@@ -568,38 +618,45 @@ function lucky_check_if_mp_lobby()
         local army_roster_parent = find_uicomponent(cb, "ready_parent", "recruitment_visibility_parent", "recruitment_parent", "roster_holder", "army_roster_parent")
         local unit_list_holder = find_uicomponent(army_roster_parent, "recruited_army_parent", "army_recruitment_parent", "unit_list_holder")
         local clear_autogen_parent = find_uicomponent(unit_list_holder, "row_header", "button_bar_parent", "button_list", "clear_autogen_parent")
+        local faction_pic_mask_parent = find_uicomponent(cb, "ready_parent", "recruitment_visibility_parent", "recruitment_parent", "faction_holder", 'faction_pic_mask_parent', 'strip_holder')
         local button_lucky = find_uicomponent(clear_autogen_parent, "button_lucky")
         if not button_lucky then
-            button_lucky = UIComponent(clear_autogen_parent:CreateComponent("button_lucky", 'ui/templates/square_small_button.twui.xml')) --"ui/mod/button_lucky.twui.xml"
-            local icon = find_uicomponent(button_lucky, "icon")
-            local icon_path = 'ui/mod/dices.png'
-            button_lucky:SetImagePath(icon_path)
-            icon:SetImagePath(icon_path)
-            button_lucky:Resize(36, 36)
-            icon:Resize(36, 36)
-            button_lucky:SetVisible(true)
-            button_lucky:SetDisabled(false)
+            self:create_button(clear_autogen_parent, 'button_lucky')
+            self:create_button(faction_pic_mask_parent, 'button_lucky_factions')
         end
 
         local title = find_uicomponent(cb, 'ready_parent', 'title_plaque', 'tx_header'):CurrentState()
         if title == "mp" then
-            lucky_priority_lock()
+            self:lucky_priority_lock()
         end
     end
 end
 
 
-function klissan_lucky_button_init_frontend()
-    core:get_tm():repeat_real_callback(function() lucky_check_if_mp_lobby() end, 250, 'Klissan_lucky_check_custom_battle')
+function RoflanBuildiga:init_frontend()
+    self.froot = cco('CcoFrontendRoot', 'FrontendRoot')
+    core:get_tm():repeat_real_callback(function() self:lucky_check_if_mp_lobby() end, 250, 'Klissan_lucky_check_custom_battle')
 
     core:add_listener(
-            "chat_button_toggle_chat_clicked",
+            "klissan_lucky_button_clicked",
             "ComponentLClickUp",
             function(context)
                 return context.string == "button_lucky"
             end,
             function(context)
-                go_lucky()
+                self:go_lucky()
+            end,
+            true
+    )
+
+    core:add_listener(
+            "klissan_lucky_button_factions_clicked",
+            "ComponentLClickUp",
+            function(context)
+                return context.string == "button_lucky_factions"
+            end,
+            function(context)
+                self:go_lucky_factions()
             end,
             true
     )
@@ -609,16 +666,11 @@ if not core:is_battle() then
 	core:add_ui_created_callback(
 		function()
 			if core:is_frontend() then
-				klissan_lucky_button_init_frontend()
+				RoflanBuildiga:init_frontend()
 			end
 		end
 	)
 end
 
-
---TODO faction random button
-
 -- TODO chat reports
 -- TODO snapshots for observers
-
--- TODO REFACTOR THIUS FUCKIONH LUA
