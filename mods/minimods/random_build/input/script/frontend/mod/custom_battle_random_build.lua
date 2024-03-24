@@ -14,7 +14,7 @@ function if_chance_succeed()
     local loc_language = cco('CcoFrontendRoot', 'FrontendRoot'):Call('LocLanguage')
     local explain_str = string.format(common.get_localised_string('random_localisation_strings_string_explain_second_char'), r)
     common.set_context_value('klissan.lucky.build_explainer', v .. explain_str)
-    return r > 50
+    return r <= 50
 end
 
 function set_is_recruiting_reinforcements(is_reinforcement)
@@ -107,9 +107,9 @@ function pick_random_unit()
         {
             GetIf(unit_list_size < max_unit_list_size && affordable_units && affordable_units.Size > 0,
                 (
-                    rand = TrueRandomInRange(0, affordable_units.Size - 1),
-                    runit = affordable_units[rand],
-                    explain_str = Format(Loc('explain_unit_recruitment'), funds_available, rand+1, affordable_units.Size, runit.UnitContext.CategoryIcon, runit.UnitContext.Name, runit.Cost)
+                    rand = TrueRandomInRange(1, affordable_units.Size),
+                    runit = affordable_units[rand - 1],
+                    explain_str = Format(Loc('explain_unit_recruitment'), funds_available, rand, affordable_units.Size, runit.UnitContext.CategoryIcon, runit.UnitContext.Name, runit.Cost)
                 ) =>
                 {
                     Do(
@@ -138,9 +138,9 @@ function pick_random_char(typee)
             pslot = Component('recruitment_parent').ContextsList[0],
             unit_group_record = DatabaseRecordContext('CcoUiUnitGroupParentRecord', unit_type),
             unit_list = pslot.UnitListForUnitGroupParent(unit_group_record).Filter((x=false, _) => pslot.CanRecruitUnit(x.UnitContext, pslot.IsRecruitingReinforcements)),
-            rand = TrueRandomInRange(0, unit_list.Size - 1),
-            runit = unit_list[rand],
-            explain_str = Format(Loc('explain'), '[[col:red]]' + unit_group_record.OnscreenName + '[[/col]]', rand+1, unit_list.Size, runit.UnitContext.CategoryIcon, runit.UnitContext.Name)
+            rand = TrueRandomInRange(1, unit_list.Size),
+            runit = unit_list[rand-1],
+            explain_str = Format(Loc('explain'), '[[col:red]]' + unit_group_record.OnscreenName + '[[/col]]', rand, unit_list.Size, runit.UnitContext.CategoryIcon, runit.UnitContext.Name)
         ) =>
         {
             Do(
@@ -204,9 +204,9 @@ function randomize_category(key)
                         .Filter(AlternateUnitContext.Cost - unit.UnitRecordContext.Cost <= funds_available)
                         .Filter((x=false, _) => pslot.CanRecruitUnit(x.AlternateUnitContext, unit.IsReinforcement, unit.UnitRecordContext))
                         .Sort(CategoryTypeName).Sort(SortOrder, true),
-                    rand = TrueRandomInRange(0, unit_types.Size - 1),
-                    unit_type = unit_types[rand],
-                    explain_str = Format(Loc('explain'), '[[col:magic]]' + category_type.CategoryName + '[[/col]]', rand+1, unit_types.Size, unit_type.TypeIcon, unit_type.CategoryTypeName)
+                    rand = TrueRandomInRange(1, unit_types.Size),
+                    unit_type = unit_types[rand-1],
+                    explain_str = Format(Loc('explain'), '[[col:magic]]' + category_type.CategoryName + '[[/col]]', rand, unit_types.Size, unit_type.TypeIcon, unit_type.CategoryTypeName)
                 ) =>
                 {
                     GetIfElse(
@@ -239,14 +239,14 @@ function randomize_lore(key)
             character = unit_list.LastContext(UnitRecordContext.Key == '%s'),
             fc = character.UnitTypes.FirstContext(TypeCategoryContext.IsHorizontalGroup == false),
             tcc = GetIf(IsContextValid(fc), fc.TypeCategoryContext),
-            lores = GetIf(IsContextValid(tcc), character.UnitTypes.Filter(TypeCategoryContext == tcc))
+            lores = GetIf(IsContextValid(tcc), character.UnitTypes.Filter(TypeCategoryContext == tcc)).Sort(SortOrder, true)
         ) =>
         {
             GetIfElse(lores && lores.Size > 0,
                 (
-                    rand = TrueRandomInRange(0, lores.Size - 1),
-                    rlore = lores[rand],
-                    explain_str = Format(Loc('explain'), '[[col:magic]]' + tcc.CategoryName + '[[/col]]', rand+1, lores.Size,
+                    rand = TrueRandomInRange(1, lores.Size),
+                    rlore = lores[rand-1],
+                    explain_str = Format(Loc('explain'), '[[col:magic]]' + tcc.CategoryName + '[[/col]]', rand, lores.Size,
                         GetIfElse(rlore.TypeIcon.IsEmpty, rlore.AlternateUnitContext.SpecialAbilityGroupList.FirstContext.ButtonIconPath, rlore.TypeIcon),
                         GetIfElse(rlore.CategoryTypeName.IsEmpty, rlore.AlternateUnitContext.SpecialAbilityGroupList.FirstContext.Name, rlore.CategoryTypeName))
                 ) =>
@@ -282,16 +282,17 @@ function randomize_mount(key)
             GetIfElse(
                 mounts && mounts.Size > 0,
                 (
-                    rand = TrueRandomInRange(0, mounts.Size),
-                    mount = GetIfElse(rand == 0, false, mounts[rand-1]),
-                    mount_icon = GetIfElse(rand == 0, '', mount.IconName),
-                    mount_name = GetIfElse(rand == 0, StringGet('uied_component_texts_localised_string_StateText_1da8a240'), mount.MountName),
+                    rrand = TrueRandomInRange(1, mounts.Size+1),
+                    rand = rrand -2,
+                    mount = GetIfElse(rand == -1, false, mounts[rand]),
+                    mount_icon = GetIfElse(rand == -1, '', mount.IconName),
+                    mount_name = GetIfElse(rand == -1, StringGet('uied_component_texts_localised_string_StateText_1da8a240'), mount.MountName),
                     mount_str = StringGet('uied_component_texts_localised_string_header_default_Text_72004c'),
-                    explain_str = Format(Loc('explain'), '[[col:magic]]' + mount_str + '[[/col]]', rand, mounts.Size, mount_icon, mount_name)
+                    explain_str = Format(Loc('explain'), '[[col:magic]]' + mount_str + '[[/col]]', rrand, mounts.Size+1, mount_icon, mount_name)
                 ) =>
                 {
                     soc.SetStringValue(soc.StringValue + explain_str)
-                    + GetIfElse(rand > 0,
+                    + GetIfElse(rand > -1,
                         Do(character.ChangeMount(mount)) + mount.MountedUnitContext.Key,
                         character.UnitRecordContext.Key
                     )
@@ -324,7 +325,7 @@ function randomize_spells(key)
                     (
                         x,
                         rand = TrueRandomInRange(1, 100),
-                        if_success = rand > th,
+                        if_success = rand <= th,
                         explain_str = Format(Loc('img_f'), IconPath) + GetIfElse(if_success, Format(Loc('col_yd'), rand), rand)
                     ) =>
                     {
@@ -360,7 +361,7 @@ function randomize_runes(key)
                     (
                         x,
                         rand = TrueRandomInRange(1, 100),
-                        if_success = rand > th,
+                        if_success = rand <= th,
                         explain_str = Format(Loc('img_f'), IconPath) + GetIfElse(if_success, Format(Loc('col_yd'), rand), rand)
                     ) =>
                     {
@@ -397,7 +398,7 @@ function randomize_abilities(key)
                     (
                         x,
                         rand = TrueRandomInRange(1, 100),
-                        if_success = rand > th,
+                        if_success = rand <= th,
                         explain_str = Format(Loc('img_f'), IconPath) + GetIfElse(if_success, Format(Loc('col_yd'), rand), rand)
                     ) =>
                     {
@@ -434,7 +435,7 @@ function randomize_items(key)
                     (
                         x,
                         rand = TrueRandomInRange(1, 100),
-                        if_success = rand > th,
+                        if_success = rand <= th,
                         explain_str = Format(Loc('img_f'), IconPath) + GetIfElse(if_success, Format(Loc('col_yd'), rand), rand)
                     ) =>
                     {
@@ -467,10 +468,10 @@ function randomize_changeling_form(key)
             DoIf(has_form,
                 (
                     unlocked_forms = CustomBattleShapeshiftFormsList.Filter(MainUnitRecordContext.IsOwned),
-                    rand = TrueRandomInRange(0, unlocked_forms.Size - 1),
-                    chosen_form = unlocked_forms.At(rand),
+                    rand = TrueRandomInRange(1, unlocked_forms.Size),
+                    chosen_form = unlocked_forms.At(rand-1),
                     munit = chosen_form.MainUnitRecordContext,
-                    explain_str =  Format(Loc('explain'), '[[col:magic]]' + StringGet('uied_component_texts_localised_string_StateText_71eb0ae9') + '[[/col]]', rand+1, unlocked_forms.Size, munit.CategoryIcon, munit.Name)
+                    explain_str =  Format(Loc('explain'), '[[col:magic]]' + StringGet('uied_component_texts_localised_string_StateText_71eb0ae9') + '[[/col]]', rand, unlocked_forms.Size, munit.CategoryIcon, munit.Name)
                 ) =>
                 {
                     Do(
