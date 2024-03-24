@@ -2,7 +2,11 @@
 
 ---@class RoflanBuildiga
 local RoflanBuildiga = {
-    froot = nil
+    froot = nil,
+    mp = {
+        faction_rolls = 0,
+        build_rolls = 0,
+    }
 }
 
 function RoflanBuildiga:out(s)
@@ -31,48 +35,70 @@ function RoflanBuildiga:if_chance_succeed()
 end
 
 function RoflanBuildiga:set_is_recruiting_reinforcements(is_reinforcement)
-    local cexp = [[
+    local cexp = [=[
         (
             pslot = Component('recruitment_parent').ContextsList[0]
         ) =>
         {
             pslot.SetIsRecruitingReinforcements(%s)
         }
-    ]]
+    ]=]
     ---@diagnostic disable-next-line: undefined-field
     self.froot:Call(string.format(cexp, tostring(is_reinforcement)))
 end
 
 
+function RoflanBuildiga:report_to_chat(message)
+    local cexp = [=[
+        (
+            ftr = Component('frame_tr'),
+            cib = Component('chat_input_box'),
+            bsc = Component('button_send_chat')
+        ) =>
+        {
+            Do(
+                # ftr.SetVisible(true),
+                cib.SetText('[[img:ui/mod/dices.png]][[/img]] %s'),
+                bsc.SimulateLClick
+            )
+        }
+    ]=]
+    if self:if_chat_available() then
+        self:out('Reporting to Chat: '.. message)
+        ---@diagnostic disable-next-line: undefined-field
+        self.froot:Call(string.format(cexp, message))
+    end
+end
+
 function RoflanBuildiga:is_using_reinforcements()
-    local cexp = [[
+    local cexp = [=[
         (
             sc = FrontendRoot.CustomBattleLobbyContext.SettingsContext
         ) =>
         {
             sc.IsUsingReinforcingUnits
         }
-    ]]
+    ]=]
     ---@diagnostic disable-next-line: undefined-field
     return self.froot:Call(cexp)
 end
 
 function RoflanBuildiga:toggle_storm_of_magic()
-    local cexp = [[
+    local cexp = [=[
         (
             sc = FrontendRoot.CustomBattleLobbyContext.SettingsContext
         ) =>
         {
             DoIf(!sc.IsStormOfMagicEnabled, sc.ToggleStormOfMagic)
         }
-    ]]
+    ]=]
     ---@diagnostic disable-next-line: undefined-field
     return self.froot:Call(cexp)
 end
 
 
 function RoflanBuildiga:get_unit_slots_left()
-    local cexp = [[
+    local cexp = [=[
         (
             pslot = Component('recruitment_parent').ContextsList[0],
             sc = FrontendRoot.CustomBattleLobbyContext.SettingsContext,
@@ -82,21 +108,21 @@ function RoflanBuildiga:get_unit_slots_left()
         {
             max_unit_list_size - unit_list_size
         }
-    ]]
+    ]=]
     ---@diagnostic disable-next-line: undefined-field
     return self.froot:Call(cexp)
 end
 
 
 function RoflanBuildiga:clear_units()
-    local cexp = [[
+    local cexp = [=[
         (
             pslot = Component('recruitment_parent').ContextsList[0]
         ) =>
         {
             pslot.ClearUnits
         }
-    ]]
+    ]=]
     ---@diagnostic disable-next-line: undefined-field
     self.froot:Call(cexp)
 end
@@ -121,7 +147,7 @@ function RoflanBuildiga:pick_random_faction()
             Do(
                 pslot.SetSubculture(subculture),
                 soc.SetStringValue(soc.StringValue + explain_str)
-            ) + subculture.Key
+            ) + faction.NameWithIcon + '(' + subculture.Key + ')'
         }
     ]=]
     ---@diagnostic disable-next-line: undefined-field
@@ -585,6 +611,8 @@ function RoflanBuildiga:go_lucky()
     local button_lucky = find_uicomponent(core:get_ui_root(), "custom_battle", "ready_parent", "recruitment_visibility_parent", "recruitment_parent", "roster_holder", "army_roster_parent", "recruited_army_parent", "army_recruitment_parent", "unit_list_holder", "row_header", "button_bar_parent", "button_list", "clear_autogen_parent", "button_lucky")
 
     button_lucky:SetTooltipText(common.get_context_value('CcoScriptObject', 'klissan.lucky.build_explainer', 'StringValue'), true)
+    self:increase_build_roll_count()
+    self:report_to_chat(string.format('Build Rolls: [[col:yellow]]%d[[/col]] Total Rolls: [[col:yellow]]%d[[/col]]', self.mp.build_rolls, self:get_total_mp_rolls_count()))
 end
 
 function RoflanBuildiga:go_lucky_factions()
@@ -593,6 +621,8 @@ function RoflanBuildiga:go_lucky_factions()
     local button_lucky_factions = find_uicomponent(core:get_ui_root(), "custom_battle", "ready_parent", "recruitment_visibility_parent", "recruitment_parent", "faction_holder", 'faction_pic_mask_parent', "button_lucky_factions")
 
     button_lucky_factions:SetTooltipText(common.get_context_value('CcoScriptObject', 'klissan.lucky.faction_explainer', 'StringValue'), true)
+    self:increase_faction_roll_count()
+    self:report_to_chat(string.format('%s Faction Rolls: [[col:yellow]]%d[[/col]] Total Rolls: [[col:yellow]]%d[[/col]]', key, self.mp.faction_rolls, self:get_total_mp_rolls_count()))
 end
 
 function RoflanBuildiga:create_button(parent_component, component_id)
@@ -607,6 +637,30 @@ function RoflanBuildiga:create_button(parent_component, component_id)
     button_lucky:SetVisible(true)
     button_lucky:SetDisabled(false)
     return button_lucky
+end
+
+function RoflanBuildiga:if_chat_available()
+    local chat = find_uicomponent(core:get_ui_root(), "sp_frame", 'frame_tr', 'multiplayer_chat')
+    return chat
+end
+
+function RoflanBuildiga:increase_build_roll_count()
+    self.mp.build_rolls = self.mp.build_rolls + 1
+    return self.mp.build_rolls
+end
+
+function RoflanBuildiga:increase_faction_roll_count()
+    self.mp.faction_rolls = self.mp.faction_rolls + 1
+    return self.mp.faction_rolls
+end
+
+function RoflanBuildiga:get_total_mp_rolls_count()
+    return self.mp.build_rolls + self.mp.faction_rolls
+end
+
+function RoflanBuildiga:reset_mp_rolls()
+    self.mp.build_rolls = 0
+    self.mp.faction_rolls = 0
 end
 
 function RoflanBuildiga:lucky_check_if_mp_lobby()
@@ -629,6 +683,8 @@ function RoflanBuildiga:lucky_check_if_mp_lobby()
         if title == "mp" then
             self:lucky_priority_lock()
         end
+    else
+        self:reset_mp_rolls()
     end
 end
 
@@ -671,6 +727,4 @@ if not core:is_battle() then
 		end
 	)
 end
-
--- TODO chat reports
 -- TODO snapshots for observers
