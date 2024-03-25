@@ -207,7 +207,7 @@ function edit_string(s, i)
     end
     -- edited_string = edited_string.gsub()
     -- emoji replacer
-    edited_string = edited_string:gsub('`(%a+)`', '[[img:ui/mod/emojis/%1.png]][[/img]]')
+    edited_string = edited_string:gsub('`([_%w]+)`', '[[img:ui/mod/emojis/%1.png]][[/img]]')
 
     -- nickname formatter
     edited_string = format_nickname(edited_string)
