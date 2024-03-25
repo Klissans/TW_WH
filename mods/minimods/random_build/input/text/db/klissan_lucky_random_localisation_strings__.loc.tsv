@@ -1,0 +1,9 @@
+key	text	tooltip
+#Loc;1;text/db/klissan_lucky_random_localisation_strings__.loc
+random_localisation_strings_string_LF	\\n	false
+random_localisation_strings_string_img_f	[[img:%S]][[/img]]	false
+random_localisation_strings_string_col_yd	[[col:yellow]]%d[[/img]]	false
+random_localisation_strings_string_explain	%S [[col:yellow]]%2d[[/col]]|%2d [[img:%S]][[/img]]%S\\n	false
+random_localisation_strings_string_explain_second_char	~~~[[col:yellow]]%2d[[/col]] [1-100]~~~\\n	false
+random_localisation_strings_string_explain_unit_recruitment	[[img:ui/skins/default/icon_income.png]][[/img]]%5d [[col:yellow]]%2d[[/col]]|%2d [[img:%S]][[/img]]%S[[img:ui/skins/default/icon_income.png]][[/img]]%d\\n	false
+random_localisation_strings_string_explain_faction	[[col:yellow]]%d[[/col]]|%d %S\\n	false
