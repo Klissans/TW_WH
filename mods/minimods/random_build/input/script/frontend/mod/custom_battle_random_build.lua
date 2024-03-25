@@ -72,15 +72,16 @@ function RoflanBuildiga:report_to_chat(message)
         local chat_input = find_uicomponent(frame_tr, 'multiplayer_chat', 'chat_input_box')
         local button_send_chat = find_uicomponent(chat_input, 'button_send_chat')
         frame_tr:SetVisible(true)
+        local chat_message = '`dices` ' .. message
         core:get_tm():real_callback(
             function()
                 chat_input:SimulateLClick()
-                for i = 1, #message do
-                    local c = message:sub(i,i)
+                for i = 1, #chat_message do
+                    local c = chat_message:sub(i,i)
                     chat_input:SimulateKey(c)
                 end
                 button_send_chat:SimulateLClick()
-                self:out('Reporting to Chat: '.. message)
+                self:out('Reporting to Chat: '.. chat_message)
             end,
             50,
             'Klissan_lucky_chat_report'
@@ -633,6 +634,41 @@ function RoflanBuildiga:go_lucky()
     self:report_to_chat(string.format('Build Rolls: %d Total Rolls: %d', self.mp.build_rolls, self:get_total_mp_rolls_count()))
 end
 
+function RoflanBuildiga:subculture_mapping(subculture_key)
+    sc_to_flag_mapping = {
+        ["wh_dlc03_sc_bst_beastmen"] = "`f_bm`Beastmen",
+        ["wh_main_sc_brt_bretonnia"] = "`f_brt`Bretonnia",
+        ["wh3_dlc23_sc_chd_chaos_dwarfs"] = "`f_cd`Chaos Dwarfs",
+        ["wh3_main_sc_dae_daemons"] = "`f_doc`Daemons of Chaos",
+        ["wh2_main_sc_def_dark_elves"] = "`f_de`Dark Elves",
+        ["wh_main_sc_dwf_dwarfs"] = "`f_dwf`Dwarfs",
+        ["wh_main_sc_emp_empire"] = "`f_emp`Empire",
+        ["wh3_main_sc_cth_cathay"] = "`f_gc`Cathay",
+        ["wh_main_sc_grn_greenskins"] = "`f_gs`Greenskins",
+        ["wh2_main_sc_hef_high_elves"] = "`f_he`High Elves",
+        ["wh3_main_sc_kho_khorne"] = "`f_khr`Khorne",
+        ["wh3_main_sc_ksl_kislev"] = "`f_ksl`Kislev",
+        ["wh2_main_sc_lzd_lizardmen"] = "`f_lm`Lizardmen",
+        ["wh_dlc08_sc_nor_norsca"] = "`f_nsc`Norsca",
+        ["wh3_main_sc_nur_nurgle"] = "`f_ngl`Nurgle",
+        ["wh3_main_sc_ogr_ogre_kingdoms"] = "`f_ok`Ogre Kingdoms",
+        ["wh2_main_sc_skv_skaven"] = "`f_skv`Skaven",
+        ["wh3_main_sc_sla_slaanesh"] = "`f_sln`Slaanesh",
+        ["wh2_dlc09_sc_tmb_tomb_kings"] = "`f_tk`Tomb kings",
+        ["wh3_main_sc_tze_tzeentch"] = "`f_tzn`Tzeentch",
+        ["wh2_dlc11_sc_cst_vampire_coast"] = "`f_vcst`Vampire Coast",
+        ["wh_main_sc_vmp_vampire_counts"] = "`f_vcnts`Vampire Counts",
+        ["wh_main_sc_chs_chaos"] = "`f_woc`Warriors of Chaos",
+        ["wh_dlc05_sc_wef_wood_elves"] = "`f_we`Wood Elves",
+    }
+    local flag = sc_to_flag_mapping[subculture_key]
+    if flag then
+        return flag
+    else
+        return subculture_key
+    end
+end
+
 function RoflanBuildiga:go_lucky_factions()
     common:set_context_value('klissan.lucky.faction_explainer', '')
     key = self:pick_random_faction()
@@ -640,7 +676,15 @@ function RoflanBuildiga:go_lucky_factions()
 
     button_lucky_factions:SetTooltipText(common.get_context_value('CcoScriptObject', 'klissan.lucky.faction_explainer', 'StringValue'), true)
     self:increase_faction_roll_count()
-    self:report_to_chat(string.format('%s Faction Rolls: %d Total Rolls: %d', key, self.mp.faction_rolls, self:get_total_mp_rolls_count()))
+    self:report_to_chat(string.format('%s Faction Rolls: %d Total Rolls: %d', self:subculture_mapping(key), self.mp.faction_rolls, self:get_total_mp_rolls_count()))
+
+    core:get_tm():real_callback(
+        function()
+            self:clear_units()
+        end,
+        1000,
+        'Klissan_lucky_clear_units_after_faction_pick'
+    )
 end
 
 function RoflanBuildiga:create_button(parent_component, component_id)
