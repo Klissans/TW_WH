@@ -24,7 +24,7 @@ def create_random_army_abilities_for_all_units(hh):
     df.loc[faction_group_key] = {"currency_type": "army_ability_bar_fill", "faction": "", "faction_group": faction_group_key, "source_type": "army_losses", "battle_type": "",
                                  "excluded_battle_type": "", "battle_set_pieces": "", "battles": "", "source_unitary_value": 1, "attacker": True, "defender": True}
     
-    army_abilities = {f'{FACTION_PREFIX}army_ability_tier_0': 250, f'{FACTION_PREFIX}army_ability_tier_1': 500, f'{FACTION_PREFIX}army_ability_tier_2': 750, f'{FACTION_PREFIX}army_ability_tier_3': 1500}
+    army_abilities = {f'{FACTION_PREFIX}army_ability_tier_0': 128, f'{FACTION_PREFIX}army_ability_tier_1': 256, f'{FACTION_PREFIX}army_ability_tier_2': 512, f'{FACTION_PREFIX}army_ability_tier_3': 1536}
     df = handler.duplicate_table('army_special_abilities_tables', prefix=PREFIX, copy_data=False).data
     start_index = 7456384
     for i, (army_ability_key, army_ability_cost) in enumerate(army_abilities.items()):  # order is not guaranteed
