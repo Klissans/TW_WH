@@ -342,7 +342,8 @@ def mod_stats_fatigue(xml):
         buc = ud.BattleUnitContext,
         f_state = GetIf(is_battle, Format("%d", buc.FatigueState)),
         cmp = GetIf(is_battle, db_lookup.ChildContext("fatigue_effects").ChildContext(Key)),
-        fatigue_coeff = GetIfElse(is_battle, ToNumber(cmp.GetProperty(f_state)), 1.0),
+        is_valid_battle_context = is_battle && IsContextValid(buc),
+        fatigue_coeff = GetIfElse(is_valid_battle_context, ToNumber(cmp.GetProperty(f_state)), 1.0),
 
         stat_ws_tp = ud.StatContextFromKey("stat_weapon_damage").Tooltip.Replace('||', ''),
         rest_pattern = "]][[/img]]",
@@ -450,10 +451,10 @@ def mod_stats_fatigue(xml):
                 apwd_s = GetIf(has_apwd, StringSubString(apwd_uss, 0).RemoveLeadingWhitespace),
                 apwd = GetIf(has_apwd, RoundFloat(ToNumber(apwd_s))),
 
-                bwd_fatigue_coeff = GetIfElse(is_battle, ToNumber(db_lookup.ChildContext("fatigue_effects").ChildContext("stat_melee_damage_base").GetProperty(f_state)), 1.0),
+                bwd_fatigue_coeff = GetIfElse(is_valid_battle_context, ToNumber(db_lookup.ChildContext("fatigue_effects").ChildContext("stat_melee_damage_base").GetProperty(f_state)), 1.0),
                 f_bwd = RoundFloat(bwd_fatigue_coeff * bwd),
                 f_bwd_str = Format("[[img:ui/skins/default/icon_stat_damage_base.png]][[/img]]%d", f_bwd),
-                apwd_fatigue_coeff = GetIfElse(is_battle, ToNumber(db_lookup.ChildContext("fatigue_effects").ChildContext("stat_melee_damage_ap").GetProperty(f_state)), 1.0),
+                apwd_fatigue_coeff = GetIfElse(is_valid_battle_context, ToNumber(db_lookup.ChildContext("fatigue_effects").ChildContext("stat_melee_damage_ap").GetProperty(f_state)), 1.0),
                 f_apwd = RoundFloat(apwd_fatigue_coeff * apwd),
                 f_apwd_str = Format("[[img:ui/skins/default/modifier_icon_armour_piercing.png]][[/img]]%d", f_apwd),
 
@@ -628,19 +629,19 @@ def mod_stats_fatigue(xml):
 
                 fe = db_lookup.ChildContext("fatigue_effects"),
 
-                mdb_fatigue_coeff = GetIfElse(is_battle, ToNumber(fe.ChildContext("scalar_missile_damage_base").GetProperty(f_state)), 1.0),
+                mdb_fatigue_coeff = GetIfElse(is_valid_battle_context, ToNumber(fe.ChildContext("scalar_missile_damage_base").GetProperty(f_state)), 1.0),
                 f_mdb = RoundFloat(mdb_fatigue_coeff * mdb),
                 f_mdb_str = Format("[[img:ui/skins/default/icon_stat_ranged_damage_base.png]][[/img]]%d", f_mdb),
 
-                mdap_fatigue_coeff = GetIfElse(is_battle, ToNumber(fe.ChildContext("scalar_missile_damage_ap").GetProperty(f_state)), 1.0),
+                mdap_fatigue_coeff = GetIfElse(is_valid_battle_context, ToNumber(fe.ChildContext("scalar_missile_damage_ap").GetProperty(f_state)), 1.0),
                 f_mdap = RoundFloat(mdap_fatigue_coeff * mdap),
                 f_mdap_str = Format("[[img:ui/skins/default/modifier_icon_armour_piercing_ranged.png]][[/img]]%d", f_mdap),
 
-                medb_fatigue_coeff = GetIfElse(is_battle, ToNumber(fe.ChildContext("scalar_missile_explosion_damage_base").GetProperty(f_state)), 1.0),
+                medb_fatigue_coeff = GetIfElse(is_valid_battle_context, ToNumber(fe.ChildContext("scalar_missile_explosion_damage_base").GetProperty(f_state)), 1.0),
                 f_medb = GetIf(has_medb, RoundFloat(medb_fatigue_coeff * medb)),
                 f_medb_str = GetIfElse(has_medb, Format(" [[img:ui/skins/default/icon_explosive_damage.png]][[/img]]%d", f_medb), ""),
 
-                medap_fatigue_coeff = GetIfElse(is_battle, ToNumber(fe.ChildContext("scalar_missile_explosion_damage_ap").GetProperty(f_state)), 1.0),
+                medap_fatigue_coeff = GetIfElse(is_valid_battle_context, ToNumber(fe.ChildContext("scalar_missile_explosion_damage_ap").GetProperty(f_state)), 1.0),
                 f_medap = GetIf(has_medap, RoundFloat(medap_fatigue_coeff * medap)),
                 f_medap_str = GetIfElse(has_medap, Format("[[img:ui/skins/default/icon_stat_explosive_armour_piercing_damage.png]][[/img]]%d", f_medap), ""),
 
