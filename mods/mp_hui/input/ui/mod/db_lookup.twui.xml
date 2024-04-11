@@ -36,8 +36,7 @@
                 this="019D6338-B13C-4056-8A97BE79D1090000"
                 id="db_lookup">
             <states>
-                <default_state>
-                </default_state>
+                <default_state/>
             </states>
         </db_lookup>
 
@@ -45,8 +44,7 @@
                 this="019D6338-B13C-4056-8A97BE79D1094F00"
                 id="fatigue_effects">
             <states>
-                <default_state>
-                </default_state>
+                <default_state/>
             </states>
         </fatigue_effects>
 
@@ -54,8 +52,7 @@
                 this="019D6338-B13C-4056-8A97BE79D1094F01"
                 id="stat_armour">
             <states>
-                <default_state>
-                </default_state>
+                <default_state/>
             </states>
             <userproperties>
                 <property name="0" value="1.00"/>
@@ -71,8 +68,7 @@
                 this="019D6338-B13C-4056-8A97BE79D1094F02"
                 id="stat_melee_defence">
             <states>
-                <default_state>
-                </default_state>
+                <default_state/>
             </states>
             <userproperties>
                 <property name="0" value="1.00"/>
@@ -88,8 +84,7 @@
                 this="019D6338-B13C-4056-8A97BE79D1094F03"
                 id="stat_charge_bonus">
             <states>
-                <default_state>
-                </default_state>
+                <default_state/>
             </states>
             <userproperties>
                 <property name="0" value="1.00"/>
@@ -105,8 +100,7 @@
                 this="019D6338-B13C-4056-8A97BE79D1094F04"
                 id="stat_melee_attack">
             <states>
-                <default_state>
-                </default_state>
+                <default_state/>
             </states>
             <userproperties>
                 <property name="0" value="1.00"/>
@@ -122,8 +116,7 @@
                 this="019D6338-B13C-4056-8A97BE79D1094F05"
                 id="stat_melee_damage_base">
             <states>
-                <default_state>
-                </default_state>
+                <default_state/>
             </states>
             <userproperties>
                 <property name="0" value="1.00"/>
@@ -139,8 +132,7 @@
                 this="019D6338-B13C-4056-8A97BE79D1094F06"
                 id="stat_melee_damage_ap">
             <states>
-                <default_state>
-                </default_state>
+                <default_state/>
             </states>
             <userproperties>
                 <property name="0" value="1.00"/>
@@ -156,8 +148,7 @@
                 this="019D6338-B13C-4056-8A97BE79D1094F07"
                 id="scalar_speed">
             <states>
-                <default_state>
-                </default_state>
+                <default_state/>
             </states>
             <userproperties>
                 <property name="0" value="1.00"/>
@@ -173,8 +164,7 @@
                 this="019D6338-B13C-4056-8A97BE79D1094F08"
                 id="scalar_missile_damage_base">
             <states>
-                <default_state>
-                </default_state>
+                <default_state/>
             </states>
             <userproperties>
                 <property name="0" value="1.00"/>
@@ -190,8 +180,7 @@
                 this="019D6338-B13C-4056-8A97BE79D1094F09"
                 id="scalar_missile_damage_ap">
             <states>
-                <default_state>
-                </default_state>
+                <default_state/>
             </states>
             <userproperties>
                 <property name="0" value="1.00"/>
@@ -207,8 +196,7 @@
                 this="019D6338-B13C-4056-8A97BE79D1094F10"
                 id="scalar_missile_explosion_damage_base">
             <states>
-                <default_state>
-                </default_state>
+                <default_state/>
             </states>
             <userproperties>
                 <property name="0" value="1.00"/>
@@ -224,8 +212,7 @@
                 this="019D6338-B13C-4056-8A97BE79D1094F11"
                 id="scalar_missile_explosion_damage_ap">
             <states>
-                <default_state>
-                </default_state>
+                <default_state/>
             </states>
             <userproperties>
                 <property name="0" value="1.00"/>
@@ -236,6 +223,5 @@
                 <property name="5" value="1.00"/>
             </userproperties>
         </scalar_missile_explosion_damage_ap>
-
     </components>
 </layout>
