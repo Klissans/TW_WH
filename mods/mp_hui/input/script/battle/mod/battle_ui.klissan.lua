@@ -1,7 +1,5 @@
-require('helpers')
-
----@class reinforcement_panel
-local reinforcement_panel = {
+---@class battle_ui
+local battle_ui = {
     _name = nil,
     _uic = nil,
     _shortcuts_tele = {
@@ -12,7 +10,7 @@ local reinforcement_panel = {
 }
 
 
-function reinforcement_panel:init()
+function battle_ui:init()
 
     local parent_uic = find_uicomponent(core:get_ui_root(), "hud_battle", "battle_orders", "battle_orders_pane", "orders_parent", "reinforcement_hud_parent", "spawn_toggle_parent", "button_reinforcements", "parent_reinforcement_purchase");
     self._uic = parent_uic;
@@ -41,15 +39,10 @@ function reinforcement_panel:init()
     find_uicomponent(menu_bar, "mod_team_list"):SetInteractive(false);
     find_uicomponent(menu_bar, "buttongroup", "button_player_list"):SetVisible(true);
 
-    if common.get_context_value("CcoBattleRoot", "IsDomination") then
-        find_uicomponent(self._uic_el, "footer"):CreateComponent("reinf_panel_supplies", "ui/mod/reinf_panel_supplies.twui.xml")
+    if common.get_context_value("CcoBattleRoot", "IsDomination") then -- TODO debug
+            find_uicomponent(self._uic_el, "footer"):CreateComponent("reinf_panel_supplies", "ui/mod/reinf_panel_supplies.twui.xml")
     end
     -- uic_ping_marker:SetContextObject(cco("CcoBattleRoot", self.unit:unique_ui_id()));
-
-    -- -- add chat button
-    -- find_uicomponent(core:get_ui_root(), "menu_bar", "buttongroup", "button_hud_chat"):SetVisible(true);
-    -- find_uicomponent(core:get_ui_root(), "menu_bar", "buttongroup", "button_hud_chat"):SetState("active");
-
 
 
     --     local battle = empire_battle:new();
@@ -66,7 +59,7 @@ function reinforcement_panel:init()
 
 end
 
-function reinforcement_panel:init_listener_tele()
+function battle_ui:init_listener_tele()
 
     out('Entering init')
     if not bm:is_replay() then
@@ -94,7 +87,7 @@ function reinforcement_panel:init_listener_tele()
     );
 end
 
-function reinforcement_panel:init_listeners()
+function battle_ui:init_listeners()
 
     --core:add_listener(
     --	"reinforcement_panel_moved",
@@ -149,7 +142,7 @@ function init_save_replay_listener()
             function(context)
                 local function f()
                     local c = cco("CcoBattleRoot", "BattleRoot");
-                    local replay_name = os.date("%Y-%m-%d %H-%M ") .. c:Call("AllianceList.JoinString(ArmyList.JoinString(PlayerName + \"(\" +ArmyName + \")\", \"&\"), \" vs \") ");
+                    local replay_name = os.date("%Y-%m-%d %H-%M ") .. c:Call("AllianceList.JoinString(ArmyList.JoinString(PlayerName + '(' +ArmyName + ')', '&'), ' vs ') ");
                     local input_field = find_uicomponent(core:get_ui_root(), "requester", "input_name");
                     input_field:SetText(replay_name, '_todo_db_loc_key_');
                 end
@@ -163,15 +156,7 @@ end
 
 if core:is_battle() then
     bm:register_phase_change_callback("Deployment", function()
-        reinforcement_panel:init()
+        battle_ui:init()
     end)
     bm:register_phase_change_callback("Complete", init_save_replay_listener)
 end
-
-
-function add_fatigue_effects_component()
-    core:get_ui_root():CreateComponent("db_lookup", "ui/mod/db_lookup.twui.xml")
-end
-
-
-register_function_everywhere(add_fatigue_effects_component)

@@ -1,4 +1,5 @@
-require('helpers')
+--require('_helpers_klissan')
+--KlissanLoadModule('_helpers_klissan', 'script/_lib/mod')
 
 local _kv_rules_table = {
     ["melee_defence_direction_penalty_coefficient_flank"] = { ["key"] = "melee_defence_direction_penalty_coefficient_flank", ["value"] = 0.6 },
@@ -14,3 +15,14 @@ function init_kv_rules_cco_script_values()
 end
 
 register_function_everywhere(init_kv_rules_cco_script_values)
+
+
+
+function add_fatigue_effects_component()
+    core:get_ui_root():CreateComponent("db_lookup", "ui/mod/db_lookup.twui.xml")
+end
+
+
+register_function_everywhere(add_fatigue_effects_component)
+
+--language=javascript

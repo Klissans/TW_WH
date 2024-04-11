@@ -1,4 +1,4 @@
-require('helpers')
+require('_helpers_klissan')
 out("[Battle Data Dumper Mod] loaded")
 
 ---@class battle_data_dumper

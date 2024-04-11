@@ -38,7 +38,7 @@ function register_function(t)
         t[2] or t.is_battle,
         t[3] or t.is_campaign,
         t[4] or t.is_frontend
-    if is_battle and core:is_battle() then
+    if is_battle and core:is_battle() then -- [string "script\_lib\mod\helpers.lua"]:41: attempt to index global 'core' (a nil value)
         bm:register_phase_change_callback("Deployment", func)
     else
         core:add_ui_created_callback(
