@@ -991,13 +991,13 @@ def prepare_mod_team_list(xml):
     # language=javascript
     s = '''
         GetIf(PlayerName.StartsWith("VM.") || PlayerName.StartsWith("V_M") || PlayerName.StartsWith("VM ") || PlayerName.StartsWith("VM_"), "ui/mod/images/clans/vm.png")
-        + GetIf(PlayerName.StartsWith("CB ") || PlayerName.StartsWith("CBLord_") || PlayerName.Contains("lunacy"), "ui/mod/images/clans/cb.png")
+        + GetIf(PlayerName.StartsWith("-CB-") || PlayerName.StartsWith("CB "), "ui/mod/images/clans/cb.png")
     '''
     set_context_callback(find_by_id(xml, elem_id), 'ContextImageSetter', s)
     # language=javascript
     s = '''
         GetIf(PlayerName.StartsWith("VM.") || PlayerName.StartsWith("V_M") || PlayerName.StartsWith("VM ") || PlayerName.StartsWith("VM_"), Loc("clan_vm"))
-        + GetIf(PlayerName.StartsWith("CB ") || PlayerName.StartsWith("CBLord_") || PlayerName.Contains("lunacy"), Loc("clan_cb"))
+        + GetIf(PlayerName.StartsWith("-CB-") || PlayerName.StartsWith("CB "), Loc("clan_cb"))
     '''
     set_context_callback(find_by_id(xml, elem_id), 'ContextTooltipSetter', s)
     
