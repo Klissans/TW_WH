@@ -131,7 +131,7 @@ function battle_ui:init_listeners()
 
 end
 
-function init_save_replay_listener()
+local function init_save_replay_listener()
 
     core:add_listener(
             "mod_save_replay_button_clicked",

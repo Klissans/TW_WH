@@ -232,19 +232,24 @@ def add_unit_info_fatigue(xml):
     # language=javascript
     s = '''GetIf(BattleUnitContext,
             Format("[[col:fatigue_%S]][[img:ui/skins/default/icon_status_fatigue_24px.png]][[/img]][[/col]]",
-                     "" + GetIf(BattleUnitContext.FatigueState == 0, "fresh")
-                     + GetIf(BattleUnitContext.FatigueState == 1, "active")
-                     + GetIf(BattleUnitContext.FatigueState == 2, "winded")
-                     + GetIf(BattleUnitContext.FatigueState == 3, "tired")
-                     + GetIf(BattleUnitContext.FatigueState == 4, "very_tired")
-                     + GetIf(BattleUnitContext.FatigueState == 5, "exhausted")
+                     ScriptObjectContext('fatigue_states').TableValue.Value[BattleUnitContext.FatigueState]
                      ) + BattleUnitContext.FatigueName)
                 '''
     set_context_callback(elem, 'ContextTextLabel', s)
     
     # language=javascript
     s = '''
-        Loc(Format("tooltip_fatigue_effects_%d", BattleUnitContext.FatigueState))
+        (
+            f_state = BattleUnitContext.FatigueState,
+            f_state_str = ScriptObjectContext('fatigue_states').TableValue.Value[f_state].Value,
+            f_effects = ScriptObjectContext('fatigue_effects').TableValue.Value.Transform(MakePair(Key, Value[f_state].Value)).Filter(Second < 1.0),
+            f_effects_str = f_effects.JoinString(Format("[[img:ui/mod/icons/icon_%S.png]][[/img]]-%d%%", First, RoundFloat((1.0-Second) * 100)), ''),
+            f_leadership = ScriptObjectContext('fatigue_effects_leadership').TableValue.Value[f_state].Value,
+            f_leadership_str = GetIfElse(f_leadership < 0, Format(" [[img:ui/mod/icons/icon_stat_morale.png]][[/img]]%d", RoundFloat(f_leadership)), '')
+        ) =>
+        {
+            Format("[[col:fatigue_%S]]%S[[/col]]", f_state_str, GetIfElse(f_state == 0, '', f_effects_str + f_leadership_str))
+        }
     '''
     set_context_callback(elem, 'ContextTooltipSetter', s)
     
@@ -336,14 +341,14 @@ def mod_stats_fatigue(xml):
     # language=javascript
     s = '''
     (
-        db_lookup = RootComponent.ChildContext("db_lookup"),
+        kv_rules = ScriptObjectContext('_kv_rules').TableValue,
         is_battle = IsContextValid(BattleRoot),
         ud = StoredContextFromParent("CcoUnitDetails"),
         buc = ud.BattleUnitContext,
-        f_state = GetIf(is_battle, Format("%d", buc.FatigueState)),
-        cmp = GetIf(is_battle, db_lookup.ChildContext("fatigue_effects").ChildContext(Key)),
+        f_state = GetIf(is_battle, buc.FatigueState),
+        cmp = GetIf(is_battle, ScriptObjectContext('fatigue_effects').TableValue.ValueForKey(Key)),
         is_valid_battle_context = is_battle && IsContextValid(buc),
-        fatigue_coeff = GetIfElse(is_valid_battle_context, ToNumber(cmp.GetProperty(f_state)), 1.0),
+        fatigue_coeff = GetIfElse(is_valid_battle_context, cmp[f_state].Value, 1.0),
 
         stat_ws_tp = ud.StatContextFromKey("stat_weapon_damage").Tooltip.Replace('||', ''),
         rest_pattern = "]][[/img]]",
@@ -403,9 +408,9 @@ def mod_stats_fatigue(xml):
                 f_ma = RoundFloat(fatigue_coeff * r_ma),
                 f_ma_str = Format("[[img:ui/mod/icons/icon_stat_melee_attack.png]][[/img]]%d", f_ma),
                 f_ma_BvL = f_ma + BvL,
-                f_ma_BvL_str = GetIfElse(has_BvL, Format("[[img:ui/skins/default/modifier_icon_bonus_vs_large.png]][[/img]]%d", f_ma_BvL), ""),
+                f_ma_BvL_str = GetIfElse(has_BvL, Format("[[img:ui/mod/icons/modifier_icon_bonus_vs_large.png]][[/img]]%d", f_ma_BvL), ""),
                 f_ma_Bvi = f_ma + Bvi,
-                f_ma_Bvi_str = GetIfElse(has_Bvi, Format("[[img:ui/skins/default/modifier_icon_bonus_vs_infantry.png]][[/img]]%d", f_ma_Bvi), "")
+                f_ma_Bvi_str = GetIfElse(has_Bvi, Format("[[img:ui/mod/icons/modifier_icon_bonus_vs_infantry.png]][[/img]]%d", f_ma_Bvi), "")
             ) =>
             {
                 Format("  %S%S %S ", f_ma_BvL_str, f_ma_Bvi_str, f_ma_str)
@@ -416,9 +421,9 @@ def mod_stats_fatigue(xml):
                 r_md = DisplayedValue,
                 f_md = RoundFloat(fatigue_coeff * r_md),
                 f_md_str = Format("[[img:ui/mod/icons/icon_stat_defence.png]][[/img]]%d", f_md),
-                flank_md = RoundFloat(f_md * ScriptObjectContext('_kv_rules_table.melee_defence_direction_penalty_coefficient_flank').NumericValue),
+                flank_md = RoundFloat(f_md * kv_rules.ValueForKey('melee_defence_direction_penalty_coefficient_flank')),
                 flank_md_str = Format("[[img:ui/mod/icons/icon_stat_defence_flank.png]][[/img]]%d", flank_md),
-                rear_md = RoundFloat(f_md * ScriptObjectContext('_kv_rules_table.melee_defence_direction_penalty_coefficient_rear').NumericValue),
+                rear_md = RoundFloat(f_md * kv_rules.ValueForKey('melee_defence_direction_penalty_coefficient_rear')),
                 rear_md_str = Format("[[img:ui/mod/icons/icon_stat_defence_rear.png]][[/img]]%d", rear_md)
             ) =>
             {
@@ -451,15 +456,30 @@ def mod_stats_fatigue(xml):
                 apwd_s = GetIf(has_apwd, StringSubString(apwd_uss, 0).RemoveLeadingWhitespace),
                 apwd = GetIf(has_apwd, RoundFloat(ToNumber(apwd_s))),
 
-                bwd_fatigue_coeff = GetIfElse(is_valid_battle_context, ToNumber(db_lookup.ChildContext("fatigue_effects").ChildContext("stat_melee_damage_base").GetProperty(f_state)), 1.0),
+                bwd_fatigue_coeff = GetIfElse(is_valid_battle_context, ScriptObjectContext('fatigue_effects').TableValue.ValueForKey('stat_melee_damage_base')[f_state].Value, 1.0),
                 f_bwd = RoundFloat(bwd_fatigue_coeff * bwd),
-                f_bwd_str = Format("[[img:ui/skins/default/icon_stat_damage_base.png]][[/img]]%d", f_bwd),
-                apwd_fatigue_coeff = GetIfElse(is_valid_battle_context, ToNumber(db_lookup.ChildContext("fatigue_effects").ChildContext("stat_melee_damage_ap").GetProperty(f_state)), 1.0),
+                f_bwd_str = Format("[[img:ui/mod/icons/icon_stat_damage_base.png]][[/img]]%d", f_bwd),
+                apwd_fatigue_coeff = GetIfElse(is_valid_battle_context, ScriptObjectContext('fatigue_effects').TableValue.ValueForKey('stat_melee_damage_ap')[f_state].Value, 1.0),
                 f_apwd = RoundFloat(apwd_fatigue_coeff * apwd),
-                f_apwd_str = Format("[[img:ui/skins/default/modifier_icon_armour_piercing.png]][[/img]]%d", f_apwd),
+                f_apwd_str = Format("[[img:ui/mod/icons/icon_stat_melee_damage_ap.png]][[/img]]%d", f_apwd),
 
-                BvL_str = GetIfElse(has_BvL, Format("[[img:ui/skins/default/modifier_icon_bonus_vs_large.png]][[/img]]%d", BvL), ""),
-                Bvi_str = GetIfElse(has_Bvi, Format("[[img:ui/skins/default/modifier_icon_bonus_vs_infantry.png]][[/img]]%d", Bvi), ""),
+                BvL_str = GetIfElse(has_BvL, Format("[[img:ui/mod/icons/modifier_icon_bonus_vs_large.png]][[/img]]%d", BvL), ""),
+                Bvi_str = GetIfElse(has_Bvi, Format("[[img:ui/mod/icons/modifier_icon_bonus_vs_infantry.png]][[/img]]%d", Bvi), ""),
+                
+                mwc = ud.UnitRecordContext.UnitLandRecordContext.PrimaryMeleeWeaponContext,
+                total_db_dmg = mwc.DamageContext.Value + mwc.ApDamageContext.Value,
+                ap_ratio = mwc.ApDamageContext.Value / total_db_dmg,
+                ap_ratio_set = ScriptObjectContext('unit_info_ui.melee_ap_ratio').SetStringValue(Format(Loc('tooltip_unit_stat_ap_ratio'), ap_ratio)),
+                
+                f_BvL_bwd = GetIf(has_BvL, f_bwd + RoundFloat(BvL * (1.0 - ap_ratio))),
+                f_BvL_apwd = GetIf(has_BvL, f_apwd + RoundFloat(BvL * ap_ratio)),
+                f_BvL_wd_str = GetIfElse(has_BvL, Format(Loc("tooltip_unit_stat_melee_dmg_bonus"), 'large', f_BvL_bwd, f_BvL_apwd, f_BvL_bwd + f_BvL_apwd), ''),
+                set_f_BvL_wd_str = ScriptObjectContext('unit_info_ui.melee_damage_BvL').SetStringValue(f_BvL_wd_str),
+                
+                f_Bvi_bwd = GetIf(has_Bvi, f_bwd + RoundFloat(Bvi * (1.0 - ap_ratio))),
+                f_Bvi_apwd = GetIf(has_Bvi, f_apwd + RoundFloat(Bvi * ap_ratio)),
+                f_Bvi_wd_str = GetIfElse(has_Bvi, Format(Loc("tooltip_unit_stat_melee_dmg_bonus"), 'infantry', f_Bvi_bwd, f_Bvi_apwd, f_Bvi_bwd + f_Bvi_apwd), ''),
+                set_f_Bvi_wd_str = ScriptObjectContext('unit_info_ui.melee_damage_Bvi').SetStringValue(f_Bvi_wd_str),
                 
                 set_total_wd = ScriptObjectContext('unit_info_ui.total_weapon_damage').SetNumericValue(f_bwd + f_apwd)
             ) =>
@@ -470,7 +490,7 @@ def mod_stats_fatigue(xml):
         GetIf(Key == "stat_charge_bonus",
             (
                 stat_morale_tp = ud.StatContextFromKey("stat_morale").Tooltip.Replace('||', ''),
-                charging_png_i = stat_morale_tp.RFind("[[img:ui/skins/default/icon_stat_charge_bonus.png"),
+                charging_png_i = stat_morale_tp.RFind("[[img:ui/mod/icons/icon_stat_charge_bonus.png"),
                 is_charging = charging_png_i > 0,
                 charging_half_str = GetIf(is_charging, stat_morale_tp.Substr(charging_png_i-1)),
                 charging_colon_i = GetIf(is_charging, charging_half_str.Find(": ")),
@@ -541,10 +561,10 @@ def mod_stats_fatigue(xml):
                 spv_str = GetIfElse(has_spv, Format("[[img:ui/mod/icons/shots_per_volley.png]][[/img]][[col:ui_font_faded_grey_beige]]%d[[/col]]", spv), ""),
 
                 ammo_str = Format("[[img:ui/mod/icons/icon_stat_ammo.png]][[/img]]%d", RoundFloat(DisplayedValue)),
-                rt_str = Format("[[img:ui/skins/default/icon_stat_reload_time.png]][[/img]][[col:ui_font_faded_grey_beige]]%f[[/col]]", rt),
+                rt_str = Format("[[img:ui/mod/icons/icon_stat_reload_time.png]][[/img]][[col:ui_font_faded_grey_beige]]%f[[/col]]", rt),
                 
                 total_ammo = bs + nop + spv,
-                set_total_ammo = ScriptObjectContext('unit_info_ui.total_ammo').SetNumericValue(GetIf(total_ammo > 0, total_ammo, 1))
+                set_total_ammo = ScriptObjectContext('unit_info_ui.total_ammo').SetNumericValue(GetIfElse(total_ammo > 0, total_ammo, 1))
             ) =>
             {
                 Format("  %S%S%S %S %S ", bs_str, nop_str, spv_str, rt_str, ammo_str)
@@ -629,24 +649,39 @@ def mod_stats_fatigue(xml):
 
                 fe = db_lookup.ChildContext("fatigue_effects"),
 
-                mdb_fatigue_coeff = GetIfElse(is_valid_battle_context, ToNumber(fe.ChildContext("scalar_missile_damage_base").GetProperty(f_state)), 1.0),
+                mdb_fatigue_coeff = GetIfElse(is_valid_battle_context, ScriptObjectContext('fatigue_effects').TableValue.ValueForKey('scalar_missile_damage_base')[f_state].Value, 1.0),
                 f_mdb = RoundFloat(mdb_fatigue_coeff * mdb),
-                f_mdb_str = Format("[[img:ui/skins/default/icon_stat_ranged_damage_base.png]][[/img]]%d", f_mdb),
+                f_mdb_str = Format("[[img:ui/mod/icons/icon_stat_ranged_damage_base.png]][[/img]]%d", f_mdb),
 
-                mdap_fatigue_coeff = GetIfElse(is_valid_battle_context, ToNumber(fe.ChildContext("scalar_missile_damage_ap").GetProperty(f_state)), 1.0),
+                mdap_fatigue_coeff = GetIfElse(is_valid_battle_context, ScriptObjectContext('fatigue_effects').TableValue.ValueForKey('scalar_missile_damage_ap')[f_state].Value, 1.0),
                 f_mdap = RoundFloat(mdap_fatigue_coeff * mdap),
-                f_mdap_str = Format("[[img:ui/skins/default/modifier_icon_armour_piercing_ranged.png]][[/img]]%d", f_mdap),
+                f_mdap_str = Format("[[img:ui/mod/icons/modifier_icon_armour_piercing_ranged.png]][[/img]]%d", f_mdap),
 
-                medb_fatigue_coeff = GetIfElse(is_valid_battle_context, ToNumber(fe.ChildContext("scalar_missile_explosion_damage_base").GetProperty(f_state)), 1.0),
-                f_medb = GetIf(has_medb, RoundFloat(medb_fatigue_coeff * medb)),
-                f_medb_str = GetIfElse(has_medb, Format(" [[img:ui/skins/default/icon_explosive_damage.png]][[/img]]%d", f_medb), ""),
+                medb_fatigue_coeff = GetIfElse(is_valid_battle_context, ScriptObjectContext('fatigue_effects').TableValue.ValueForKey('scalar_missile_explosion_damage_base')[f_state].Value, 1.0),
+                f_medb = GetIfElse(has_medb, RoundFloat(medb_fatigue_coeff * medb), 0),
+                f_medb_str = GetIfElse(has_medb, Format(" [[img:ui/mod/icons/icon_explosive_damage.png]][[/img]]%d", f_medb), ""),
 
-                medap_fatigue_coeff = GetIfElse(is_valid_battle_context, ToNumber(fe.ChildContext("scalar_missile_explosion_damage_ap").GetProperty(f_state)), 1.0),
-                f_medap = GetIf(has_medap, RoundFloat(medap_fatigue_coeff * medap)),
-                f_medap_str = GetIfElse(has_medap, Format("[[img:ui/skins/default/icon_stat_explosive_armour_piercing_damage.png]][[/img]]%d", f_medap), ""),
+                medap_fatigue_coeff = GetIfElse(is_valid_battle_context, ScriptObjectContext('fatigue_effects').TableValue.ValueForKey('scalar_missile_explosion_damage_ap')[f_state].Value, 1.0),
+                f_medap = GetIfElse(has_medap, RoundFloat(medap_fatigue_coeff * medap), 0),
+                f_medap_str = GetIfElse(has_medap, Format("[[img:ui/mod/icons/icon_stat_explosive_armour_piercing_damage.png]][[/img]]%d", f_medap), ""),
 
-                mBvL_str = GetIfElse(has_mBvL, Format("[[img:ui/skins/default/modifier_icon_bonus_vs_large.png]][[/img]]%d", mBvL), ""),
-                mBvi_str = GetIfElse(has_mBvi, Format("[[img:ui/skins/default/modifier_icon_bonus_vs_infantry.png]][[/img]]%d", mBvi), ""),
+                mBvL_str = GetIfElse(has_mBvL, Format("[[img:ui/mod/icons/modifier_icon_bonus_vs_large.png]][[/img]]%d", mBvL), ""),
+                mBvi_str = GetIfElse(has_mBvi, Format("[[img:ui/mod/icons/modifier_icon_bonus_vs_infantry.png]][[/img]]%d", mBvi), ""),
+                
+                mwc = ud.UnitRecordContext.UnitLandRecordContext.PrimaryMissileWeaponContext.ProjectileContextList[0] + Do('TODO: use actual projectile?, Check if engine has projectile'),
+                total_db_dmg = mwc.DamageContext.Value + mwc.ApDamageContext.Value,
+                ap_ratio = mwc.ApDamageContext.Value / total_db_dmg,
+                ap_ratio_set = ScriptObjectContext('unit_info_ui.range_ap_ratio').SetStringValue(Format(Loc('tooltip_unit_stat_ap_ratio'), ap_ratio)),
+                
+                f_BvL_mbwd = GetIf(has_mBvL, f_mdb + RoundFloat(mBvL * (1.0 - ap_ratio))),
+                f_BvL_mapwd = GetIf(has_mBvL, f_mdap + RoundFloat(mBvL * ap_ratio)),
+                f_BvL_mwd_str = GetIfElse(has_mBvL, Format(Loc("tooltip_unit_stat_range_dmg_bonus"), 'large', f_BvL_mbwd, f_BvL_mapwd, f_medb_str, f_medap_str, f_BvL_mbwd + f_BvL_mapwd + f_medb + f_medap), ''),
+                set_f_BvL_mwd_str = ScriptObjectContext('unit_info_ui.range_damage_BvL').SetStringValue(f_BvL_mwd_str),
+                
+                f_Bvi_mbwd = GetIf(has_mBvi, f_mdb + RoundFloat(mBvi * (1.0 - ap_ratio))),
+                f_Bvi_mapwd = GetIf(has_mBvi, f_mdap + RoundFloat(mBvi * ap_ratio)),
+                f_Bvi_mwd_str = GetIfElse(has_mBvi, Format(Loc("tooltip_unit_stat_range_dmg_bonus"), 'infantry', f_Bvi_mbwd, f_Bvi_mapwd, f_medb_str, f_medap_str, f_Bvi_mbwd + f_Bvi_mapwd + f_medb + f_medap), ''),
+                set_f_Bvi_mwd_str = ScriptObjectContext('unit_info_ui.range_damage_Bvi').SetStringValue(f_Bvi_mwd_str),
                 
                 set_total_rwd = ScriptObjectContext('unit_info_ui.total_ranged_weapon_damage').SetNumericValue(f_mdb + f_mdap + f_medb + f_medap)
             ) =>
@@ -679,8 +714,9 @@ def mod_stats_fatigue(xml):
     # language=javascript
     s = '''
         (
-            md_flank = ScriptObjectContext('_kv_rules_table.melee_defence_direction_penalty_coefficient_flank').NumericValue,
-            md_rear = ScriptObjectContext('_kv_rules_table.melee_defence_direction_penalty_coefficient_rear').NumericValue,
+            kv_rules = ScriptObjectContext('_kv_rules').TableValue,
+            md_flank = kv_rules.ValueForKey('melee_defence_direction_penalty_coefficient_flank'),
+            md_rear = kv_rules.ValueForKey('melee_defence_direction_penalty_coefficient_rear'),
             md_flank_red = RoundFloat((1 - md_flank) * 100),
             md_rear_red = RoundFloat((1 - md_rear) * 100)
         ) =>
@@ -688,8 +724,18 @@ def mod_stats_fatigue(xml):
         + GetIf(Key == "stat_armour", Loc('tooltip_unit_stat_armour'))
         + GetIf(Key == "stat_melee_defence", Format(Loc('tooltip_unit_stat_md'), md_rear_red, md_flank_red))
         + Format(Loc('tooltip_unit_stat_ui'), RoundFloat(ValueBase), RoundFloat(DisplayedValue))
-        + GetIf(Key == "stat_weapon_damage", Format(Loc('tooltip_unit_stat_dmg_per_hit'), RoundFloat(ScriptObjectContext('unit_info_ui.total_weapon_damage').NumericValue)))
-        + GetIf(Key == "stat_missile_damage_over_time", Format(Loc('tooltip_unit_stat_dmg_per_shot'), RoundFloat(ScriptObjectContext('unit_info_ui.total_ammo').NumericValue * ScriptObjectContext('unit_info_ui.total_ranged_weapon_damage').NumericValue)))
+        + GetIf(Key == "stat_weapon_damage",
+            Format(Loc('tooltip_unit_stat_dmg_per_hit'), RoundFloat(ScriptObjectContext('unit_info_ui.total_weapon_damage').NumericValue))
+            + ScriptObjectContext('unit_info_ui.melee_ap_ratio').StringValue
+            + ScriptObjectContext('unit_info_ui.melee_damage_BvL').StringValue
+            + ScriptObjectContext('unit_info_ui.melee_damage_Bvi').StringValue
+        )
+        + GetIf(Key == "stat_missile_damage_over_time",
+            Format(Loc('tooltip_unit_stat_dmg_per_shot'), RoundFloat(ScriptObjectContext('unit_info_ui.total_ammo').NumericValue * ScriptObjectContext('unit_info_ui.total_ranged_weapon_damage').NumericValue))
+            + ScriptObjectContext('unit_info_ui.range_ap_ratio').StringValue
+            + ScriptObjectContext('unit_info_ui.range_damage_BvL').StringValue
+            + ScriptObjectContext('unit_info_ui.range_damage_Bvi').StringValue
+        )
     '''
     set_context_callback(find_by_id(xml, 'template_stat'), 'ContextTooltipSetter', s)
 
