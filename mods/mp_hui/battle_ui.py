@@ -131,10 +131,14 @@ def change_unit_info_hit_points(xml):
     s = '''
         GetIfElse(
             IsKnownHp,
-            HitPoints
+            GetIf(BattleUnitContext.StatusList.Any(Key == 'on_fire'), '[[img:ui/skins/default/icon_status_on_fire.png]][[/img]]')
+            + HitPoints
             + GetIf(
                 BarrierMaxHp > 0,
-                " [[img:ui/skins/default/icon_barrier_replenish.png]][[/img]]" + BarrierHp
+                " [[img:ui/skins/default/icon_barrier_replenish.png]][[/img]] " + BarrierHp
+                + GetIf(!BattleUnitContext.IsInMelee && BattleUnitContext.BarrierSecsUntilRecharge > 0,
+                    Format('[[img:ui/skins/default/icon_cooldown.png]][[/img]]%d ', RoundFloat(BattleUnitContext.BarrierSecsUntilRecharge))
+                )
             ),
             "??"
         )
@@ -490,15 +494,17 @@ def mod_stats_fatigue(xml):
         GetIf(Key == "stat_charge_bonus",
             (
                 stat_morale_tp = ud.StatContextFromKey("stat_morale").Tooltip.Replace('||', ''),
-                charging_png_i = stat_morale_tp.RFind("[[img:ui/mod/icons/icon_stat_charge_bonus.png"),
+                charging_png_i = stat_morale_tp.RFind("[[img:ui/skins/default/icon_stat_charge_bonus.png"),
                 is_charging = charging_png_i > 0,
                 charging_half_str = GetIf(is_charging, stat_morale_tp.Substr(charging_png_i-1)),
                 charging_colon_i = GetIf(is_charging, charging_half_str.Find(": ")),
-                charging_str = GetIfElse(is_charging, charging_half_str.Substr(1, charging_colon_i - 1), ""),
+                charging_str = GetIfElse(is_charging, charging_half_str.Substr(1, charging_colon_i - 1), ''),
+                braced = ud.BattleUnitContext.StatusList.FirstContext(Key == 'braced'),
+                bracing_str = GetIfElse(IsContextValid(braced), Format('[[img:%S]][[/img]]%S', braced.IconPath, braced.Tooltip), ''),
 
                 r_cb = DisplayedValue,
                 f_cb = RoundFloat(fatigue_coeff * DisplayedValue),
-                f_cb_str = Format("%S  [[img:ui/mod/icons/icon_stat_charge_bonus.png]][[/img]]%d ", charging_str, f_cb)
+                f_cb_str = Format("%S%S [[img:ui/mod/icons/icon_stat_charge_bonus.png]][[/img]]%d ", charging_str, bracing_str, f_cb)
             ) =>
             {
                 f_cb_str
