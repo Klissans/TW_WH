@@ -1762,7 +1762,7 @@
                 <component_image
                         this="66C6E19D-E3B8-40A0-81155AF86750SS01"
                         uniqueguid="66C6E19D-E3B8-40A0-81155AF86750SS01"
-                        imagepath="ui/skins/default/icon_mana.png"/>
+                        imagepath="ui/skins/default/icon_winds_reserves_level.png"/>
             </componentimages>
             <states>
                 <false

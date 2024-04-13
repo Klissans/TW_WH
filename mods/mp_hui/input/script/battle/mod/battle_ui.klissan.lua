@@ -39,8 +39,8 @@ function battle_ui:init()
     find_uicomponent(menu_bar, "mod_team_list"):SetInteractive(false);
     find_uicomponent(menu_bar, "buttongroup", "button_player_list"):SetVisible(true);
 
-    if common.get_context_value("CcoBattleRoot", "IsDomination") then -- TODO debug
-            find_uicomponent(self._uic_el, "footer"):CreateComponent("reinf_panel_supplies", "ui/mod/reinf_panel_supplies.twui.xml")
+    if common.get_context_value("CcoBattleRoot", 'BattleRoot', "IsDomination") then
+        find_uicomponent(self._uic_el, "footer"):CreateComponent("reinf_panel_supplies", "ui/mod/reinf_panel_supplies.twui.xml")
     end
     -- uic_ping_marker:SetContextObject(cco("CcoBattleRoot", self.unit:unique_ui_id()));
 

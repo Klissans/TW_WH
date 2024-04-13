@@ -43,7 +43,7 @@ def add_dom_ffa_to_custom_battles(xml):
         GetIfElse(
             IsLabMode,
             BattleTypeRecordList.Filter(Key == "classic"),
-            BattleTypeRecordList + DatabaseRecordsForKeys("CcoBattleTypeRecord", "domination", "free_for_all")
+            BattleTypeRecordList + GetIf(!IsMultiplayerLobbyActive, DatabaseRecordsForKeys("CcoBattleTypeRecord", "domination", "free_for_all"))
         )
     '''
     set_context_callback(find_by_id(xml, 'map_type_list'), 'ContextList', s)
@@ -94,10 +94,12 @@ def remove_supplies_in_replays(xml):
 def change_unit_info_kill_count(xml):
     # language=javascript
     s = '''
-        GetIfElse(
-            BattleRoot.IsSpectator || BattleRoot.IsReplay || !BattleRoot.IsMultiplayer,
-            BattleUnitContext.BattleResultUnitContext.DamageDealtCost,
-            KillCount
+        Format('[[col:ui_font_faded_grey_beige]]%d[[/col]]',
+            GetIfElse(
+                BattleRoot.IsSpectator || BattleRoot.IsReplay || !BattleRoot.IsMultiplayer,
+                BattleUnitContext.BattleResultUnitContext.DamageDealtCost,
+                KillCount
+            )
         )
     '''
     set_context_callback(find_by_id(xml, 'dy_kills'), 'ContextTextLabel', s)
@@ -135,7 +137,7 @@ def change_unit_info_hit_points(xml):
             + HitPoints
             + GetIf(
                 BarrierMaxHp > 0,
-                " [[img:ui/skins/default/icon_barrier_replenish.png]][[/img]] " + BarrierHp
+                Format(" [[img:ui/skins/default/icon_barrier_replenish.png]][[/img]]%d ", BarrierHp)
                 + GetIf(!BattleUnitContext.IsInMelee && BattleUnitContext.BarrierSecsUntilRecharge > 0,
                     Format('[[img:ui/skins/default/icon_cooldown.png]][[/img]]%d ', RoundFloat(BattleUnitContext.BarrierSecsUntilRecharge))
                 )
@@ -150,7 +152,7 @@ def change_unit_info_hit_points(xml):
         GetIfElse(
             IsKnownHp,
             Format(
-                "EntityHP: [[col:yellow]]%d[[/col]], InitialHP: [[col:yellow]]%d[[/col]], EntitiesAdjustedMaxHP: [[col:yellow]]%d[[/col]], HealingLeft: %S",
+                "InitialHP: [[col:yellow]]%d[[/col]], EntitiesAdjustedMaxHP: [[col:yellow]]%d[[/col]], HealingLeft: %S",
                 RoundFloat(HitPointsInitial / NumEntitiesInitial),
                 HitPointsInitial,
                 RoundFloat(NumEntities * (HitPointsInitial / NumEntitiesInitial)),
@@ -198,7 +200,7 @@ def add_unit_info_gold_value(xml):
         ) =>
         {
             "[[img:ui/skins/default/icon_income.png]][[/img]]"
-                + GetIf(IsBattle, RoundFloat( (UnitRecordContext.Cost + exp_cost + al) * BattleUnitContext.HealthPercent ))
+                + GetIf(IsBattle, Format('[[col:yellow]]%d[[/col]]', RoundFloat( (UnitRecordContext.Cost + exp_cost + al) * BattleUnitContext.HealthPercent )))
                 + " (" + RoundFloat(UnitRecordContext.Cost + exp_cost + al) + ") "
         } '''
     set_context_callback(elem, 'ContextTextLabel', s)
@@ -267,6 +269,36 @@ x = c:Call('UnitDetailsContext.UnitRecordContext.UnitLandRecordContext.Key')
 console_print(tostring(x))
 '''
 
+
+def add_spell_panel_wom_cost(xml):
+    elem = read_xml_component('spell_panel/wom_cost')
+    
+    # language=javascript
+    # s = '''
+    #     Format("[[img:ui/mod/icons/icon_entity_hp.png]][[/img]]%d", RoundFloat(HitPointsInitial / NumEntitiesInitial))
+    # '''
+    # set_context_callback(elem, 'ContextTextLabel', s)
+    
+    add_element(xml, elem, "button_spell")
+
+def add_unit_info_entity_hp(xml):
+    elem = read_xml_component('unit_information/entity_hp')
+    
+    # language=javascript
+    s = '''
+        Format("[[img:ui/mod/icons/icon_entity_hp.png]][[/img]]%d", RoundFloat(HitPointsInitial / NumEntitiesInitial))
+    '''
+    set_context_callback(elem, 'ContextTextLabel', s)
+    
+    add_element(xml, elem, "resistances_row")
+    
+    # health_frame = find_by_id(xml, 'health_frame')
+    # health_frame['offset'] = "24.00,2.00"
+    # health_frame.states.newstate['width'] = str(int(health_frame.states.newstate['width']) - 22)
+    # health_frame.states.newstate.imagemetrics.image['width'] = str(int(health_frame.states.newstate.imagemetrics.image['width']) - 22)
+    # health_bar = find_by_id(xml, 'health_bar')
+    # health_bar['offset'] = "26.00,4.00"
+    # health_bar.states.newstate['width'] = str(int(health_bar.states.newstate['width']) - 22)
 
 def add_unit_info_resistances(xml):
     elem = read_xml_component('unit_information/resistances_row')
@@ -1070,7 +1102,8 @@ def mod_battle_ui():
     edit_twui('ui/battle ui/hud_battle',
               lambda xml: (
                   remove_zooming_to_reinforcement_point(xml),
-                  move_info_panel_higher(xml)
+                  move_info_panel_higher(xml),
+                  add_spell_panel_wom_cost(xml)
               )
               )
     edit_twui('ui/battle ui/hud_battle_top_bar',
@@ -1093,7 +1126,8 @@ def mod_battle_ui():
                   add_unit_info_fatigue(xml),
                   mod_stats_fatigue(xml),
                   split_abilities(xml),
-                  add_unit_info_resistances(xml)
+                  add_unit_info_resistances(xml),
+                  add_unit_info_entity_hp(xml)
               )
               )
     edit_twui('ui/common ui/special_ability_tooltip',
