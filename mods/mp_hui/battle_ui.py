@@ -153,7 +153,6 @@ def change_unit_info_hit_points(xml):
             IsKnownHp,
             Format(
                 "InitialHP: [[col:yellow]]%d[[/col]], EntitiesAdjustedMaxHP: [[col:yellow]]%d[[/col]], HealingLeft: %S",
-                RoundFloat(HitPointsInitial / NumEntitiesInitial),
                 HitPointsInitial,
                 RoundFloat(NumEntities * (HitPointsInitial / NumEntitiesInitial)),
                 GetIfElse(!IsBattle, "0",
