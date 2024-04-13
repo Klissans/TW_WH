@@ -1,0 +1,62 @@
+<wom_cost
+    this="F4BD7CE4-401F-4BEC-949CE7363FA53811"
+    id="wom_cost"
+    offset="0.00,0.00"
+    allowhorizontalresize="false"
+    allowverticalresize="false"
+    docking="Bottom Right"
+    dock_offset="-35.00,15.00"
+    component_anchor_point="1.00,1.00"
+    tooltipslocalised="true"
+    uniqueguid="F4BD7CE4-401F-4BEC-949CE7363FA53811"
+    currentstate="40F129EF-17CF-4C3E-AA6D45EB51C04511"
+    defaultstate="40F129EF-17CF-4C3E-AA6D45EB51C04511">
+    <callbackwithcontextlist>
+        <callback_with_context
+                callback_id="ContextTextLabel"
+                context_object_id="CcoStaticObject"
+                context_function_id="StoredContextFromParent('CcoBattleAbility').ManaUsed">
+        </callback_with_context>
+        <callback_with_context
+                callback_id="ContextVisibilitySetter"
+                context_object_id="CcoStaticObject"
+                context_function_id="StoredContextFromParent('CcoBattleAbility').ManaUsed > 0">
+        </callback_with_context>
+    </callbackwithcontextlist>
+    <userproperties>
+        <property
+                name="update_constant"
+                value="100"/>
+    </userproperties>
+    <componentimages>
+        <component_image
+            this="72EF9693-AE13-456E-86514CBD74CF7111"
+            uniqueguid="72EF9693-AE13-456E-86514CBD74CF7111"
+            imagepath="ui/skins/default/spell_cost_frame.png"/>
+    </componentimages>
+    <states>
+        <newstate
+            this="40F129EF-17CF-4C3E-AA6D45EB51C04511"
+            name="NewState"
+            width="24"
+            height="24"
+            uniqueguid="40F129EF-17CF-4C3E-AA6D45EB51C04511">
+            <imagemetrics>
+                <image
+                    this="40306C3C-EEFD-4AB3-8422692062E97711"
+                    uniqueguid="40306C3C-EEFD-4AB3-8422692062E97711"
+                    componentimage="72EF9693-AE13-456E-86514CBD74CF7111"
+                    width="24"
+                    height="24"/>
+            </imagemetrics>
+            <component_text
+                textvalign="Center"
+                texthalign="Center"
+                texthbehaviour="Never split"
+                font_m_size="12"
+                font_m_colour="#FFF8D7FF"
+                font_m_leading="3"
+                fontcat_name="body_12"/>
+        </newstate>
+    </states>
+</wom_cost>
