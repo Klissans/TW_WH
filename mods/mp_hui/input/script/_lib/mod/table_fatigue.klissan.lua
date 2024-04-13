@@ -6,12 +6,11 @@ local fatigue_effects_table = {
     ["stat_melee_damage_base"] = {1.00, 1.00, 1.00, 1.00, 1.00, 1.00},
     ["stat_melee_damage_ap"] = {1.00, 1.00, 0.90, 0.90, 0.90, 0.90},
     ["stat_charge_bonus"] = {1.00, 1.00, 1.00, 0.90, 0.75, 0.70},
-    ["stat_reload_time"] = {1.00, 1.00, 1.00, 1.00, 1.00, 0.90}, --TODO stat reload
+    ["stat_reload_time"] = {1.00, 1.00, 1.00, 1.00, 1.00, 0.90}, --TODO stat reload in cco script
     ["scalar_missile_damage_base"] = {1.00, 1.00, 1.00, 1.00, 1.00, 1.00},
     ["scalar_missile_damage_ap"] = {1.00, 1.00, 1.00, 1.00, 1.00, 1.00},
     ["scalar_missile_explosion_damage_base"] = {1.00, 1.00, 1.00, 1.00, 1.00, 1.00},
     ["scalar_missile_explosion_damage_ap"] = {1.00, 1.00, 1.00, 1.00, 1.00, 1.00},
-    -- TODO leadership?
 }
 
 local fatigue_effects_leadership = {0, 0, 0, 0, -2, -6}
