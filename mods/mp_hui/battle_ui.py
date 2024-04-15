@@ -269,6 +269,21 @@ console_print(tostring(x))
 '''
 
 
+def add_unit_banner_tier(xml):
+    elem = read_xml_component('unit_banner/unit_banner_tier')
+    # language=javascript
+    s = '''
+        (
+            id = RoundFloat(ToNumber(self.ParentContext.ParentContext.ParentContext.Id)),
+            unit = BattleRoot.UnitList.FirstContext(UniqueUiId == id),
+            tier = unit.UnitRecordContext.Tier,
+            is_visible = self.StateList.Contains(tier),
+            set_state = DoIf(is_visible, self.SetState(tier))
+        ) => is_visible
+    '''
+    set_context_callback(elem, 'ContextVisibilitySetter', s)
+    add_element(xml, elem, "cat_docker")
+
 def add_spell_panel_wom_cost(xml):
     elem = read_xml_component('spell_panel/wom_cost')
     # language=javascript
@@ -1135,6 +1150,12 @@ def mod_battle_ui():
               )
               )
     edit_twui('ui/battle ui/hud_battle_reinforcement_purchase', increase_reinforcement_size)
+    
+    edit_twui('ui/battle ui/unit_banner',
+              lambda xml: (
+                  add_unit_banner_tier(xml),
+              )
+              )
     
     edit_twui('ui/frontend ui/custom_battle_map_settings', add_dom_ffa_to_custom_battles)
     
