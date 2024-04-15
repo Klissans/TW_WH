@@ -15,7 +15,7 @@
         <callback_with_context
                 callback_id="ContextTextLabel"
                 context_object_id="CcoStaticObject"
-                context_function_id="StoredContextFromParent('CcoBattleAbility').ManaUsed">
+                context_function_id="">
         </callback_with_context>
         <callback_with_context
                 callback_id="ContextVisibilitySetter"

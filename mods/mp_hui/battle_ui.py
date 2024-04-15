@@ -271,13 +271,34 @@ console_print(tostring(x))
 
 def add_spell_panel_wom_cost(xml):
     elem = read_xml_component('spell_panel/wom_cost')
-    
     # language=javascript
-    # s = '''
-    #     Format("[[img:ui/mod/icons/icon_entity_hp.png]][[/img]]%d", RoundFloat(HitPointsInitial / NumEntitiesInitial))
-    # '''
-    # set_context_callback(elem, 'ContextTextLabel', s)
+    s = '''
+        (
+            spell_key = StoredContextFromParent('CcoBattleAbility').SetupAbilityContext.RecordKey.Replace('_upgraded', ''),
+            units_holder = Component('cards_panel').ChildContext('review_DY'),
+            selected_units = units_holder.ChildList
+                .Filter(ChildContext('card_image_holder').ChildContext('battle').ChildContext('smoke_particle_emitter').IsVisible)
+                .Transform(ContextsList.FirstContext((x=false, _) => ContextTypeId(x) == 'CcoBattleUnit')),
+            mana_cost = RoundFloat(selected_units.Sum(AbilityList.FirstContext(RecordKey == spell_key).ManaUsed))
+        ) => GetIf(mana_cost > 0, mana_cost)
+    '''
+    set_context_callback(elem, 'ContextTextLabel', s)
+    add_element(xml, elem, "button_spell")
     
+    elem = read_xml_component('spell_panel/wom_cost_upgraded')
+    # language=javascript
+    s = '''
+        (
+            spell_key = StoredContextFromParent('CcoBattleAbility').SetupAbilityContext.RecordKey.Replace('_upgraded', '') + '_upgraded',
+            units_holder = Component('cards_panel').ChildContext('review_DY'),
+            selected_units = units_holder.ChildList
+                .Filter(ChildContext('card_image_holder').ChildContext('battle').ChildContext('smoke_particle_emitter').IsVisible)
+                .Transform(ContextsList.FirstContext((x=false, _) => ContextTypeId(x) == 'CcoBattleUnit')),
+            mana_cost = RoundFloat(selected_units.Sum(AbilityList.FirstContext(RecordKey == spell_key).ManaUsed)),
+            set_mana_cost = self.SetText(mana_cost)
+        ) => mana_cost > 0
+        '''
+    set_context_callback(elem, 'ContextVisibilitySetter', s)
     add_element(xml, elem, "button_spell")
 
 def add_unit_info_entity_hp(xml):
