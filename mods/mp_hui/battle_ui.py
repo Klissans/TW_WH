@@ -791,11 +791,23 @@ def mod_stats_fatigue(xml):
             md_flank = kv_rules.ValueForKey('melee_defence_direction_penalty_coefficient_flank'),
             md_rear = kv_rules.ValueForKey('melee_defence_direction_penalty_coefficient_rear'),
             md_flank_red = RoundFloat((1 - md_flank) * 100),
-            md_rear_red = RoundFloat((1 - md_rear) * 100)
+            md_rear_red = RoundFloat((1 - md_rear) * 100),
+            ud = StoredContextFromParent("CcoUnitDetails")
         ) =>
         Tooltip
         + GetIf(Key == "stat_armour", Loc('tooltip_unit_stat_armour'))
-        + GetIf(Key == "stat_melee_defence", Format(Loc('tooltip_unit_stat_md'), md_rear_red, md_flank_red))
+        + GetIf(Key == "stat_melee_attack",
+            (
+                mwc = ud.UnitRecordContext.UnitLandRecordContext.PrimaryMeleeWeaponContext,
+                sama = mwc.SplashAttackMaxAttacks,
+                sats = mwc.SplashAttackTargetSize + '',
+                camt = mwc.CollisionAttackMaxTargets,
+                camtc = mwc.CollisionAttackMaxTargetsCooldown,
+                splash_str = GetIfElse(sama > 0, Format(Loc('tooltip_unit_stat_melee_attack_splash'), sats, sama), ''),
+                collision_str = GetIfElse(camt > 0, Format(Loc('tooltip_unit_stat_melee_attack_collision'), camt, camtc), '')
+            ) => {Format(Loc('tooltip_unit_stat_melee_attack'), mwc.WeaponLength, splash_str, collision_str)}
+        )
+        + GetIf(Key == "stat_melee_defence", Format(Loc('tooltip_unit_stat_melee_defence'), md_rear_red, md_flank_red))
         + Format(Loc('tooltip_unit_stat_ui'), RoundFloat(ValueBase), RoundFloat(DisplayedValue))
         + GetIf(Key == "stat_weapon_damage",
             Format(Loc('tooltip_unit_stat_dmg_per_hit'), RoundFloat(ScriptObjectContext('unit_info_ui.total_weapon_damage').NumericValue))
