@@ -1101,6 +1101,7 @@ def prepare_mod_team_list(xml):
         + GetIf(PlayerName.Contains("akkeinn"), "ui/mod/images/players/akkeinn.png")
         + GetIf(PlayerName.Contains("Exul et ignotus"), "ui/mod/images/players/exul_et_ignotus.png")
         + GetIf(PlayerName.Contains("lunacy"), "ui/mod/images/players/cb2.png")
+        + GetIf(PlayerName.Contains("Not Alpharius"), "ui/mod/images/players/not_alpharius.png")
     '''
     set_context_callback(find_by_id(xml, elem_id), 'ContextImageSetter', s)
     # language=javascript
@@ -1116,6 +1117,7 @@ def prepare_mod_team_list(xml):
         + GetIf(PlayerName.Contains("akkeinn"), Loc("player_akkeinn"))
         + GetIf(PlayerName.Contains("Exul et ignotus"), Loc("player_exul_et_ignotus"))
         + GetIf(PlayerName.Contains("lunacy"), Loc("player_lunacy"))
+        + GetIf(PlayerName.Contains("Not Alpharius"), Loc("player_not_alpharius"))
     '''
     set_context_callback(find_by_id(xml, elem_id), 'ContextTooltipSetter', s)
     
