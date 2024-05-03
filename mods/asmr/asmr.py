@@ -36,8 +36,10 @@ def _prepare_ui_effects_juncs_tables(handler:Handler):
     bp_to_remove += core_df[core_df.effect.str.contains('projectile')].effect.tolist()
     bp_to_remove += core_df[core_df.effect.str.contains('armour_piercing')].effect.tolist()
     bp_to_remove += core_df[core_df.effect.str.contains('defend_vs_charge')].effect.tolist()
+    
 
     bp_to_remove_set = set(bp_to_remove) - set(core_df[core_df.effect.str.contains('upgraded')].effect.tolist() + ['wh3_main_projectile_requires_line_of_sight'])
+    bp_to_remove_set = {}
     core_df.drop(core_df[core_df.effect.isin(bp_to_remove_set)].index, inplace=True)
 
     src_t = handler.db['unit_abilities_tables']
@@ -118,8 +120,8 @@ def generate_unit_stats(hh, formatter, is_generate_animations=True):
 
     #fix ordering
     add_df = handler.db['ui_unit_bullet_point_enums_tables'].data.iloc[:].copy()
-    add_df.drop(add_df[add_df['sort_order'] >= 3].index, inplace=True)
-    add_df['sort_order'] = 3
+    add_df.drop(add_df[add_df['sort_order'] >= 1].index, inplace=True)
+    add_df['sort_order'] = 1
 
     uubpet = handler.duplicate_table('ui_unit_bullet_point_enums_tables', prefix=PREFIX, copy_data=False)
     uubpet.data = uubpet.data.reindex(index=handler.db['main_units_tables'].data.index)
@@ -129,11 +131,11 @@ def generate_unit_stats(hh, formatter, is_generate_animations=True):
     handler.append(uubpet.table_name, add_df)
 
     # data coring to remove explicit unit's bullet points
-    core_df = handler.duplicate_table('ui_unit_bullet_point_unit_overrides_tables', new_name='data__', copy_data=True).data
-    bp_to_remove = ['aura_of_transmutation', 'attuned_to_magic', 'always_flying', 'anti_infantry', 'anti_large', 'armour_piercing', 'armour_piercing_melee', 'armour_piercing_ranged', 'armour_sundering', 'armoured', 'armoured_and_shielded','ballistics_expert', 'battle_prayers', 'barrier', 'beam_of_chotec', 'can_attack_walls', 'can_fly', 'collision_attacks','concealment_bombs', 'charmed_attacks', 'charge_reflector', 'charge_reflector_vs_large', 'cursed_ammunition','dragon_breath_noxious', 'dragon_breath_star', 'dragon_breath_sun', 'dragon_breath_moon', 'dragon_breath_hydra', 'deflect_shots', 'dodge','defender','daemon_prince', 'death_from_above', 'damage_dealer', 'death_globe', 'decent_melee', 'duellist', 'ethereal', 'evocation_of_death', 'expendable', 'frost_breath_hydra', 'fast_dwarf', 'fire_whilst_moving', 'flaming_attacks', 'frenzy', 'frostbite', 'gnoblar_traps', 'good_range', 'goblin_mangonel','hybrid', 'living_saints', 'low_rate_of_fire','mass_regeneration',  'madness_of_khaine', 'master_ambusher', 'magic_harvester', 'master_of_sacred_places', 'magical_aura', 'meat_shield', 'melee_expert', 'murderous_mastery', 'light_of_death', 'ogre_charge','old_grumblers', 'ogr_ironfist', 'primal_instincts', 'perfect_vigour', 'plagueclaw_contagion', 'poison', 'poison_wind_globes', 'poor_accuracy', 'poor_morale', 'rampage', 'ranged_attack', 'revivification_crystal', 'rebirth','regeneration', 'runic_magic', 'scaly_skin', 'shieldbreaker','shielded', 'soporific_musk', 'spellcaster', 'stalk', 'sniping', 'terror', 'torch_of_bogenhafen', 'unbreakable', 'vanguard_deployment', 'very_fast', 'warpaint', 'warpflame', 'warpfire', 'weeping_blade', 'weak_anti_armour', 'whirling_axes', 'yin', 'yang', 'zzzzap']
-    bp_to_remove += ['sea_dragon_cloak', 'bigger_harder', 'armed_to_da_teef', 'guided_projectile', 'exploding_spores', 'da_great_green_wallop', 'dragon_armour', 'martial_mastery', 'bows_of_avelorn', 'lion_cloak', 'lion_pelt', 'reaver_bows', 'chameleon', 'plague_censer', 'snare_net', 'too_horrible_to_die', 'dlc17_blazing_sun_extra_cost', 'swiftshiver_shards', 'stockpiles', 'no_friendly_fire', 'multishot', 'river_troll']
-    bp_to_remove += ['scaling_damage', 'wardance', 'magic_armour', 'magic_disruption'] # + ['aquatic', 'forest_spirit', 'forest_stalker', 'forest_strider', 'large_bst']
-    core_df.drop(core_df[core_df.bullet_point.isin(bp_to_remove)].index, inplace=True)
+    # core_df = handler.duplicate_table('ui_unit_bullet_point_unit_overrides_tables', new_name='data__', copy_data=True).data
+    # bp_to_remove = ['aura_of_transmutation', 'attuned_to_magic', 'always_flying', 'anti_infantry', 'anti_large', 'armour_piercing', 'armour_piercing_melee', 'armour_piercing_ranged', 'armour_sundering', 'armoured', 'armoured_and_shielded','ballistics_expert', 'battle_prayers', 'barrier', 'beam_of_chotec', 'can_attack_walls', 'can_fly', 'collision_attacks','concealment_bombs', 'charmed_attacks', 'charge_reflector', 'charge_reflector_vs_large', 'cursed_ammunition','dragon_breath_noxious', 'dragon_breath_star', 'dragon_breath_sun', 'dragon_breath_moon', 'dragon_breath_hydra', 'deflect_shots', 'dodge','defender','daemon_prince', 'death_from_above', 'damage_dealer', 'death_globe', 'decent_melee', 'duellist', 'ethereal', 'evocation_of_death', 'expendable', 'frost_breath_hydra', 'fast_dwarf', 'fire_whilst_moving', 'flaming_attacks', 'frenzy', 'frostbite', 'gnoblar_traps', 'good_range', 'goblin_mangonel','hybrid', 'living_saints', 'low_rate_of_fire','mass_regeneration',  'madness_of_khaine', 'master_ambusher', 'magic_harvester', 'master_of_sacred_places', 'magical_aura', 'meat_shield', 'melee_expert', 'murderous_mastery', 'light_of_death', 'ogre_charge','old_grumblers', 'ogr_ironfist', 'primal_instincts', 'perfect_vigour', 'plagueclaw_contagion', 'poison', 'poison_wind_globes', 'poor_accuracy', 'poor_morale', 'rampage', 'ranged_attack', 'revivification_crystal', 'rebirth','regeneration', 'runic_magic', 'scaly_skin', 'shieldbreaker','shielded', 'soporific_musk', 'spellcaster', 'stalk', 'sniping', 'terror', 'torch_of_bogenhafen', 'unbreakable', 'vanguard_deployment', 'very_fast', 'warpaint', 'warpflame', 'warpfire', 'weeping_blade', 'weak_anti_armour', 'whirling_axes', 'yin', 'yang', 'zzzzap']
+    # bp_to_remove += ['sea_dragon_cloak', 'bigger_harder', 'armed_to_da_teef', 'guided_projectile', 'exploding_spores', 'da_great_green_wallop', 'dragon_armour', 'martial_mastery', 'bows_of_avelorn', 'lion_cloak', 'lion_pelt', 'reaver_bows', 'chameleon', 'plague_censer', 'snare_net', 'too_horrible_to_die', 'dlc17_blazing_sun_extra_cost', 'swiftshiver_shards', 'stockpiles', 'no_friendly_fire', 'multishot', 'river_troll']
+    # bp_to_remove += ['scaling_damage', 'wardance', 'magic_armour', 'magic_disruption'] # + ['aquatic', 'forest_spirit', 'forest_stalker', 'forest_strider', 'large_bst']
+    # core_df.drop(core_df[core_df.bullet_point.isin(bp_to_remove)].index, inplace=True)
 
     uubpuot = handler.duplicate_table('ui_unit_bullet_point_unit_overrides_tables', prefix=PREFIX, copy_data=False)
     uubpuot.data = uubpuot.data.reindex(index=handler.db['main_units_tables'].data.index)
@@ -731,7 +733,7 @@ def modify_unit_tooltip(hh, formatter):
 
     key = 'unit_attributes_bullet_text_spell_mastery'
     tr_value_0 = loctr.add_auto('value', 'spell_mastery_per_unit_modifier', auto_formatter=formatter.colorize(f"+{roundf(rules_df.loc['spell_mastery_per_unit_modifier', 'value']*100)}", 'green'))
-    tr_value_1 = loctr.add_auto('value', 'spell_mastery_max_modifier', auto_formatter=formatter.colorize(f"+{roundf((rules_df.loc['spell_mastery_max_modifier', 'value']-1)*100)}", 'green'))
+    tr_value_1 = 'no limit?' # loctr.add_auto('value', 'spell_mastery_max_modifier', auto_formatter=formatter.colorize(f"+{roundf((rules_df.loc['spell_mastery_max_modifier', 'value']-1)*100)}", 'green'))
     tr_text = f"||Each unit increases {highlight('Power Intensity')} by {tr_value_0}% up to {tr_value_1}%"
     text = loctr.add_auto('chunks', 'attr_spell_mastery', auto_formatter=tr_text)
     ua_df.loc[key] = ua_orig_df.loc[key]
@@ -1113,7 +1115,7 @@ if __name__ == '__main__':
     modify_unit_tooltip(hh, formatter)
     # modify_campaign_tooltips(hh, formatter)
 
-    modify_spell_icons(handler)
+    # modify_spell_icons(handler)
 
     localizator.compile()
     handler.dump_mod_tables(OUTPUT_DIR)
