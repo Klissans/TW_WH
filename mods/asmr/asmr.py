@@ -106,17 +106,17 @@ def generate_ability_descs(hh, formatter):
 def generate_unit_stats(hh, formatter, is_generate_animations=True):
     handler = hh.handler
 
-    udstt = handler.duplicate_table('unit_description_short_texts_tables', prefix=PREFIX, copy_data=False)
-    udstt.data = udstt.data.reindex(index=handler.db['land_units_tables'].data.index)
-    udstt.data['key'] = udstt.data.index
+    # udstt = handler.duplicate_table('unit_description_short_texts_tables', prefix=PREFIX, copy_data=False)
+    # udstt.data = udstt.data.reindex(index=handler.db['land_units_tables'].data.index)
+    # udstt.data['key'] = udstt.data.index
+    #
+    # udhtt = handler.duplicate_table('unit_description_historical_texts_tables', prefix=PREFIX, copy_data=False)
+    # udhtt.data = udhtt.data.reindex(index=handler.db['land_units_tables'].data.index)
+    # udhtt.data['key'] = udhtt.data.index
 
-    udhtt = handler.duplicate_table('unit_description_historical_texts_tables', prefix=PREFIX, copy_data=False)
-    udhtt.data = udhtt.data.reindex(index=handler.db['land_units_tables'].data.index)
-    udhtt.data['key'] = udhtt.data.index
-
-    lut = handler.duplicate_table('land_units_tables', prefix=PREFIX, copy_data=True)
-    lut.data['short_description_text'] = lut.data.index
-    lut.data['historical_description_text'] = lut.data.index
+    # lut = handler.duplicate_table('land_units_tables', prefix=PREFIX, copy_data=True)
+    # lut.data['short_description_text'] = lut.data.index
+    # lut.data['historical_description_text'] = lut.data.index
 
     #fix ordering
     add_df = handler.db['ui_unit_bullet_point_enums_tables'].data.iloc[:].copy()
@@ -171,8 +171,8 @@ def generate_unit_stats(hh, formatter, is_generate_animations=True):
         #     continue
         formatted_info = formatter.get_short_unit_desc(info)
         full_formatted_info = formatter.get_full_unit_desc(info, luid)
-        name = 'unit_description_short_texts_text_' + luid
-        historical_name = 'unit_description_historical_texts_text_' + luid
+        name = 'unit_description_short_texts_text_asmr_' + luid
+        historical_name = 'unit_description_historical_texts_text_asmr_' + luid
         bp_name = 'ui_unit_bullet_point_enums_onscreen_name_' + unit_id
         bp_tooltip = 'ui_unit_bullet_point_enums_tooltip_' + unit_id
 
@@ -194,7 +194,6 @@ def generate_unit_stats(hh, formatter, is_generate_animations=True):
             if not hh.handler.isnull(mount_key):
                 mount_animation_key = hh.handler.get_entry_by_index('mounts_tables', mount_key)['animation']
                 mount_animations_info = formatter.get_unit_animation(mount_animation_key)
-
 
                 bp_key = unit_id+'_anim_mount'
                 uubpet_anim.data.loc[bp_key] = {'key': bp_key, 'state': 'very_positive', 'sort_order': 2}
