@@ -92,7 +92,7 @@ def edit_twui_decorator(fp: str):
 
 
 def format_str(s: str):
-    return s.replace('<', '%%lt%%').replace('>', '%%gt%%').replace('"', '%%quot%%').replace('&', '%%amp%%')
+    return s.replace('<', '%%lt%%').replace('>', '%%gt%%').replace('"', '%%quot%%').replace('&', '%%amp%%').replace('//', ' # ')
 
 
 def add_element(xml, elem, where):
@@ -150,4 +150,12 @@ def create_context_callback_as_string(id, object=None, function=None, properties
             </callback_with_context>
         '''
     return desc
+
+def create_context_callback(elem, id, object=None, function=None, properties=None):
+    cwcl = elem.callbackwithcontextlist
+    if cwcl is None:
+        elem.append(soupFactory.new_tag("callbackwithcontextlist"))
+        cwcl = elem.callbackwithcontextlist
+    callback_str = create_context_callback_as_string(id, object, function, properties)
+    cwcl.append(replace_escape_characters(callback_str))
 

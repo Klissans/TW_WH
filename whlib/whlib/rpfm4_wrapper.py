@@ -55,7 +55,7 @@ class RPFM4Wrapper:
     def extract_data(self):
         shutil.rmtree(self.extract_path, ignore_errors=True)
         pathes = glob.glob(f"{self.game_path}/data/*.pack")
-        data_pathes = [x for x in pathes if ('db.pack' in x or 'data' in x)]
+        data_pathes = [x for x in pathes if ('db.pack' in x.split('\\')[-1] or 'data' in x.split('\\')[-1])]
         for pf in data_pathes:
             pack_name = f"{pf.split(os.sep)[-1]}"
             ex_data_pack_path = self.extract_path #os.path.join(self.extract_path, pack_name)
