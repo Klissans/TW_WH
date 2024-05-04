@@ -6,7 +6,7 @@ def add_timer_to_tickets(xml):
     s = '''
         (timeStr = FormatTime((BattleRoot.CaptureLocationManagerContext.TicketsGoal - TicketsRemaining) / TicketsIncomePerSecond)) =>
             {
-                GetIfElse(BattleRoot.IsSpectator || BattleRoot.IsReplay,
+                GetIfElse(BattleRoot.IsSpectator || BattleRoot.IsReplay || !BattleRoot.IsMultiPlayer,
                     TicketsRemaining + "[[img:ui/skins/default/icon_cooldown.png]][[/img]]"
                     + GetIfElse(TicketsIncomePerSecond > 0,
                         GetIfElse(StringStartsWith(timeStr, "0"),
@@ -106,8 +106,13 @@ def change_unit_info_kill_count(xml):
     
     # language=javascript
     s = '''
-        Format(Loc("tooltip_kills_ff"), BattleUnitContext.BattleResultUnitContext.NumKillsFriendlies)
-        + Format(Loc("tooltip_kills"), KillCount, BattleUnitContext.BattleResultUnitContext.DamageDealt, BattleUnitContext.BattleResultUnitContext.DamageDealtCost)
+        (
+            func_get_localization = ScriptObjectContext('hui_context_functions').TableValue.ValueForKey('get_localization').Value
+        ) =>
+        {
+            Format(EvaluateExpression(Format(func_get_localization, 'tooltip_kills_ff')), BattleUnitContext.BattleResultUnitContext.NumKillsFriendlies)
+            + Format(Loc('tooltip_kills'), KillCount, BattleUnitContext.BattleResultUnitContext.DamageDealt, BattleUnitContext.BattleResultUnitContext.DamageDealtCost)
+        }
     '''
     set_context_callback(find_by_id(xml, 'dy_kills'), 'ContextTooltipSetter', s)
     
@@ -119,33 +124,118 @@ def change_unit_info_kill_count(xml):
             "ui/skins/default/icon_kills.png"
         )
     '''
-    desc = f'''
-        <callbackwithcontextlist>
-            {create_context_callback_as_string("ContextImageSetter", "CcoStaticObject", s)}
-        </callbackwithcontextlist>
-    '''  # icon kills
-    tag = find_by_guid(xml, '4E7A2193-5DEC-443B-865D61B086AB4772')
-    tag.append(replace_escape_characters(desc))
+    create_context_callback(find_by_guid(xml, '4E7A2193-5DEC-443B-865D61B086AB4772'), "ContextImageSetter", "CcoStaticObject", s)
+
+
+def change_unit_health_tooltip(xml):
+    # language=javascript
+    s = '''
+        () =>
+        Format(
+            GetIfElse(
+                MaxHealthPercentCanReplenish < 1,
+                Loc('battle_reduced_health_cap'),
+                Loc('x_out_of_y_int')
+            ),
+            RoundFloat(HealthPercent * HealthMax),
+            RoundFloat(MinNumericValue(1.0, MaxHealthPercentCanReplenish) * HealthMax)
+        ) + GetIf(MaxHealthPercentCanReplenish < 1, Format('(%d)', HealthMax))
+    '''
+    set_context_callback(find_by_guid(xml, '51FCE0A7-B468-4F61-9FD4B4779F62551A'), 'ContextTextLabel', s)
+
+    # language=javascript
+    s = '''
+        (
+            heal_power = ScriptObjectContext('unit_info_ui.heal_power').NumericValue,
+            pcnt = RoundFloat(heal_power * 100),
+            pcnt_str = Format('%d%%', pcnt)
+        ) =>
+        {
+            GetIfElse(pcnt < 100, Format('[[col:red]]%s[[/col]]', pcnt_str), GetIfElse(pcnt != 100, Format('[[col:green]]%s[[/col]]', pcnt_str), pcnt_str))
+        }
+    '''
+    set_context_callback(find_by_id(xml, 'dy_healing_power'), 'ContextTextLabel', s)
+
+    # language=javascript
+    s = '''
+        (
+            regen_rate_percent = ScriptObjectContext('unit_info_ui.regen_rate_percent').NumericValue
+        ) =>
+        {
+            Format('%.1f%', regen_rate_percent * 100)
+        }
+    '''
+    set_context_callback(find_by_id(xml, 'dy_regen_rate_percent'), 'ContextTextLabel', s)
+
+    # language=javascript
+    s = '''
+    (
+        heal_power = ScriptObjectContext('unit_info_ui.heal_power').NumericValue,
+        regen_rate_absolute = ScriptObjectContext('unit_info_ui.regen_rate_absolute').NumericValue,
+        regen_str = Format(Loc('battle_hp_regen'), regen_rate_absolute)
+    ) =>
+    {
+        GetIfElse(heal_power < 1, Format('([[col:red]]%s[[/col]])', regen_str), Format('([[col:green]]%s[[/col]])', regen_str))
+    }
+    '''
+    set_context_callback(find_by_id(xml, 'dy_regen_rate_absolute'), 'ContextTextLabel', s)
+
+    # language=javascript
+    s = '''
+        ScriptObjectContext('unit_info_ui.heal_rate_explainer').StringValue
+    '''
+    create_context_callback(find_by_id(xml, 'holder_regen_rate'), 'ContextTooltipSetter', 'CcoBattleUnit', s)
 
 
 def change_unit_info_hit_points(xml):
     # language=javascript
     s = '''
+        (
+            is_battle = IsContextValid(BattleRoot),
+            buc = BattleUnitContext,
+            is_on_fire = BattleUnitContext.StatusList.Any(Key == 'on_fire'),
+            heal_power = MaxNumericValue(0, BattleUnitContext.HealingPower + GetIf(is_on_fire, -0.5) ),
+            mods_regen_rate = BattleUnitContext.ActiveEffectList.Filter(PhaseRecordContext.HasHealAmount),
+            heal_rate_explainer = mods_regen_rate.JoinString(
+                (x, t = x.Intensity * x.PhaseRecordContext.HealPercent * (1.0 / x.PhaseRecordContext.HpChangeFrequency)) =>
+                Format('%s[[img:%s]][[/img]]%.1f(%f%%)',
+                GetIfElse(x.Intensity != 1, Format('[[img:ui/battle ui/ability_icons/spell_mastery.png]][[/img]]%d%%', RoundFloat(x.Intensity * 100)), ''),
+                x.IconPath,
+                t * buc.HealthMax,
+                t * 100
+                ), Loc('LF')
+            ) + Loc('LF') + Format(' x[[img:ui/skins/default/stat_healing_received.png]][[/img]]%d%%', RoundFloat(heal_power * 100)),
+            heal_rate_percent = mods_regen_rate.Sum(Intensity * PhaseRecordContext.HealPercent * (1.0 / PhaseRecordContext.HpChangeFrequency)),
+            heal_rate_absolute = BattleUnitContext.HealthMax * heal_rate_percent,
+            regen_rate_percent = heal_rate_percent * heal_power,
+            regen_rate_absolute = heal_rate_absolute * heal_power,
+            set_heal_rate_explainer = ScriptObjectContext('unit_info_ui.heal_rate_explainer').SetStringValue(heal_rate_explainer),
+            set_heal_power = ScriptObjectContext('unit_info_ui.heal_power').SetNumericValue(heal_power),
+            set_regen_rate_percent = ScriptObjectContext('unit_info_ui.regen_rate_percent').SetNumericValue(regen_rate_percent),
+            set_regen_rate_absolute = ScriptObjectContext('unit_info_ui.regen_rate_absolute').SetNumericValue(regen_rate_absolute),
+            is_actually_healing = BattleUnitContext.HealthValue != RoundFloat(MinNumericValue(1.0, BattleUnitContext.MaxHealthPercentCanReplenish) * BattleUnitContext.HealthMax)
+        ) =>
         GetIfElse(
             IsKnownHp,
-            GetIf(BattleUnitContext.StatusList.Any(Key == 'on_fire'), '[[img:ui/skins/default/icon_status_on_fire.png]][[/img]]')
-            + HitPoints
-            + GetIf(
-                BarrierMaxHp > 0,
-                Format(" [[img:ui/skins/default/icon_barrier_replenish.png]][[/img]]%d ", BarrierHp)
-                + GetIf(!BattleUnitContext.IsInMelee && BattleUnitContext.BarrierSecsUntilRecharge > 0,
-                    Format('[[img:ui/skins/default/icon_cooldown.png]][[/img]]%d ', RoundFloat(BattleUnitContext.BarrierSecsUntilRecharge))
-                )
-            ),
+            GetIf(is_on_fire, '[[img:ui/skins/default/icon_status_on_fire.png]][[/img]]')
+            + HitPoints + GetIf(is_actually_healing && regen_rate_absolute > 0,
+                GetIfElse(heal_power < 1, Format('[[col:red]]+%d[[/col]]', Floor(regen_rate_absolute)), Format('[[col:green]]+%d[[/col]]', Floor(regen_rate_absolute)))),
             "??"
         )
     '''
     set_context_callback(find_by_id(xml, 'hit_points'), 'ContextTextLabel', s)
+    
+    # language=javascript
+    s = '''
+        GetIfElse(IsKnownHp,
+            BarrierHp
+            + GetIf(!BattleUnitContext.IsInMelee && BattleUnitContext.BarrierSecsUntilRecharge > 0,
+                Format('[[img:ui/skins/default/icon_cooldown.png]][[/img]]%d ', RoundFloat(BattleUnitContext.BarrierSecsUntilRecharge))
+            ),
+        '??')
+        
+    '''
+    set_context_callback(find_by_id(xml, 'barrier_hit_points'), 'ContextTextLabel', s)
     
     # language=javascript
     s = '''
@@ -180,7 +270,7 @@ def change_unit_info_hit_points(xml):
     '''
     # for NumEntitiesInitial == 1 -> MaxHealthPercentCanReplenish == 1.75
     # for NumEntitiesInitial > 1 -> MaxHealthPercentCanReplenish == 1.0 and will drop only after unit has lost 75% of initial (max) HP
-    set_context_callback(find_by_id(xml, 'health_bar'), 'ContextTooltipSetter', s)
+    # set_context_callback(find_by_id(xml, 'health_bar'), 'ContextTooltipSetter', s)
 
 
 def add_unit_info_gold_value(xml):
@@ -293,7 +383,7 @@ def add_spell_panel_wom_cost(xml):
             units_holder = Component('cards_panel').ChildContext('review_DY'),
             selected_units = units_holder.ChildList
                 .Filter(ChildContext('card_image_holder').ChildContext('battle').ChildContext('smoke_particle_emitter').IsVisible)
-                .Transform(ContextsList.FirstContext((x=false, _) => ContextTypeId(x) == 'CcoBattleUnit')),
+                .Transform(ContextsList.FirstContext((x) => ContextTypeId(x) == 'CcoBattleUnit')),
             mana_cost = RoundFloat(selected_units.Sum(AbilityList.FirstContext(RecordKey == spell_key).ManaUsed))
         ) => GetIf(mana_cost > 0, mana_cost)
     '''
@@ -308,7 +398,7 @@ def add_spell_panel_wom_cost(xml):
             units_holder = Component('cards_panel').ChildContext('review_DY'),
             selected_units = units_holder.ChildList
                 .Filter(ChildContext('card_image_holder').ChildContext('battle').ChildContext('smoke_particle_emitter').IsVisible)
-                .Transform(ContextsList.FirstContext((x=false, _) => ContextTypeId(x) == 'CcoBattleUnit')),
+                .Transform(ContextsList.FirstContext((x) => ContextTypeId(x) == 'CcoBattleUnit')),
             mana_cost = RoundFloat(selected_units.Sum(AbilityList.FirstContext(RecordKey == spell_key).ManaUsed)),
             set_mana_cost = self.SetText(mana_cost)
         ) => mana_cost > 0
@@ -316,27 +406,12 @@ def add_spell_panel_wom_cost(xml):
     set_context_callback(elem, 'ContextVisibilitySetter', s)
     add_element(xml, elem, "button_spell")
 
-def add_unit_info_entity_hp(xml):
-    elem = read_xml_component('unit_information/entity_hp')
-    
-    # language=javascript
-    s = '''
-        Format("[[img:ui/mod/icons/icon_entity_hp.png]][[/img]]%d", RoundFloat(HitPointsInitial / NumEntitiesInitial))
-    '''
-    set_context_callback(elem, 'ContextTextLabel', s)
-    
-    add_element(xml, elem, "resistances_row")
-    
-    # health_frame = find_by_id(xml, 'health_frame')
-    # health_frame['offset'] = "24.00,2.00"
-    # health_frame.states.newstate['width'] = str(int(health_frame.states.newstate['width']) - 22)
-    # health_frame.states.newstate.imagemetrics.image['width'] = str(int(health_frame.states.newstate.imagemetrics.image['width']) - 22)
-    # health_bar = find_by_id(xml, 'health_bar')
-    # health_bar['offset'] = "26.00,4.00"
-    # health_bar.states.newstate['width'] = str(int(health_bar.states.newstate['width']) - 22)
 
 def add_unit_info_resistances(xml):
     elem = read_xml_component('unit_information/resistances_row')
+    insert_after_element(xml, elem, "health_parent")
+    
+    elem = read_xml_component('unit_information/res_ward')
     # language=javascript
     s = '''
         Format("[[img:ui/battle ui/ability_icons/resistance_ward_save.png]][[/img]]%S ",
@@ -344,37 +419,65 @@ def add_unit_info_resistances(xml):
                 GetIfElse(
                     IsContextValid(a),
                     ( us = a.Name, i = GetIfElse(IsLocChinese, us.RFind(Loc("chinese_colon")), us.RFind(":")) + 1, uss = us.Substr(i, us.RFind('%') - i), s = StringSubString(uss, 0) ) => {Format("[[col:green]]%S[[/col]]", StringReplace(s, " ", ""))},
-                    "[[col:ui_font_faded_grey_beige]]0[[/col]]"
+                    "[[col:ui_font_faded_grey_beige]] 0[[/col]]"
                 )
             }
-        ) +
+        )
+    '''
+    set_context_callback(elem, 'ContextTextLabel', s)
+    add_element(xml, elem, "resistances_row")
+    
+    elem = read_xml_component('unit_information/res_phys')
+    # language=javascript
+    s = '''
         Format("[[img:ui/battle ui/ability_icons/resistance_physical.png]][[/img]]%S ",
             (a = AbilityDetailsList.FirstContext(Key=="resistance_physical") ) => {
                 GetIfElse(
                     IsContextValid(a),
                     ( us = a.Name, i = GetIfElse(IsLocChinese, us.RFind(Loc("chinese_colon")), us.RFind(":")) + 1, uss = us.Substr(i, us.RFind('%') - i), s = StringSubString(uss, 0) ) => {Format("[[col:green]]%S[[/col]]", StringReplace(s, " ", ""))},
-                    "[[col:ui_font_faded_grey_beige]]0[[/col]]"
+                    "[[col:ui_font_faded_grey_beige]] 0[[/col]]"
                 )
             }
-        ) +
+        )
+    '''
+    set_context_callback(elem, 'ContextTextLabel', s)
+    add_element(xml, elem, "resistances_row")
+    
+    elem = read_xml_component('unit_information/res_spell')
+    # language=javascript
+    s = '''
         Format("[[img:ui/battle ui/ability_icons/resistance_magic.png]][[/img]]%S ",
             (a = AbilityDetailsList.FirstContext(Key=="resistance_magic") ) => {
                 GetIfElse(
                     IsContextValid(a),
                     ( us = a.Name, i = GetIfElse(IsLocChinese, us.RFind(Loc("chinese_colon")), us.RFind(":")) + 1, uss = us.Substr(i, us.RFind('%') - i), s = StringSubString(uss, 0) ) => {Format("[[col:green]]%S[[/col]]", StringReplace(s, " ", ""))},
-                    "[[col:ui_font_faded_grey_beige]]0[[/col]]"
+                    "[[col:ui_font_faded_grey_beige]] 0[[/col]]"
                 )
             }
-        ) +
+        )
+    '''
+    set_context_callback(elem, 'ContextTextLabel', s)
+    add_element(xml, elem, "resistances_row")
+    
+    elem = read_xml_component('unit_information/res_missile')
+    # language=javascript
+    s = '''
         Format("[[img:ui/battle ui/ability_icons/resistance_missile.png]][[/img]]%S ",
             (a = AbilityDetailsList.FirstContext(Key=="resistance_missile") ) => {
                 GetIfElse(
                     IsContextValid(a),
                     ( us = a.Name, i = GetIfElse(IsLocChinese, us.RFind(Loc("chinese_colon")), us.RFind(":")) + 1, uss = us.Substr(i, us.RFind('%') - i), s = StringSubString(uss, 0) ) => {Format("[[col:green]]%S[[/col]]", StringReplace(s, " ", ""))},
-                    "[[col:ui_font_faded_grey_beige]]0[[/col]]"
+                    "[[col:ui_font_faded_grey_beige]] 0[[/col]]"
                 )
             }
-        ) +
+        )
+    '''
+    set_context_callback(elem, 'ContextTextLabel', s)
+    add_element(xml, elem, "resistances_row")
+    
+    elem = read_xml_component('unit_information/res_fire')
+    # language=javascript
+    s = '''
         Format("[[img:ui/battle ui/ability_icons/resistance_fire.png]][[/img]]%S ",
             (a = AbilityDetailsList.FirstContext(Key=="resistance_fire") ) => {
                 GetIfElse(
@@ -385,13 +488,20 @@ def add_unit_info_resistances(xml):
                             GetIfElse(
                                 IsContextValid(w),
                                 ( us = w.Name.RemoveTextTags, i = us.RFind("-") + 1, uss = us.Substr(i, us.RFind('%') - i), s = StringSubString(uss, 0) ) => {Format("[[col:red]]%S[[/col]]", StringReplace(s, " ", ""))},
-                                "[[col:ui_font_faded_grey_beige]]0[[/col]]"
+                                "[[col:ui_font_faded_grey_beige]] 0[[/col]]"
                             )
                         }
                     )
                 )
             }
-        ) +
+        )
+    '''
+    set_context_callback(elem, 'ContextTextLabel', s)
+    add_element(xml, elem, "resistances_row")
+    
+    elem = read_xml_component('unit_information/res_shield')
+    # language=javascript
+    s = '''
         Format("%S",
             (a = StatList.FirstContext(Key == "stat_armour").ModifierIconList.FirstContext(Icon.Contains('modifier_icon_shield')) ) => {
                 GetIfElse(
@@ -402,10 +512,37 @@ def add_unit_info_resistances(xml):
             }
         )
     '''
-    # 遠程抗性：40% - trd chineese &#xff1a; us.RFind("&#xff1a;") \uff1a
     set_context_callback(elem, 'ContextTextLabel', s)
+    add_element(xml, elem, "resistances_row")
     
-    insert_after_element(xml, elem, "health_parent")
+    elem = read_xml_component('unit_information/entity_hp')
+    # language=javascript
+    s = '''
+        Format("[[img:ui/mod/icons/icon_entity_hp.png]][[/img]]%d", RoundFloat(HitPointsInitial / NumEntitiesInitial))
+    '''
+    set_context_callback(elem, 'ContextTextLabel', s)
+    add_element(xml, elem, "resistances_row")
+    
+    elem = read_xml_component('unit_information/spell_mastery')
+    # language=javascript
+    s = '''
+        Format("[[img:ui/battle ui/ability_icons/spell_mastery.png]][[/img]]%S ",
+            (a = AbilityDetailsList.FirstContext(Key=="spell_mastery") ) => {
+                GetIfElse(
+                    IsContextValid(a),
+                    ( us = a.Name, i = GetIfElse(IsLocChinese, us.RFind(Loc("chinese_colon")), us.RFind(":")) + 1, uss = us.Substr(i, us.RFind('%') - i), s = StringReplace(StringSubString(uss, 0), " ", ""), sm = RoundFloat(ToNumber(s)) ) =>
+                    {
+                        GetIf(sm == 100, Format("[[col:ui_font_faded_grey_beige]]%d[[/col]]", sm))
+                        + GetIf(sm > 100, Format("[[col:green]]%d[[/col]]", sm))
+                        + GetIf(sm < 100, Format("[[col:red]]%d[[/col]]", sm))
+                    },
+                    ''
+                )
+            }
+        )
+    '''
+    set_context_callback(elem, 'ContextTextLabel', s)
+    add_element(xml, elem, "resistances_row")
 
 
 def mod_stats_fatigue(xml):
@@ -420,6 +557,7 @@ def mod_stats_fatigue(xml):
         cmp = GetIf(is_battle, ScriptObjectContext('fatigue_effects').TableValue.ValueForKey(Key)),
         is_valid_battle_context = is_battle && IsContextValid(buc),
         fatigue_coeff = GetIfElse(is_valid_battle_context, cmp[f_state].Value, 1.0),
+        func_get_localization = ScriptObjectContext('hui_context_functions').TableValue.ValueForKey('get_localization').Value,
 
         stat_ws_tp = ud.StatContextFromKey("stat_weapon_damage").Tooltip.Replace('||', ''),
         rest_pattern = "]][[/img]]",
@@ -459,10 +597,10 @@ def mod_stats_fatigue(xml):
                 avg_armour_res = GetIf(f_armour <= 100, RoundFloat(0.75 * f_armour))
                     + GetIf(100 < f_armour && f_armour < 200,
                         (
-                            half=0, _t1 = 0.5 * f_armour,
-                            diff=0, _t2 = f_armour - half,
-                            lh=0, _t3 = 100 - half,
-                            rh=0, _t4 = f_armour - 100
+                            half = 0.5 * f_armour,
+                            diff = f_armour - half,
+                            lh = 100 - half,
+                            rh = f_armour - 100
                         ) => { RoundFloat((lh / diff) * (half + 100) / 2 + (rh / diff) * 100) }
                     )
                     + GetIf(f_armour >= 200, 100)
@@ -540,16 +678,16 @@ def mod_stats_fatigue(xml):
                 mwc = ud.UnitRecordContext.UnitLandRecordContext.PrimaryMeleeWeaponContext,
                 total_db_dmg = mwc.DamageContext.Value + mwc.ApDamageContext.Value,
                 ap_ratio = mwc.ApDamageContext.Value / total_db_dmg,
-                ap_ratio_set = ScriptObjectContext('unit_info_ui.melee_ap_ratio').SetStringValue(Format(Loc('tooltip_unit_stat_ap_ratio'), ap_ratio)),
+                ap_ratio_set = ScriptObjectContext('unit_info_ui.melee_ap_ratio').SetStringValue(Format(EvaluateExpression(Format(func_get_localization, 'tooltip_unit_stat_ap_ratio')), ap_ratio)),
                 
                 f_BvL_bwd = GetIf(has_BvL, f_bwd + RoundFloat(BvL * (1.0 - ap_ratio))),
                 f_BvL_apwd = GetIf(has_BvL, f_apwd + RoundFloat(BvL * ap_ratio)),
-                f_BvL_wd_str = GetIfElse(has_BvL, Format(Loc("tooltip_unit_stat_melee_dmg_bonus"), 'large', f_BvL_bwd, f_BvL_apwd, f_BvL_bwd + f_BvL_apwd), ''),
+                f_BvL_wd_str = GetIfElse(has_BvL, Format(EvaluateExpression(Format(func_get_localization, 'tooltip_unit_stat_melee_dmg_bonus')), 'large', f_BvL_bwd, f_BvL_apwd, f_BvL_bwd + f_BvL_apwd), ''),
                 set_f_BvL_wd_str = ScriptObjectContext('unit_info_ui.melee_damage_BvL').SetStringValue(f_BvL_wd_str),
                 
                 f_Bvi_bwd = GetIf(has_Bvi, f_bwd + RoundFloat(Bvi * (1.0 - ap_ratio))),
                 f_Bvi_apwd = GetIf(has_Bvi, f_apwd + RoundFloat(Bvi * ap_ratio)),
-                f_Bvi_wd_str = GetIfElse(has_Bvi, Format(Loc("tooltip_unit_stat_melee_dmg_bonus"), 'infantry', f_Bvi_bwd, f_Bvi_apwd, f_Bvi_bwd + f_Bvi_apwd), ''),
+                f_Bvi_wd_str = GetIfElse(has_Bvi, Format(EvaluateExpression(Format(func_get_localization, 'tooltip_unit_stat_melee_dmg_bonus')), 'infantry', f_Bvi_bwd, f_Bvi_apwd, f_Bvi_bwd + f_Bvi_apwd), ''),
                 set_f_Bvi_wd_str = ScriptObjectContext('unit_info_ui.melee_damage_Bvi').SetStringValue(f_Bvi_wd_str),
                 
                 set_total_wd = ScriptObjectContext('unit_info_ui.total_weapon_damage').SetNumericValue(f_bwd + f_apwd)
@@ -565,7 +703,7 @@ def mod_stats_fatigue(xml):
                 is_charging = charging_png_i > 0,
                 charging_half_str = GetIf(is_charging, stat_morale_tp.Substr(charging_png_i-1)),
                 charging_colon_i = GetIf(is_charging, charging_half_str.Find(": ")),
-                charging_str = GetIfElse(is_charging, charging_half_str.Substr(1, charging_colon_i - 1), ''),
+                charging_str = GetIfElse(is_charging, EvaluateExpression(Format(func_get_localization, 'charging_str')), ''),
                 braced = ud.BattleUnitContext.StatusList.FirstContext(Key == 'braced'),
                 bracing_str = GetIfElse(IsContextValid(braced), Format('[[img:%S]][[/img]]%S', braced.IconPath, braced.Tooltip), ''),
 
@@ -634,7 +772,7 @@ def mod_stats_fatigue(xml):
                 spv_str = GetIfElse(has_spv, Format("[[img:ui/mod/icons/shots_per_volley.png]][[/img]][[col:ui_font_faded_grey_beige]]%d[[/col]]", spv), ""),
 
                 ammo_str = Format("[[img:ui/mod/icons/icon_stat_ammo.png]][[/img]]%d", RoundFloat(DisplayedValue)),
-                rt_str = Format("[[img:ui/mod/icons/icon_stat_reload_time.png]][[/img]][[col:ui_font_faded_grey_beige]]%f[[/col]]", rt),
+                rt_str = Format("[[img:ui/mod/icons/icon_stat_reload_time.png]][[/img]][[col:ui_font_faded_grey_beige]]%.1f[[/col]]", rt),
                 
                 total_ammo = bs + nop + spv,
                 set_total_ammo = ScriptObjectContext('unit_info_ui.total_ammo').SetNumericValue(GetIfElse(total_ammo > 0, total_ammo, 1))
@@ -706,7 +844,8 @@ def mod_stats_fatigue(xml):
                 mBvL_EoL_i = GetIf(has_mBvL, GetIfElse(mBvL_LF_i > 0, mBvL_LF_i, mBvL_colon_str.Length)),
                 mBvL_uss = GetIf(has_mBvL, mBvL_colon_str.Substr(0, mBvL_EoL_i)),
                 mBvL_s = GetIf(has_mBvL, StringSubString(mBvL_uss, 0).RemoveLeadingWhitespace),
-                mBvL = GetIf(has_mBvL, RoundFloat(ToNumber(mBvL_s))),
+                mBvL = GetIfElse(has_mBvL, RoundFloat(ToNumber(mBvL_s)), 0),
+                set_BvL = ScriptObjectContext('unit_info_ui.range_BvL').SetNumericValue(mBvL),
 
                 mBvi_png_pattern = "vs_infantry.png",
                 mBvi_png_i = tp.RFind(mBvi_png_pattern),
@@ -718,25 +857,30 @@ def mod_stats_fatigue(xml):
                 mBvi_EoL_i = GetIf(has_mBvi, GetIfElse(mBvi_LF_i > 0, mBvi_LF_i, mBvi_colon_str.Length)),
                 mBvi_uss = GetIf(has_mBvi, mBvi_colon_str.Substr(0, mBvi_EoL_i)),
                 mBvi_s = GetIf(has_mBvi, StringSubString(mBvi_uss, 0).RemoveLeadingWhitespace),
-                mBvi = GetIf(has_mBvi, RoundFloat(ToNumber(mBvi_s))),
+                mBvi = GetIfElse(has_mBvi, RoundFloat(ToNumber(mBvi_s)), 0),
+                set_Bvi = ScriptObjectContext('unit_info_ui.range_Bvi').SetNumericValue(mBvi),
 
                 fe = db_lookup.ChildContext("fatigue_effects"),
 
                 mdb_fatigue_coeff = GetIfElse(is_valid_battle_context, ScriptObjectContext('fatigue_effects').TableValue.ValueForKey('scalar_missile_damage_base')[f_state].Value, 1.0),
                 f_mdb = RoundFloat(mdb_fatigue_coeff * mdb),
                 f_mdb_str = Format("[[img:ui/mod/icons/icon_stat_ranged_damage_base.png]][[/img]]%d", f_mdb),
+                set_f_mdb = ScriptObjectContext('unit_info_ui.range_damage_base').SetNumericValue(f_mdb),
 
                 mdap_fatigue_coeff = GetIfElse(is_valid_battle_context, ScriptObjectContext('fatigue_effects').TableValue.ValueForKey('scalar_missile_damage_ap')[f_state].Value, 1.0),
                 f_mdap = RoundFloat(mdap_fatigue_coeff * mdap),
                 f_mdap_str = Format("[[img:ui/mod/icons/modifier_icon_armour_piercing_ranged.png]][[/img]]%d", f_mdap),
+                set_f_mdap = ScriptObjectContext('unit_info_ui.range_damage_ap').SetNumericValue(f_mdap),
 
                 medb_fatigue_coeff = GetIfElse(is_valid_battle_context, ScriptObjectContext('fatigue_effects').TableValue.ValueForKey('scalar_missile_explosion_damage_base')[f_state].Value, 1.0),
                 f_medb = GetIfElse(has_medb, RoundFloat(medb_fatigue_coeff * medb), 0),
                 f_medb_str = GetIfElse(has_medb, Format(" [[img:ui/mod/icons/icon_explosive_damage.png]][[/img]]%d", f_medb), ""),
+                set_f_medb = ScriptObjectContext('unit_info_ui.range_damage_explosion_base').SetNumericValue(f_medb),
 
                 medap_fatigue_coeff = GetIfElse(is_valid_battle_context, ScriptObjectContext('fatigue_effects').TableValue.ValueForKey('scalar_missile_explosion_damage_ap')[f_state].Value, 1.0),
                 f_medap = GetIfElse(has_medap, RoundFloat(medap_fatigue_coeff * medap), 0),
                 f_medap_str = GetIfElse(has_medap, Format("[[img:ui/mod/icons/icon_stat_explosive_armour_piercing_damage.png]][[/img]]%d", f_medap), ""),
+                set_f_medap = ScriptObjectContext('unit_info_ui.range_damage_explosion_ap').SetNumericValue(f_medap),
 
                 mBvL_str = GetIfElse(has_mBvL, Format("[[img:ui/mod/icons/modifier_icon_bonus_vs_large.png]][[/img]]%d", mBvL), ""),
                 mBvi_str = GetIfElse(has_mBvi, Format("[[img:ui/mod/icons/modifier_icon_bonus_vs_infantry.png]][[/img]]%d", mBvi), ""),
@@ -744,19 +888,7 @@ def mod_stats_fatigue(xml):
                 mwc = ud.UnitRecordContext.UnitLandRecordContext.PrimaryMissileWeaponContext.ProjectileContextList[0] + Do('TODO: use actual projectile?, Check if engine has projectile'),
                 total_db_dmg = mwc.DamageContext.Value + mwc.ApDamageContext.Value,
                 ap_ratio = mwc.ApDamageContext.Value / total_db_dmg,
-                ap_ratio_set = ScriptObjectContext('unit_info_ui.range_ap_ratio').SetStringValue(Format(Loc('tooltip_unit_stat_ap_ratio'), ap_ratio)),
-                
-                f_BvL_mbwd = GetIf(has_mBvL, f_mdb + RoundFloat(mBvL * (1.0 - ap_ratio))),
-                f_BvL_mapwd = GetIf(has_mBvL, f_mdap + RoundFloat(mBvL * ap_ratio)),
-                f_BvL_mwd_str = GetIfElse(has_mBvL, Format(Loc("tooltip_unit_stat_range_dmg_bonus"), 'large', f_BvL_mbwd, f_BvL_mapwd, f_medb_str, f_medap_str, f_BvL_mbwd + f_BvL_mapwd + f_medb + f_medap), ''),
-                set_f_BvL_mwd_str = ScriptObjectContext('unit_info_ui.range_damage_BvL').SetStringValue(f_BvL_mwd_str),
-                
-                f_Bvi_mbwd = GetIf(has_mBvi, f_mdb + RoundFloat(mBvi * (1.0 - ap_ratio))),
-                f_Bvi_mapwd = GetIf(has_mBvi, f_mdap + RoundFloat(mBvi * ap_ratio)),
-                f_Bvi_mwd_str = GetIfElse(has_mBvi, Format(Loc("tooltip_unit_stat_range_dmg_bonus"), 'infantry', f_Bvi_mbwd, f_Bvi_mapwd, f_medb_str, f_medap_str, f_Bvi_mbwd + f_Bvi_mapwd + f_medb + f_medap), ''),
-                set_f_Bvi_mwd_str = ScriptObjectContext('unit_info_ui.range_damage_Bvi').SetStringValue(f_Bvi_mwd_str),
-                
-                set_total_rwd = ScriptObjectContext('unit_info_ui.total_ranged_weapon_damage').SetNumericValue(f_mdb + f_mdap + f_medb + f_medap)
+                ap_ratio_set = ScriptObjectContext('unit_info_ui.range_ap_ratio').SetNumericValue(ap_ratio)
             ) =>
             {
                 Format("  %S%S %S%S%S%S ", mBvL_str, mBvi_str, f_mdb_str, f_mdap_str, f_medb_str, f_medap_str)
@@ -792,110 +924,132 @@ def mod_stats_fatigue(xml):
             md_rear = kv_rules.ValueForKey('melee_defence_direction_penalty_coefficient_rear'),
             md_flank_red = RoundFloat((1 - md_flank) * 100),
             md_rear_red = RoundFloat((1 - md_rear) * 100),
-            ud = StoredContextFromParent("CcoUnitDetails")
+            ud = StoredContextFromParent("CcoUnitDetails"),
+            func_get_localization = ScriptObjectContext('hui_context_functions').TableValue.ValueForKey('get_localization').Value
         ) =>
         Tooltip
-        + GetIf(Key == "stat_armour", Loc('tooltip_unit_stat_armour'))
+        + GetIf(Key == "stat_armour", EvaluateExpression(Format(func_get_localization, 'tooltip_unit_stat_uitooltip_unit_stat_armour')))
         + GetIf(Key == "stat_melee_attack",
             (
                 mwc = ud.UnitRecordContext.UnitLandRecordContext.PrimaryMeleeWeaponContext,
                 sama = mwc.SplashAttackMaxAttacks,
-                sats = mwc.SplashAttackTargetSize + '',
+                sats = mwc.SplashAttackTargetSize + '[[col:yellow]]CA pls fix[[/col]]',
                 camt = mwc.CollisionAttackMaxTargets,
                 camtc = mwc.CollisionAttackMaxTargetsCooldown,
-                splash_str = GetIfElse(sama > 0, Format(Loc('tooltip_unit_stat_melee_attack_splash'), sats, sama), ''),
-                collision_str = GetIfElse(camt > 0, Format(Loc('tooltip_unit_stat_melee_attack_collision'), camt, camtc), '')
-            ) => {Format(Loc('tooltip_unit_stat_melee_attack'), mwc.WeaponLength, splash_str, collision_str)}
+                splash_str = GetIfElse(sama > 0, Format(EvaluateExpression(Format(func_get_localization, 'tooltip_unit_stat_melee_attack_splash')), sats, sama), ''),
+                collision_str = GetIfElse(camt > 0, Format(EvaluateExpression(Format(func_get_localization, 'tooltip_unit_stat_melee_attack_collision')), camt, camtc), '')
+            ) => {Format(EvaluateExpression(Format(func_get_localization, 'tooltip_unit_stat_melee_attack')), mwc.WeaponLength, splash_str, collision_str)}
         )
-        + GetIf(Key == "stat_melee_defence", Format(Loc('tooltip_unit_stat_melee_defence'), md_rear_red, md_flank_red))
-        + Format(Loc('tooltip_unit_stat_ui'), RoundFloat(ValueBase), RoundFloat(DisplayedValue))
+        + GetIf(Key == "stat_melee_defence", Format(EvaluateExpression(Format(func_get_localization, 'tooltip_unit_stat_melee_defence')), md_rear_red, md_flank_red))
+        + Format(EvaluateExpression(Format(func_get_localization, 'tooltip_unit_stat_ui')), RoundFloat(ValueBase), RoundFloat(DisplayedValue))
         + GetIf(Key == "stat_weapon_damage",
-            Format(Loc('tooltip_unit_stat_dmg_per_hit'), RoundFloat(ScriptObjectContext('unit_info_ui.total_weapon_damage').NumericValue))
+            Format(EvaluateExpression(Format(func_get_localization, 'tooltip_unit_stat_dmg_per_hit')), RoundFloat(ScriptObjectContext('unit_info_ui.total_weapon_damage').NumericValue))
             + ScriptObjectContext('unit_info_ui.melee_ap_ratio').StringValue
             + ScriptObjectContext('unit_info_ui.melee_damage_BvL').StringValue
             + ScriptObjectContext('unit_info_ui.melee_damage_Bvi').StringValue
         )
         + GetIf(Key == "stat_missile_damage_over_time",
-            Format(Loc('tooltip_unit_stat_dmg_per_shot'), RoundFloat(ScriptObjectContext('unit_info_ui.total_ammo').NumericValue * ScriptObjectContext('unit_info_ui.total_ranged_weapon_damage').NumericValue))
-            + ScriptObjectContext('unit_info_ui.range_ap_ratio').StringValue
-            + ScriptObjectContext('unit_info_ui.range_damage_BvL').StringValue
-            + ScriptObjectContext('unit_info_ui.range_damage_Bvi').StringValue
+            (
+                ap_ratio = ScriptObjectContext('unit_info_ui.range_ap_ratio').NumericValue,
+                mBvL = RoundFloat(ScriptObjectContext('unit_info_ui.range_BvL').NumericValue),
+                mBvi = RoundFloat(ScriptObjectContext('unit_info_ui.range_Bvi').NumericValue),
+                has_mBvL = mBvL > 0,
+                has_mBvi = mBvi > 0,
+                f_mdb = RoundFloat(ScriptObjectContext('unit_info_ui.range_damage_base').NumericValue),
+                f_mdap = RoundFloat(ScriptObjectContext('unit_info_ui.range_damage_ap').NumericValue),
+                f_medb = RoundFloat(ScriptObjectContext('unit_info_ui.range_damage_explosion_base').NumericValue),
+                f_medap = RoundFloat(ScriptObjectContext('unit_info_ui.range_damage_explosion_ap').NumericValue),
+                tammo = RoundFloat(ScriptObjectContext('unit_info_ui.total_ammo').NumericValue),
+                n_entities = ud.NumEntities,
+                n_entities_ammo = n_entities * tammo,
+                
+                projectile_dmg = f_mdb + f_mdap + f_medb + f_medap,
+                projectile_dmg_BvL = f_mdb + f_mdap + f_medb + f_medap + mBvL,
+                projectile_dmg_Bvi = f_mdb + f_mdap + f_medb + f_medap + mBvi,
+                
+                shot_dmg = projectile_dmg * tammo,
+                shot_dmg_BvL = projectile_dmg_BvL * tammo,
+                shot_dmg_Bvi = projectile_dmg_Bvi * tammo,
+                
+                volley_dmg = shot_dmg * n_entities,
+                volley_dmg_BvL = shot_dmg_BvL * n_entities,
+                volley_dmg_Bvi = shot_dmg_Bvi * n_entities,
+                
+                func_format_range_damage_string = ScriptObjectContext('hui_context_functions').TableValue.ValueForKey('format_range_damage_string').Value
+            ) =>
+            {
+                Format(EvaluateExpression(Format(func_get_localization, 'tooltip_unit_stat_ap_ratio')), ap_ratio)
+                + EvaluateExpression(Format(func_get_localization, 'tooltip_unit_stat_projectile_damage'))
+                + EvaluateExpression(Format(func_format_range_damage_string, ap_ratio, '', 0, f_mdb, f_mdap, f_medb, f_medap, projectile_dmg))
+                + GetIf(has_mBvL, EvaluateExpression(Format(func_format_range_damage_string, ap_ratio, 'large', mBvL, f_mdb, f_mdap, f_medb, f_medap, projectile_dmg_BvL)))
+                + GetIf(has_mBvi, EvaluateExpression(Format(func_format_range_damage_string, ap_ratio, 'infantry', mBvi, f_mdb, f_mdap, f_medb, f_medap, projectile_dmg_Bvi)))
+                + GetIf(
+                    tammo > 1,
+                    EvaluateExpression(Format(func_get_localization, 'tooltip_unit_stat_entity_shot_damage'))
+                    + EvaluateExpression(Format(func_format_range_damage_string, ap_ratio, '', 0, f_mdb * tammo, f_mdap * tammo, f_medb * tammo, f_medap * tammo, projectile_dmg * tammo))
+                    + GetIf(has_mBvL, EvaluateExpression(Format(func_format_range_damage_string, ap_ratio, 'large', mBvL * tammo, f_mdb * tammo, f_mdap * tammo, f_medb * tammo, f_medap * tammo, projectile_dmg_BvL * tammo)))
+                    + GetIf(has_mBvi, EvaluateExpression(Format(func_format_range_damage_string, ap_ratio, 'infantry', mBvi * tammo, f_mdb * tammo, f_mdap * tammo, f_medb * tammo, f_medap * tammo, projectile_dmg_Bvi * tammo)))
+                )
+                + GetIf(
+                    n_entities > 1,
+                    EvaluateExpression(Format(func_get_localization, 'tooltip_unit_stat_volley_damage'))
+                    + EvaluateExpression(Format(func_format_range_damage_string, ap_ratio, '', 0, f_mdb * n_entities_ammo, f_mdap * n_entities_ammo, f_medb * n_entities_ammo, f_medap * n_entities_ammo, projectile_dmg * n_entities_ammo))
+                    + GetIf(has_mBvL, EvaluateExpression(Format(func_format_range_damage_string, ap_ratio, 'large', mBvL * n_entities_ammo, f_mdb * n_entities_ammo, f_mdap * n_entities_ammo, f_medb * n_entities_ammo, f_medap * n_entities_ammo, projectile_dmg_BvL * n_entities_ammo)))
+                    + GetIf(has_mBvi, EvaluateExpression(Format(func_format_range_damage_string, ap_ratio, 'infantry', mBvi * n_entities_ammo, f_mdb * n_entities_ammo, f_mdap * n_entities_ammo, f_medb * n_entities_ammo, f_medap * n_entities_ammo, projectile_dmg_Bvi * n_entities_ammo)))
+                )
+            }
         )
     '''
     set_context_callback(find_by_id(xml, 'template_stat'), 'ContextTooltipSetter', s)
+
+    # find_by_id(xml, 'mod_icon_list')['dimensions'] = '24.00,24.00'
+    # find_by_id(xml, 'template_modifier_icon')['dimensions'] = '24.00,24.00'
 
 
 def split_abilities(xml):
     # language=javascript
     s = '''
-        AbilityDetailsList.Filter(CategoryStateName == "passives" && Key != "weakness_fire")
+        AbilityDetailsList.Filter((CategoryStateName == 'attributes' || CategoryStateName == "additional_stats") && Key != "weakness_fire")
     '''
-    cb = set_context_callback(find_by_id(xml, 'ability_list'), 'ContextList', s)
+    elem = find_by_id(xml, 'ability_list')
+    elem.states.newstate['height'] = '28'
+    cb = set_context_callback(elem, 'ContextList', s)
     cb.child_m_user_properties.append('''<property name="hide_if_empty" value=""/>''')
     
     # IsShowingExpandedUnitInfo == false
     
-    elem = read_xml_component('unit_information/spells_abilities_list')
+    elem = read_xml_component('unit_information/passives_list')
     # language=javascript
     s = '''
-        AbilityDetailsList.Filter(CategoryStateName == "spells" || CategoryStateName == "abilities")
+        AbilityDetailsList.Filter(CategoryStateName == "passives")
+    '''
+    set_context_callback(elem, 'ContextList', s)
+    add_element(xml, elem, "list")
+    
+    elem = read_xml_component('unit_information/abilities_list')
+    # language=javascript
+    s = '''
+        AbilityDetailsList.Filter(CategoryStateName == "abilities")
+    '''
+    set_context_callback(elem, 'ContextList', s)
+    add_element(xml, elem, "list")
+    
+    elem = read_xml_component('unit_information/spells_list')
+    # language=javascript
+    s = '''
+        AbilityDetailsList.Filter(CategoryStateName == "spells")
     '''
     set_context_callback(elem, 'ContextList', s)
     add_element(xml, elem, "list")
     
     # TODO can I reuse existing template?
-    elem = read_xml_component('unit_information/template_spell_ability')
-    add_element(xml, elem, "spells_abilities_list")
-    
-    find_by_id(xml, 'unit_information').animations.show_stats.find_all('triggers').append(
-        """
-            <trigger
-            trigger_component="854991D1-D51D-40AC-9053C46DF54FSS00"
-            trigger_property="Visibility true"/>
-        """
-    )
-    
-    find_by_id(xml, 'unit_information').animations.show_abilities.find_all('triggers').append(
-        """
-            <trigger
-            trigger_component="854991D1-D51D-40AC-9053C46DF54FSS00"
-            trigger_property="Visibility false"/>
-        """
-    )
-    
-    find_by_guid(xml, 'A05D6E49-54C8-403A-A721A4F49B3B2D53').find_all('transition_m_triggers').append(  # down
-        """
-            <trigger
-            trigger_component="854991D1-D51D-40AC-9053C46DF54FSS00"
-            trigger_property="Visibility true"/>
-        """
-    )
-    
-    find_by_guid(xml, '4AB18355-1C3E-4DF3-B8F02F0BC731D452').find_all('transition_m_triggers').append(  # selected_down
-        """
-            <trigger
-            trigger_component="854991D1-D51D-40AC-9053C46DF54FSS00"
-            trigger_property="Visibility false"/>
-        """
-    )
-    
-    find_by_guid(xml, 'A43EC7EC-75C5-4705-AF915151B9ADD6FC').find_all('transition_m_triggers').append(  # down
-        """
-            <trigger
-                trigger_component="854991D1-D51D-40AC-9053C46DF54FSS00"
-                trigger_property="Visibility false"/>
-        """
-    )
-    
-    find_by_guid(xml, '40096869-49EB-465E-99AAB23A4A8C13E1').find_all('transition_m_triggers').append(  # selected_down
-        """
-        <trigger
-            trigger_component="854991D1-D51D-40AC-9053C46DF54FSS00"
-            trigger_property="Visibility true"/>
-        """
-    )
-    
-    offset = 38 + 34
+    elem = read_xml_component('unit_information/template_passive')
+    add_element(xml, elem, "passives_list")
+    elem = read_xml_component('unit_information/template_ability')
+    add_element(xml, elem, "abilities_list")
+    elem = read_xml_component('unit_information/template_spell')
+    add_element(xml, elem, "spells_list")
+    offset = 2*28 + 24 + 8
     info_panel = find_by_id(xml, 'info_panel')
     info_panel.states.blank['height'] = str(int(info_panel.states.blank['height']) + offset)
     info_panel.states.wh3['height'] = str(int(info_panel.states.wh3['height']) + offset)
@@ -909,7 +1063,7 @@ def move_info_panel_higher(xml):
     
     # language=javascript
     s = '''
-        DoIfElse(RootComponent.Dimensions.y < 1000, self.SetDockOffset(10, -270), self.SetDockOffset(10, -338))
+        DoIfElse(RootComponent.Dimensions.y < 1000, self.SetDockOffset(10, -270), self.SetDockOffset(10, -385))
     '''
     tag['context_function_id'] = format_str(s)
     
@@ -917,7 +1071,7 @@ def move_info_panel_higher(xml):
     
     # language=javascript
     s = '''
-        DoIfElse(RootComponent.Dimensions.y < 1000, self.SetDockOffset(10, -270), self.SetDockOffset(10, -338))
+        DoIfElse(RootComponent.Dimensions.y < 1000, self.SetDockOffset(10, -270), self.SetDockOffset(10, -385))
     '''
     tag['context_function_id'] = format_str(s)
 
@@ -939,6 +1093,40 @@ def add_ability_gold_value(xml):
     set_context_callback(elem, 'ContextVisibilitySetter', s)
     
     add_element(xml, elem, "header")
+    
+    
+def edit_ability_info(xml):
+    # language=javascript
+    s = '''
+        (
+            ticks = Duration / HpChangeFrequency + 1,
+            n_entities = MaxDamagedEntities,
+            dmg = ToNumber(IntensifiedValueText(DamageAmount, '%f')),
+            bottom_range_entity = Floor(dmg / 2.0),
+            top_range_entity = Floor(dmg - 1),
+            bottom_range_unit = bottom_range_entity * n_entities,
+            top_range_unit =  top_range_entity * n_entities,
+            expected_dmg = RoundFloat((bottom_range_unit + top_range_unit) / 2.0 * ticks)
+        ) =>
+        {
+            Format('%d-%d (~%d)', bottom_range_unit, top_range_unit, expected_dmg)
+        }
+    '''
+    set_context_callback(find_by_id(xml, "value_damage"), 'ContextTextLabel', s)
+    
+    # language=javascript
+    s = '''
+        (
+            ticks = Duration / HpChangeFrequency + 1,
+            heal = ToNumber(IntensifiedValueText(HealPercent, '%f')),
+            hps = heal * 1.0 / HpChangeFrequency,
+            expected_heal = heal * ticks
+        ) =>
+        {
+            Format('%+.2f%% (~%.2f%%)', hps * 100, expected_heal * 100)
+        }
+    '''
+    set_context_callback(find_by_id(xml, "value_heal"), 'ContextTextLabel', s)
 
 
 def prepare_reinf_panel_supplies(xml):
@@ -953,6 +1141,73 @@ def prepare_reinf_panel_supplies(xml):
         )
     '''
     set_context_callback(find_by_id(xml, "dy_supplies"), 'ContextTextLabel', s)
+    
+    
+def unit_info_desc_visibility_toggle(xml):
+    # language=javascript
+    s = '''
+        PrefAsBool('hui_unit_info_desc_visible')
+    '''
+    create_context_callback(find_by_id(xml, 'descr_holder'), "ContextVisibilitySetter", "CcoStaticObject", s, {'update_constant': '100'})
+    
+    
+    # language=javascript
+    s = '''
+        TogglePrefBool('hui_unit_info_desc_visible')
+    '''
+    create_context_callback(find_by_id(xml, 'custom_name_display'), "ContextCommandRightClick", "CcoStaticObject", s)
+    
+def unit_info_short_desc_asmr(xml):
+    # language=javascript
+    s = '''
+        Do(
+            TogglePrefBool('hui_unit_info_short_desc_asmr'),
+            self.SetText(GetIfElse(
+                PrefAsBool('hui_unit_info_short_desc_asmr'),
+                StringGet('unit_description_short_texts_text_asmr_' + UnitRecordContext.UnitLandRecordContext.Key),
+                UnitRecordContext.Description
+            ))
+    )
+    '''
+    create_context_callback(find_by_id(xml, 'short_description'), "ContextCommandLeftClick", "CcoUnitDetails", s)
+    
+    # language=javascript
+    s = '''
+        GetIfElse(
+            PrefAsBool('hui_unit_info_short_desc_asmr'),
+            StringGet('unit_description_short_texts_text_asmr_' + UnitRecordContext.UnitLandRecordContext.Key),
+            UnitRecordContext.Description
+        )
+    '''
+    set_context_callback(find_by_id(xml, 'short_description'), "ContextTextLabel", s)
+    
+def spell_browser_unit_historical_desc_asmr(xml):
+    elem = find_by_id(xml, 'descr_textview')
+    # language=javascript
+    s = '''
+    (
+        cbpr = self.ChildContext('dy_text').ContextsList[0]
+    ) =>
+        Do(
+            TogglePrefBool('hui_spell_browser_unit_historical_desc_asmr'),
+            self.ChildContext('dy_text').SetText(GetIfElse(
+                PrefAsBool('hui_spell_browser_unit_historical_desc_asmr'),
+                StringGet('unit_description_historical_texts_text_asmr_' + cbpr.UnitContext.UnitLandRecordContext.Key),
+                cbpr.UnitContext.HistoricalDescription
+            ))
+    )
+    '''
+    create_context_callback(find_by_id(xml, 'clip'), "ContextCommandLeftClick", "CcoStaticObject", s)
+    
+    # language=javascript
+    s = '''
+        GetIfElse(
+            PrefAsBool('hui_spell_browser_unit_historical_desc_asmr'),
+            StringGet('unit_description_historical_texts_text_asmr_' + UnitContext.UnitLandRecordContext.Key),
+            UnitContext.HistoricalDescription
+        )
+    '''
+    set_context_callback(find_by_id(xml, 'dy_text'), "TextviewText", s)
 
 
 def prepare_mod_team_list(xml):
@@ -1182,12 +1437,29 @@ def mod_battle_ui():
                   mod_stats_fatigue(xml),
                   split_abilities(xml),
                   add_unit_info_resistances(xml),
-                  add_unit_info_entity_hp(xml)
+                  unit_info_short_desc_asmr(xml)
+                  # unit_info_desc_visibility_toggle(xml)
               )
               )
     edit_twui('ui/common ui/special_ability_tooltip',
               lambda xml: (
-                  add_ability_gold_value(xml),
+                  add_ability_gold_value(xml)
+              )
+              )
+    edit_twui('ui/templates/phase_effect',
+              lambda xml: (
+                  edit_ability_info(xml)
+              )
+              )
+    edit_twui('ui/common ui/tooltip_unit_health',
+              lambda xml: (
+                  change_unit_health_tooltip(xml),
+              )
+              )
+    
+    edit_twui('ui/common ui/spell_browser',
+              lambda xml: (
+                  spell_browser_unit_historical_desc_asmr(xml)
               )
               )
     

@@ -1,6 +1,6 @@
-<template_spell_ability
+<template_spell
         this="5B122076-D2C5-43E7-A70816EE2D67SS00"
-        id="template_spell_ability"
+        id="template_spell"
         offset="10.00,0.00"
         allowhorizontalresize="false"
         allowverticalresize="false"
@@ -208,4 +208,4 @@
             </imagemetrics>
         </shot_type>
     </states>
-</template_spell_ability>
+</template_spell>

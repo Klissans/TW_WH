@@ -1,0 +1,15 @@
+key	text	tooltip
+#Loc;1;text/db/mp_patch__en_random_localisation_strings__.loc
+random_localisation_strings_string_tooltip_kills_ff_EN	[[img:ui/battle ui/ability_icons/wh_dlc07_unit_passive_icon_of_devotion.png]][[/img]]Friendly Fire Kills: %d\\n	false
+random_localisation_strings_string_tooltip_unit_stat_ui_EN	\\n\\nVanilla UI Base Value: [[col:yellow]]%d[[/col]]\\nVanilla UI Display Value: [[col:yellow]]%d[[/col]]	false
+random_localisation_strings_string_tooltip_unit_stat_ap_ratio_EN	\\nAP Ratio: [[col:yellow]]%f[[/col]]	false
+random_localisation_strings_string_tooltip_unit_stat_dmg_per_hit_EN	\\n\\nMod Total Damage per hit: [[col:yellow]]%d[[/col]]	false
+random_localisation_strings_string_tooltip_unit_stat_armour_EN	\\n\\nBlocks a random % in range [0.5*armour, armour] (max 100%) of incoming:\\n[[img:ui/skins/default/icon_stat_damage_base.png]][[/img]] Base Weapon Damage\\n[[img:ui/skins/default/icon_stat_ranged_damage_base.png]][[/img]] Base Missile Damage\\n[[img:ui/skins/default/icon_explosive_damage.png]][[/img]] Base Explosive Damage\\nMod shows the [[col:yellow]]average[[/col]] reduction from armour.	false
+random_localisation_strings_string_tooltip_unit_stat_melee_defence_EN	\\n\\n[[img:ui/mod/icons/icon_stat_defence_rear.png]][[/img]]Melee Defence from rear: [[col:red]]-%d%%[[/col]]\\n[[img:ui/mod/icons/icon_stat_defence_flank.png]][[/img]]Melee Defence from flanks: [[col:red]]-%d%%[[/col]]	false
+random_localisation_strings_string_tooltip_unit_stat_melee_attack_splash_EN	\\n[[img:ui/battle ui/ability_icons/wh2_dlc10_lord_passive_blood_frenzy.png]][[/img]]Splash Attack:\\nTarget Size: [[col:yellow]]%s[[/col]]\\nMax Targets: [[col:yellow]]%d[[/col]] 	false
+random_localisation_strings_string_tooltip_unit_stat_melee_attack_collision_EN	\\n[[img:ui/battle ui/ability_icons/wh_dlc03_unit_passive_primal_fury.png]][[/img]]Collision Attack:\\nMax Targets: [[col:yellow]]%d[[/col]]\\nRefreshes/Cooldown: [[col:yellow]]%d[[/col]]	false
+random_localisation_strings_string_tooltip_unit_stat_melee_attack_EN	\\n\\nWeapon Length: [[col:yellow]]%f[[/col]]\\n%S%S	false
+random_localisation_strings_string_tooltip_unit_stat_projectile_damage_EN	\\nProjectile damage:	false
+random_localisation_strings_string_tooltip_unit_stat_entity_shot_damage_EN	\\nEntity shot damage:	false
+random_localisation_strings_string_tooltip_unit_stat_volley_damage_EN	\\nUnit volley damage:	false
+random_localisation_strings_string_charging_str_EN	[[img:icon_charge]][[/img]]Charging	false
