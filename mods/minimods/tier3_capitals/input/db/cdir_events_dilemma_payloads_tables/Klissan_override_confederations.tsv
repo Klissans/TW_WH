@@ -1,0 +1,6 @@
+id	choice_key	dilemma_key	payload_key	value	target_key
+#cdir_events_dilemma_payloads_tables;0;db/cdir_events_dilemma_payloads_tables/Klissan_override_confederations					
+1172623961	FIRST	wh2_main_grn_confederate_wh2_dlc15_grn_generic	TEXT_DISPLAY	LOOKUP[dummy_do_nothing]	default
+1334329767	FIRST	wh2_main_grn_confederate_wh2_dlc15_grn_generic_no_execution	TEXT_DISPLAY	LOOKUP[dummy_do_nothing]	default
+1351456070	FIRST	wh2_dlc08_nor_confederate_generic	TEXT_DISPLAY	LOOKUP[dummy_do_nothing]	default
+139008727	FIRST	wh2_dlc08_nor_confederate_generic_no_execution	TEXT_DISPLAY	LOOKUP[dummy_do_nothing]	default
