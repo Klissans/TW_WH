@@ -1,0 +1,3 @@
+id	treasury_cost	expenditure_type	income_type	expenditure_type_when_regular	income_type_when_regular
+#resource_costs_tables;0;db/resource_costs_tables/!Klissan_malakai_travel					
+klissan_malakai_travel	0	RITUAL	RITUAL	ARMY_UPKEEP	BACKGROUND_INCOME
