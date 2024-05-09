@@ -1,5 +1,43 @@
+MGSWT = { -- MALAKAI_GRUDGE_SETTLING_WORLD_TOUR
+    croot = nil,
+    faction_name = 'wh3_dlc25_dwf_malakai',
 
-local function resurrect_kraka_drak(force_coord_x, force_coord_y, malakai_old_enemy)
+    -- logging to separate file for easy debug
+    log_to_file = false,
+    log_file = '_malakai.log',
+}
+
+function MGSWT:out(fmt, ...)
+    local str = string.format('[[MGSWT]] :: '.. fmt, unpack(arg))
+    out(str)
+    if self.log_to_file then -- not efficient but whateever
+        local log_file = io.open(self.log_file, "a+")
+        log_file:write(str .. '\n')
+        log_file:flush()
+        io.close(log_file)
+    end
+end
+
+
+function MGSWT:debug(fmt, ...)
+    self:out('(DEBUG) '.. fmt, unpack(arg))
+end
+
+function MGSWT:error(fmt, ...)
+    self:out('(ERROR) '.. fmt, unpack(arg))
+end
+
+
+function MGSWT:init()
+    self.faction = cm:get_faction(self.faction_name)
+    self.croot = cco('CcoCampaignRoot', 'CampaignRoot')
+
+    self.log_to_file = Klissan_H:is_file_exist(self.log_file)
+    io.open(self.log_file,"w"):close()
+end
+
+
+function MGSWT:resurrect_kraka_drak(force_coord_x, force_coord_y, malakai_old_enemy)
     local kraka_drak_faction = cm:get_faction('wh_main_dwf_kraka_drak')
     local kraka_drak_region = cm:get_region('wh3_main_combi_region_kraka_drak')
 
@@ -34,11 +72,11 @@ local function resurrect_kraka_drak(force_coord_x, force_coord_y, malakai_old_en
         force_coord_y,
         function(cqi) end
     )
-
     cm:force_declare_war(kraka_drak_faction:name(), malakai_old_enemy:name(), false, false)
 end
 
-local function malakai_setup()
+
+function MGSWT:campaign_setup()
     if not (cm:is_new_game()
             and (cm:model():campaign_name_key() ~= "wh3_main_combi"
             or cm:model():campaign_name_key() ~= "cr_combi_expanded")) then
@@ -46,9 +84,9 @@ local function malakai_setup()
     end
     local old_enemy_faction = cm:get_faction('wh3_main_nur_maggoth_kin')
     local new_ogre_enemy_factions = cm:get_faction('wh3_main_ogr_fulg')
-    local malakai_faction = cm:get_faction('wh3_dlc25_dwf_malakai')
+    local malakai_faction = MGSWT.faction
 
-    local malakai_x, malakai_y = get_character_coordinates(malakai_faction:faction_leader())
+    local malakai_x, malakai_y = Klissan_CH:get_logical_position(malakai_faction:faction_leader())
     cm:teleport_military_force_to(malakai_faction:faction_leader():military_force(), 1011, 647)
 
     cm:force_make_peace(malakai_faction:name(), old_enemy_faction:name())
@@ -63,7 +101,7 @@ local function malakai_setup()
     end
     cm:instantly_set_settlement_primary_slot_level(karak_vrag:settlement(), 3)
 
-    resurrect_kraka_drak(malakai_x, malakai_y, old_enemy_faction)
+    MGSWT:resurrect_kraka_drak(malakai_x, malakai_y, old_enemy_faction)
 
     cm:reset_shroud(malakai_faction:name())
 
@@ -80,4 +118,58 @@ local function malakai_setup()
     end
 end
 
-cm:add_post_first_tick_callback(function() malakai_setup() end)
+-- cco TargettingContext
+function MGSWT:get_targeting_ritual_key()
+    return self.croot:Call('TargettingContext.RitualContext.RitualContext.Key')
+end
+
+function MGSWT:get_targeting_target()
+    local target_type, target_key = false, false
+    target_type = self.croot:Call([=[
+        ContextTypeId(TargettingContext.CurrentTargetContext)
+    ]=])
+    target_key = self.croot:Call([=[
+        (
+            target = TargettingContext.CurrentTargetContext,
+            target_type = ContextTypeId(target)
+        ) =>
+        {
+            target_type
+                | 'CcoCampaignSettlement' => target.RegionRecordKey
+        }
+    ]=])
+    -- do not log here as it's used in repeat callback
+    --if target_type then
+    --    self:debug('Targetting target: '..target_type..','..target_key)
+    --end
+    return target_type, target_key
+end
+
+
+function MGSWT:is_target_context_exists()
+    return self.croot:Call([=[
+        IsContextValid(TargettingContext.CurrentTargetContext)
+    ]=])
+end
+
+
+function MGSWT:get_travel_distance()
+    local malakai_faction = self.faction
+    local mx, my = Klissan_CH:get_logical_position(malakai_faction:faction_leader())
+    local target_type, target_key = self:get_targeting_target()
+    if not target_key then
+        return -1
+    end
+    local tx, ty = Klissan_CH:get_logical_position(cm:get_region(target_key):settlement())
+    local distance = math.sqrt(math.pow(math.abs(mx-tx), 2) + math.pow(math.abs(my-ty), 2))
+    --to do how to log characters (name) command_queue_index
+    self:debug('Travel Distance -> (%s,%s) = %f', target_type, target_key, distance)
+    return distance
+end
+
+
+-- INIT
+cm:add_post_first_tick_callback(function()
+    MGSWT:init()
+    MGSWT:campaign_setup()
+end)

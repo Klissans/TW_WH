@@ -1,10 +1,12 @@
-function is_file_exist(name)
+Klissan_H = {} -- Klissan_Helpers
+
+function Klissan_H:is_file_exist(name)
    local f=io.open(name, "r")
    if f~=nil then io.close(f) return true else return false end
 end
 
 
-function get_key_sorted(t)
+function Klissan_H:get_key_sorted(t)
    local keyset={}
    local n=0
    for k,_ in pairs(t) do
@@ -16,13 +18,13 @@ function get_key_sorted(t)
 end
 
 
-function table_size(T)
+function Klissan_H:table_size(T)
    local count = 0
    for _ in pairs(T) do count = count + 1 end
    return count
 end
 
-function minify_bool(b)
+function Klissan_H:minify_bool(b)
    if b then return 1 else return 0 end
 end
 
