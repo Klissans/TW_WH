@@ -2,6 +2,8 @@ MGSWT = { -- MALAKAI_GRUDGE_SETTLING_WORLD_TOUR
     croot = nil,
     faction_name = 'wh3_dlc25_dwf_malakai',
 
+    tsog_base_radius = 27, -- The Spirit of Grungni's circle of influence base radius measured in logical coordinates
+
     -- logging to separate file for easy debug
     log_to_file = false,
     log_file = '_malakai.log',
@@ -122,6 +124,7 @@ end
 function MGSWT:get_targeting_ritual_key()
     return self.croot:Call('TargettingContext.RitualContext.RitualContext.Key')
 end
+--CommandingCharacterContext .AgentSubtypeRecordContext.Key
 
 function MGSWT:get_targeting_target()
     local target_type, target_key = false, false
@@ -136,6 +139,7 @@ function MGSWT:get_targeting_target()
         {
             target_type
                 | 'CcoCampaignSettlement' => target.RegionRecordKey
+                | 'CcoCampaignMilitaryForce' => target.CommandingCharacterContext.CQI
         }
     ]=])
     -- do not log here as it's used in repeat callback
@@ -153,6 +157,31 @@ function MGSWT:is_target_context_exists()
 end
 
 
+function MGSWT:get_grungni_radius()
+    local radius_modifier = self.croot:Call([=[
+    (
+        malakai_faction = CampaignRoot.FactionList.FirstContext(FactionRecordContext.Key == 'wh3_dlc25_dwf_malakai'),
+        malakai = malakai_faction.FactionLeaderContext,
+        malakai_army = malakai.MilitaryForceContext,
+        malakai_horde = malakai_army.HordeContext,
+        building_chain_key = 'wh3_dlc25_dwf_spirit_of_grungni_support_radius',
+        slot_with_desired_building_chain = malakai_horde.BuildingSlotList.FirstContext(BuildingContext.BuildingLevelRecordContext.BuildingChainRecordContext.Key == building_chain_key),
+        building = slot_with_desired_building_chain.BuildingContext,
+        radius_effect = building.EffectList.FirstContext(EffectKey == 'wh3_dlc25_effect_force_stat_support_radius')
+    ) => GetIfElse(IsContextValid(radius_effect), radius_effect.Value, 0)
+]=]) / 100.0
+    return self.tsog_base_radius * (radius_modifier + 1.0)
+end
+
+function MGSWT:is_target_in_range()
+    local radius = self:get_grungni_radius()
+    local distance_to_target = self:get_travel_distance()
+    self:debug('Grungni Range: %f, Distance to Target: %f', radius, distance_to_target)
+    return distance_to_target < radius
+end
+
+
+-- todo rename to get distance to targeting
 function MGSWT:get_travel_distance()
     local malakai_faction = self.faction
     local mx, my = Klissan_CH:get_logical_position(malakai_faction:faction_leader())
@@ -160,7 +189,13 @@ function MGSWT:get_travel_distance()
     if not target_key then
         return -1
     end
-    local tx, ty = Klissan_CH:get_logical_position(cm:get_region(target_key):settlement())
+    local target = nil
+    if target_type == 'CcoCampaignSettlement' then
+        target = cm:get_region(target_key):settlement()
+    elseif target_type == 'CcoCampaignMilitaryForce' then
+        target = cm:get_character_by_cqi(target_key)
+    end
+    local tx, ty = Klissan_CH:get_logical_position(target)
     local distance = math.sqrt(math.pow(math.abs(mx-tx), 2) + math.pow(math.abs(my-ty), 2))
     --to do how to log characters (name) command_queue_index
     self:debug('Travel Distance -> (%s,%s) = %f', target_type, target_key, distance)

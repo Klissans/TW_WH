@@ -19,27 +19,33 @@ function MGSWT:edit_travel_button()
     travel_button:SetTooltipText(common.get_localised_string(travel_button_tooltip_key), travel_button_tooltip_key, true)
 end
 
+function MGSWT:has_ui_state_changed()
+    local selected_ritual_key = self:get_targeting_ritual_key()
+    local target_type, target_key = self:get_targeting_target()
+    local cr = self.rituals.current_ritual
+    if selected_ritual_key == cr.key and target_type == cr.target_type and target_key == cr.target_key then
+        return false
+    end
+    cr.key = selected_ritual_key
+    cr.target_type = target_type
+    cr.target_key = target_key
+    return true
+end
+
 
 function MGSWT:set_ritual_cost()
     local ui_perform_cost = find_uicomponent(core:get_ui_root(), 'tzeentch_changing_of_ways', 'manipulation_info', 'button_perform', 'duration_cost_holder', 'dy_cost')
     local ui_perform_button = find_uicomponent(core:get_ui_root(), 'tzeentch_changing_of_ways', 'manipulation_info', 'button_perform')
+
+    if not self:has_ui_state_changed() then
+        return
+    end
+
     if not self:can_perform_ritual() then
         ui_perform_cost:SetText('0', '0')
         ui_perform_button:SetState('inactive')
         return
     end
-
-    -- has state changed
-    local selected_ritual_key = self:get_targeting_ritual_key()
-    local target_type, target_key = self:get_targeting_target()
-    local cr = self.rituals.current_ritual
-    if selected_ritual_key == cr.key and target_type == cr.target_type and target_key == cr.target_key then
-        return
-    end
-    --self:debug('AFTER HAS RITUAL CHANGED CHECK')
-    cr.key = selected_ritual_key
-    cr.target_type = target_type
-    cr.target_key = target_key
 
     --everything is good do our part
     local cost = self:get_ritual_cost()
@@ -60,7 +66,13 @@ function MGSWT:set_ritual_cost()
 end
 
 function MGSWT:can_perform_ritual()
-    return self:is_target_context_exists() -- todo and target correct
+    local can_perform = self:is_target_context_exists()
+    local selected_ritual_key = self:get_targeting_ritual_key()
+    local is_range_dependant = self:get_rituals_which_need_range_check()[selected_ritual_key]
+    if is_range_dependant then
+        can_perform = can_perform and self:is_target_in_range()
+    end
+    return can_perform
 end
 
 
