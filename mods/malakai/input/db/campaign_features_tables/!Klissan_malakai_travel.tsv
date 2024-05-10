@@ -1,3 +1,3 @@
 feature	group	available
 #campaign_features_tables;0;db/campaign_features_tables/!Klissan_malakai_travel		
-diplomatic_manipulation	klissan_malakai_travel	true
+rituals	klissan_malakai_campaign_group	true

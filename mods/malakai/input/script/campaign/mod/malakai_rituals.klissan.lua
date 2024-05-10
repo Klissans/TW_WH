@@ -2,6 +2,26 @@
 
 --to enable tzeentch ritual's panel:
 -- db/ui_features_to_factions_tables
+-- db/campaign_groups_tables
+-- db/campaign_group_members_tables
+-- db/campaign_group_members_criteria_cultures_tables
+-- db/campaign_features_tables
+
+-- TO ADD RITUAL
+-- db/rituals_tables
+-- db/campaign_group_rituals_tables
+-- db/ritual_targets_table -- NOT NECESSARY
+-- db/ui_info_ritual_target_criterias -- NOT NECESSARY
+-- db/ritual_region_target_critaerias_table -- NOT NECESSARY
+-- db/ritual_payloads_table
+-- db/campaign_payloads_table
+-- db/campaign_payload_basic_value_components_table -- NOT NECESSARY
+
+-- db/resource_costs_tables -- NOT NECESSARY
+-- db/resource_costs_pooled_resource_junction
+
+-- db/effect_bonus_value_ritual_junctions_tables  -- NOT NECESSARY
+
 
 -- RITUALS
 -- Bombardment (force, settlement in range of TSoG)
@@ -10,7 +30,7 @@
 
 MGSWT.rituals = { -- should match db keys
     keys = {
-        travel = 'klissan_malakai_travel'
+        travel = 'klissan_malakai_travel_ritual'
     },
     cost_mapping = nil,
     cost_multipliers = {
@@ -38,7 +58,7 @@ end
 
 
 function MGSWT:get_ritual_cost()
-    local ritual_key = self:get_targeting_ritual_key():gsub('_ritual$', '') -- appended in cco
+    local ritual_key = self:get_targeting_ritual_key() -- :gsub('_ritual$', '') -- appended in cco
     local ritual_cost = self.rituals.cost_mapping[ritual_key]()
     self:debug('Ritual cost %s is %d', ritual_key, ritual_cost)
     return ritual_cost

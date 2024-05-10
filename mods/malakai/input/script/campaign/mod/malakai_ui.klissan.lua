@@ -36,7 +36,7 @@ function MGSWT:set_ritual_cost()
     if selected_ritual_key == cr.key and target_type == cr.target_type and target_key == cr.target_key then
         return
     end
-    self:debug('AFTER HAS RITUAL CHANGED CHECK')
+    --self:debug('AFTER HAS RITUAL CHANGED CHECK')
     cr.key = selected_ritual_key
     cr.target_type = target_type
     cr.target_key = target_key
@@ -52,6 +52,7 @@ function MGSWT:set_ritual_cost()
 
     -- do we have enough resources?
     if cost > self.faction:treasury() then
+        self:debug('Not enough treasury (%d) to afford ritual, disabling button', self.faction:treasury())
         ui_perform_button:SetState('inactive')
         return
     end
@@ -75,14 +76,14 @@ function MGSWT:listen_to_malakai_travel_panel_opened()
             local travel_panel_text_key = 'land_units_onscreen_name_wh3_dlc25_dwf_veh_thunderbarge_grungni'
             travel_panel:SetText(common.get_localised_string(travel_panel_text_key), travel_panel_text_key)
 
-            local travel_panel_button = find_uicomponent(core:get_ui_root(), 'tzeentch_changing_of_ways', 'manipulation_info', 'button_perform', 'button_txt')
-            local travel_panel_button_text_key = 'rituals_description_wh3_dlc25_emp_ritual_elspeth_teleport'
-            travel_panel_button:SetText(common.get_localised_string(travel_panel_button_text_key), travel_panel_button_text_key)
+            --local travel_panel_button = find_uicomponent(core:get_ui_root(), 'tzeentch_changing_of_ways', 'manipulation_info', 'button_perform', 'button_txt')
+            --local travel_panel_button_text_key = 'rituals_description_wh3_dlc25_emp_ritual_elspeth_teleport'
+            --travel_panel_button:SetText(common.get_localised_string(travel_panel_button_text_key), travel_panel_button_text_key)
 
-            local manipulation_list = find_uicomponent(core:get_ui_root(), 'tzeentch_changing_of_ways', 'manipulation_list')
-            local travel_option = find_uicomponent(UIComponent(manipulation_list:Find(2)), 'entry', 'button_txt')
-            local travel_option_text_key = travel_panel_button_text_key
-            travel_option:SetText(common.get_localised_string(travel_option_text_key), travel_option_text_key)
+            --local manipulation_list = find_uicomponent(core:get_ui_root(), 'tzeentch_changing_of_ways', 'manipulation_list')
+            --local travel_option = find_uicomponent(UIComponent(manipulation_list:Find(2)), 'entry', 'button_txt')
+            --local travel_option_text_key = travel_panel_button_text_key
+            --travel_option:SetText(common.get_localised_string(travel_option_text_key), travel_option_text_key)
 
             -- start cost setter
             core:get_tm():repeat_real_callback(function() MGSWT:set_ritual_cost() end, 100, MGSWT.ui_callback_names.set_ritual_cost)

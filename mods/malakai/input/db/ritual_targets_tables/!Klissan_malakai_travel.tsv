@@ -1,3 +1,7 @@
 key	faction_criteria	military_force_criteria	region_criteria
 #ritual_targets_tables;0;db/ritual_targets_tables/!Klissan_malakai_travel			
 klissan_ritual_target_region_dwf_not_war			klissan_ritual_target_region_dwf_not_war
+klissan_ritual_target_region_any			ritual_target_region_any
+klissan_ritual_target_region_force_dwf_not_war		ritual_target_force_dwf_not_war	
+klissan_ritual_target_region_force_enemy			ritual_target_region_enemy
+klissan_ritual_target_malakai_force		ritual_target_force_malakai	
