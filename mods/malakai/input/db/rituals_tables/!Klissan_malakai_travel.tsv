@@ -5,3 +5,4 @@ klissan_malakai_scout_ritual	0	klissan_malakai_travel_payload	0	TZEENTCH_RITUAL	
 klissan_malakai_supplies_ritual	0	klissan_malakai_travel_payload	0	TZEENTCH_RITUAL	0	0		ui/skins/default/icon_supplies.png	0			klissan_ritual_target_region_force_dwf_not_war			1	0				default		0.0000	2
 klissan_malakai_bombard_ritual	0	klissan_malakai_travel_payload	0	TZEENTCH_RITUAL	0	0		ui/battle ui/ability_icons/cannon_canister.png	0			klissan_ritual_target_region_force_enemy			1	0				default		0.0000	3
 klissan_malakai_ale_ritual	0	klissan_malakai_travel_payload	0	TZEENTCH_RITUAL	0	0		ui/battle ui/ability_icons/wh_dlc06_unit_passive_bugmans_brew.png	0			klissan_ritual_target_malakai_force			1	0				default		0.0000	4
+klissan_malakai_support_army_ritual	0	klissan_malakai_travel_payload	0	WAAAGH_RITUAL	0	0	klissan_malakai_support_army_payload		0			klissan_ritual_target_malakai_force			0	0				default		0.0000	0

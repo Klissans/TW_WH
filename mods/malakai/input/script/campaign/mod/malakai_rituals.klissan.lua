@@ -8,7 +8,7 @@
 -- db/campaign_features_tables
 
 -- TO ADD RITUAL
--- db/rituals_tables
+-- db/rituals_tables -- completion_payload is REQUIRED
 -- db/campaign_group_rituals_tables
 -- db/ritual_targets_table -- NOT NECESSARY
 -- db/ui_info_ritual_target_criterias -- NOT NECESSARY
@@ -32,7 +32,7 @@ MGSWT.rituals = { -- should match db keys
     keys = {
         travel = 'klissan_malakai_travel_ritual',
         scout = 'klissan_malakai_scout_ritual',
-        reinforce = 'klissan_malakai_supplies_ritual',
+        reinforce = 'klissan_malakai_supplies_ritual', -- todo check for borrowed ally army, no military buildings
         bombardment = 'klissan_malakai_bombard_ritual',
         ale = 'klissan_malakai_ale_ritual',
     },

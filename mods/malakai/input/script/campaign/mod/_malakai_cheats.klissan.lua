@@ -4,6 +4,51 @@ local mx, my = Klissan_CH:get_logical_position(malakai_faction:faction_leader())
 local tx, ty = Klissan_CH:get_logical_position(cm:get_region('wh3_main_combi_region_worlds_edge_archway'):settlement())
 local distance = math.sqrt(math.pow(math.abs(mx-tx), 2) + math.pow(math.abs(my-ty), 2))
 
+
+---
+---CCO IsTransportedArmy
+--- ForceType == 'SUPPORT_ARMY'
+local upkeep_penalty_effect_bundle_key = "wh3_main_bundle_force_additional_army_upkeep"
+local effect_bundle = cm:create_new_custom_effect_bundle(upkeep_penalty_effect_bundle_key)
+effect_bundle:set_duration(0)
+effect_bundle:add_effect("wh_main_effect_force_all_campaign_upkeep_hidden", "force_to_force_own_factionwide", upkeep_value)
+local current_mf = ''
+cm:apply_custom_effect_bundle_to_force(effect_bundle, current_mf)
+
+---
+
+
+--local payload_builder = cm:create_payload()
+--local transported_force_key, is_removal = 'malakai_support_army', false
+--payload_builder:transported_military_force(transported_force_key, is_removal)
+
+
+local ritual_key = 'klissan_malakai_support_army_ritual'
+
+core:remove_listener(Klissan_CH:get_listener_name(ritual_key)) -- todo remove?
+core:add_listener(
+	Klissan_CH:get_listener_name(ritual_key),
+	"RitualStartedEvent",
+	function (context)
+        console_print(context:ritual():ritual_key())
+        return context:ritual():ritual_key() == ritual_key
+    end,
+	function(context)
+        MGSWT:debug('Performing ritual %s', context:ritual():ritual_key())
+	end,
+	true
+)
+local faction = MGSWT.faction
+local ritual_setup = cm:create_new_ritual_setup(faction, ritual_key)
+local ritual_target = ritual_setup:target()
+console_print(ritual_setup:ritual_record()..' target?'..tostring(ritual_target:target_type()))
+ritual_target:set_target_force(faction:faction_leader():military_force())
+console_print(' valid?'..tostring(ritual_target:valid()))
+cm:perform_ritual_with_setup(ritual_setup)
+
+
+
+
 --to do how to log characters (name) command_queue_index
 --self:debug('Travel Distance -> (%s,%s) = %f', target_type, target_key, distance)
 --console_print(''..MGSWT:get_travel_distance())
@@ -36,7 +81,8 @@ local distance = math.sqrt(math.pow(math.abs(mx-tx), 2) + math.pow(math.abs(my-t
 
 -- BuildingChainRecordContext.TechnologyCategory == 'military' is true for non-recruitment buildings
 cm:grant_unit_to_character(cm:char_lookup_str(cm:get_local_faction():faction_leader()), 'wh_main_dwf_cha_master_engineer_0') -- will be spawned as  unit not hero
-
+console_print(cm:char_lookup_str(cm:get_local_faction():faction_leader()))
+cm:grant_unit_to_character('character_cqi:1542', 'wh_main_dwf_cha_master_engineer_0')
 --- chain's Level is 0-based even in UI it's 1-based
 [=[
     (
