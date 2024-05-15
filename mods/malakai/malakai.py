@@ -11,6 +11,8 @@ if __name__ == '__main__':
     
     mod_grudges_ui()
     shutil.copytree('input', 'output', dirs_exist_ok=True)
+    shutil.copy2('../_lua_shared/_helpers.klissan.lua', 'output/script/_lib/mod/')
+    shutil.copy2('../_lua_shared/_helpers_campaign.klissan.lua', 'output/script/campaign/mod/')
     
     MOD_NAME = '!Klissan_malakai_worldtour'
     OUTPUT_DIR = 'output'

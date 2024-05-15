@@ -29,11 +29,11 @@ function Klissan_H:minify_bool(b)
 end
 
 
-function register_function_everywhere(func)
+function Klissan_H:register_function_everywhere(func)
     register_function{func, is_battle=true, is_campaign=true, is_frontend=true}
 end
 
-function register_function(t)
+function Klissan_H:register_function(t)
     setmetatable(t,{__index={is_battle=false, is_campaign=false, is_frontend=false}})
     local func, is_battle, is_campaign, is_frontend =
         t[1],
@@ -52,6 +52,26 @@ function register_function(t)
                     end
                 end
         )
+    end
+end
+
+
+
+--local object -- get your object however you do, cm:get_faction("faction key") for a faction script interface, etc.
+function Klissan_H:inspect_object(object)
+    --local out = out
+    local out = console_print
+    local mt = getmetatable(object)
+    for name, value in pairs(mt) do
+        if is_function(value) then
+            out("Found: "..name.."()")
+        elseif name == "__index" then
+            for index_name, index_value in pairs(value) do
+                if is_function(index_value) then
+                    out("Found: "..index_name.."() in index!")
+                end
+            end
+        end
     end
 end
 

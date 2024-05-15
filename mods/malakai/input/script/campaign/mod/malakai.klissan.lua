@@ -2,7 +2,10 @@ MGSWT = { -- MALAKAI_GRUDGE_SETTLING_WORLD_TOUR
     croot = nil,
     faction_name = 'wh3_dlc25_dwf_malakai',
 
-    tsog_base_radius = 27, -- The Spirit of Grungni's circle of influence base radius measured in logical coordinates
+    malakai_support_army_cqi = nil,
+
+    -- The Spirit of Grungni's circle of influence base radius measured in logical coordinates --27,
+    tsog_base_radius = spirit_of_grungni.radius_size,
 
     -- logging to separate file for easy debug
     log_to_file = false,
@@ -203,8 +206,65 @@ function MGSWT:get_travel_distance()
 end
 
 
+-- malakai can only be recruited, not replace the other lord cuz of bound horde
+-- so we should execute it only on game start when malakai recruited (also remove other support armioes)
+-- disband via cco MF
+-- todo remove reinf time or give tzeentch's factionwide trait to malakai (lord)
+function MGSWT:add_support_army_to_malakai()
+    -- add support armies for all
+    local ritual_key = 'klissan_malakai_support_army_ritual'
+    local faction = MGSWT.faction
+    local ritual_setup = cm:create_new_ritual_setup(faction, ritual_key)
+    local ritual_target = ritual_setup:target()
+    ritual_target:set_target_force(faction:faction_leader():military_force())
+    cm:perform_ritual_with_setup(ritual_setup)
+
+    -- remove support armies from other lords
+    local mfs = MGSWT.faction:military_force_list()
+    local x, y = Klissan_CH:get_logical_position(MGSWT.faction:faction_leader())
+    for i=0, mfs:num_items()-1 do
+        local mf = mfs:item_at(i)
+        local char = mf:general_character()
+        local xx, yy = Klissan_CH:get_logical_position(char)
+        if mf:force_type():key() == 'SUPPORT_ARMY' and x ~= xx and y ~= yy then
+            cm:kill_character(cm:char_lookup_str(char), true)
+        end
+    end
+
+    self:update_malakai_support_army_cqi()
+end
+
+function MGSWT:update_malakai_support_army_cqi()
+    -- there should be only one army left which is bound to malaki
+    local mfl = MGSWT.faction:military_force_list()
+    for i = 0, mfl:num_items() - 1 do
+        local mf = mfl:item_at(i)
+        if mf:force_type():key() == 'SUPPORT_ARMY' then
+            MGSWT.malakai_support_army_cqi = mf:command_queue_index()
+        end
+    end
+end
+
+core:add_listener(
+    'malakai_force_created',
+    "MilitaryForceCreated",
+    function(context)
+        return context:military_force_created():general_character():command_queue_index() == MGSWT.faction:faction_leader():command_queue_index()
+    end,
+    function(context)
+        MGSWT:add_support_army_to_malakai()
+    end,
+    true
+)
+
+
+
 -- INIT
 cm:add_post_first_tick_callback(function()
     MGSWT:init()
     MGSWT:campaign_setup()
+    if cm:is_new_game() then
+        MGSWT:add_support_army_to_malakai()
+    end
+    MGSWT:update_malakai_support_army_cqi() -- always update on game load as we don't store it
 end)

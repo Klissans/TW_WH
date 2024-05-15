@@ -1,12 +1,19 @@
 MGSWT.ui_listener_names = {
     travel_panel_opened = Klissan_CH:get_listener_name('malakai_travel_panel_opened'),
-    travel_panel_closed = Klissan_CH:get_listener_name('malakai_travel_panel_closed')
+    travel_panel_closed = Klissan_CH:get_listener_name('malakai_travel_panel_closed'),
+    units_panel_opened = Klissan_CH:get_listener_name('malakai_units_panel_opened'),
+    recruitment_options_opened = Klissan_CH:get_listener_name('malakai_recruitment_options_opened'),
+    recruitment_options_closed = Klissan_CH:get_listener_name('malakai_recruitment_options_closed'),
+    tab_army_Lclick = Klissan_CH:get_listener_name('malakai_tab_army_Lclick'),
+    adventures_opened = Klissan_CH:get_listener_name('malakai_adventures_opened')
 }
 
 MGSWT.ui_callback_names = {
     set_ritual_cost = Klissan_CH:get_callback_name('malakai_set_ritual_cost')
 }
 
+
+--todo disable TSOG button if malkai is wounded
 
 function MGSWT:edit_travel_button()
     if cm:get_local_faction():name() ~= MGSWT.faction:name() then
@@ -120,10 +127,97 @@ function MGSWT:listen_to_malakai_travel_panel_closed()
 end
 
 
+
+function MGSWT:listen_to_malakai_adventures_panel_opened()
+    core:add_listener(
+        MGSWT.ui_listener_names.adventures_opened,
+        "PanelOpenedCampaign",
+        function(context)
+            return cm:get_local_faction():name() == MGSWT.faction:name() and context.string == "dlc25_malakai_oaths"
+        end,
+        function(context)
+            local list_mission_tabs = find_uicomponent(core:get_ui_root(), 'dlc25_malakai_oaths', 'panel', 'list_mission_tabs')
+            for i = 0, list_mission_tabs:ChildCount() - 1 - 1 do -- do not activate the last one
+                local mission_tab_parent = UIComponent(list_mission_tabs:Find(i))
+                if mission_tab_parent:Visible() then
+                    local mission_tab = find_uicomponent(mission_tab_parent, 'mission_tab')
+                    mission_tab:SetState('active')
+                end
+            end
+        end,
+        true
+    )
+end
+
+
+function MGSWT:hide_malakai_mercenary_recruitment()
+    if cm:get_local_faction():name() ~= self.faction:name() then
+        return
+    end
+    local rec_button = find_uicomponent(core:get_ui_root(), 'hud_campaign', 'hud_center_docker', 'hud_center', 'small_bar', 'button_subpanel_parent', 'button_subpanel',
+            'button_group_army', 'mercenary_recruitment_button_container', 'button_mercenary_recruit_malakai_adventure_units')
+    rec_button:SetVisible(false)
+    --rec_button:Destroy() -- todo GAME CTDs if UI has not been opened after campaign load
+
+    --todo replace waagh icons for malakai forces with
+    --ui\skins\wh_main_dwf_dwarfs\icon_oaths.png
+end
+
+function MGSWT:listen_to_panel_army_click()
+    core:add_listener(
+        MGSWT.ui_listener_names.units_panel_opened,
+        "PanelOpenedCampaign",
+        function(context)
+            return context.string == 'units_panel'
+        end,
+        function(context)
+            MGSWT:hide_malakai_mercenary_recruitment()
+        end,
+        true
+    )
+    core:add_listener(
+        MGSWT.ui_listener_names.recruitment_options_opened,
+        "PanelOpenedCampaign",
+        function(context)
+            return context.string == 'recruitment_options'
+        end,
+        function(context)
+            MGSWT:hide_malakai_mercenary_recruitment()
+        end,
+        true
+    )
+    core:add_listener(
+        MGSWT.ui_listener_names.recruitment_options_closed,
+        "PanelClosedCampaign",
+        function(context)
+            return context.string == 'recruitment_options'
+        end,
+        function(context)
+            MGSWT:hide_malakai_mercenary_recruitment()
+        end,
+        true
+    )
+    core:add_listener(
+        MGSWT.ui_listener_names.tab_army_Lclick,
+        "ComponentLClickUp",
+        function(context)
+            return context.string == 'tab_army'
+        end,
+        function(context)
+            MGSWT:hide_malakai_mercenary_recruitment()
+        end,
+        true
+    )
+end
+
+
+
 cm:add_ui_created_callback(function()
     cm:add_post_first_tick_callback(function()
         MGSWT:edit_travel_button()
         MGSWT:listen_to_malakai_travel_panel_opened()
         MGSWT:listen_to_malakai_travel_panel_closed()
+        MGSWT:listen_to_malakai_adventures_panel_opened()
+        MGSWT:listen_to_panel_army_click()
     end)
 end)

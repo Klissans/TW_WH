@@ -162,6 +162,7 @@ function grudge_cycle:cycle_timer()
 			self:set_grudge_target(faction, level)
 
 			for i = 0, level do
+				-- todo fix this, failed on campaign start
 				for k, unit in ipairs(self.settler_units[i]) do
 					local random_roll = cm:random_number()
 					-- TODO it seems units are in each pool so we can just use base chance

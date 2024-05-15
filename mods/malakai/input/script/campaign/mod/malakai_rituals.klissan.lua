@@ -129,7 +129,7 @@ function MGSWT:get_ritual_reinforce_units_cost_pair()
 end
 
 -- LISTENERS
-
+-- todo check if army moved
 core:remove_listener(Klissan_CH:get_listener_name(MGSWT.rituals.keys.travel)) -- todo remove?
 core:add_listener(
 	Klissan_CH:get_listener_name(MGSWT.rituals.keys.travel),
