@@ -1,0 +1,8 @@
+campaign_group	ritual	unlock_mission	unlock_turn	initially_unlocked
+#campaign_group_rituals_tables;1;db/campaign_group_rituals_tables/!Klissan_malakai_travel				
+klissan_malakai_campaign_group	klissan_malakai_travel_ritual		0	true
+klissan_malakai_campaign_group	klissan_malakai_scout_ritual		0	true
+klissan_malakai_campaign_group	klissan_malakai_supplies_ritual		0	true
+klissan_malakai_campaign_group	klissan_malakai_bombard_ritual		0	true
+klissan_malakai_campaign_group	klissan_malakai_ale_ritual		0	true
+klissan_malakai_campaign_group	klissan_malakai_support_army_ritual		0	true
