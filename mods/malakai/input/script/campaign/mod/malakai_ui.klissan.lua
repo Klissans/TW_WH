@@ -79,6 +79,21 @@ function MGSWT:can_perform_ritual()
     if is_range_dependant then
         can_perform = can_perform and self:is_target_in_range()
     end
+    if selected_ritual_key == self.rituals.keys.scout then
+        -- is target a nearby province ?
+        local is_region_valid = false
+        local adj_provs = self.faction:faction_leader():region():province():adjacent_provinces()
+        for i=0, adj_provs:num_items()-1 do
+            local prov = adj_provs:item_at(i)
+            for j=0, prov:regions():num_items()-1 do
+                local region = prov:regions():item_at(j)
+                if region:name() == self.rituals.current_ritual.target_key then
+                    is_region_valid = true
+                end
+            end
+        end
+        can_perform = can_perform and is_region_valid
+    end
     return can_perform
 end
 

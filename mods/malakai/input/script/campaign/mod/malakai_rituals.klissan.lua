@@ -39,7 +39,9 @@ MGSWT.rituals = { -- should match db keys
     cost_mapping = nil,
     cost_multipliers = {
         travel_distance = 5,
-        reinforce_discount = 0.5
+        reinforce_discount = 0.5,
+        region_scout_toll = 150,
+        bombardment_cost = 2,
     },
 
      -- it's set via UI callbacks
@@ -82,6 +84,21 @@ function MGSWT:init_ritual_cost_mapping()
         return adjusted_cost
     end
 
+    self.rituals.cost_mapping[self.rituals.keys.scout] = function ()
+        local n_regions = cm:get_region(self.rituals.current_ritual.target_key):province():regions():num_items()
+        return self.rituals.cost_multipliers.region_scout_toll * n_regions
+    end
+
+    self.rituals.cost_mapping[self.rituals.keys.bombardment] = function ()
+        -- todo gdp is income we want settlement's valuation
+        local region_gdp = cm:get_region(self.rituals.current_ritual.target_key):gdp()
+        return self.rituals.cost_multipliers.bombardment_cost * region_gdp
+    end
+
+    self.rituals.cost_mapping[self.rituals.keys.ale] = function ()
+        return 500
+    end
+
 end
 
 function MGSWT:get_ritual_cost()
@@ -96,6 +113,27 @@ function MGSWT:get_ritual_cost()
     ritual_cost = ritual_cost_func()
     self:debug('Ritual cost %s is %d', ritual_key, ritual_cost)
     return ritual_cost
+end
+
+--'wh3_dlc25_dwf_spirit_of_grungni_beer_hall'
+--'wh3_dlc25_dwf_spirit_of_grungni_cargo_hold'
+--'wh3_dlc25_dwf_spirit_of_grungni_army_ability_2'
+--'wh3_dlc25_dwf_spirit_of_grungni_engines'
+--'wh3_dlc25_dwf_spirit_of_grungni_support_radius'
+function MGSWT:get_horde_building_level(building_chain_key)
+    local level = self.croot:Call(string.format([=[
+        (
+            building_chain_key = '%s',
+            malakai_faction = CampaignRoot.FactionList.FirstContext(FactionRecordContext.Key == 'wh3_dlc25_dwf_malakai'),
+            malakai = malakai_faction.FactionLeaderContext,
+            malakai_army = malakai.MilitaryForceContext,
+            malakai_horde = malakai_army.HordeContext,
+            building_slot = malakai_horde.BuildingSlotList
+                .FirstContext(PlayerVariantBuildingChainContext.Key == building_chain_key),
+            building_level = GetIfElse(IsContextValid(building_slot), building_slot.BuildingContext.BuildingLevelRecordContext.PrimarySlotBuildingLevelRequirement, -1)
+        ) => building_level
+    ]=], building_chain_key))
+    return level
 end
 
 
@@ -184,6 +222,78 @@ core:add_listener(
             MGSWT:debug('Ritual %s unit  %s', context:ritual():ritual_key(), unit_keys[i])
             cm:grant_unit_to_character(target_char, unit_keys[i])
         end
+        Klissan_CH:faction_resource_mod(performing_faction:name(), MGSWT.rituals.current_ritual.currency_type, -MGSWT.rituals.current_ritual.value)
+        MGSWT:debug('Ritual %s completed', context:ritual():ritual_key())
+	end,
+	true
+)
+
+
+core:remove_listener(Klissan_CH:get_listener_name(MGSWT.rituals.keys.scout)) -- todo remove?
+core:add_listener(
+	Klissan_CH:get_listener_name(MGSWT.rituals.keys.scout),
+	"RitualCompletedEvent",
+	function (context)
+        return context:ritual():ritual_category() == "TZEENTCH_RITUAL"
+                and context:ritual():ritual_key() == MGSWT.rituals.keys.scout
+    end,
+	function(context)
+        MGSWT:debug('Performing ritual %s', context:ritual():ritual_key())
+		local performing_faction = context:performing_faction()
+		local ritual = context:ritual() -- ACTIVE_RITUAL_SCRIPT_INTERFACE
+        local target_province = ritual:ritual_target():get_target_region():province()
+        for i=0, target_province:regions():num_items()-1 do
+            local region = target_province:regions():item_at(i)
+            MGSWT:debug('Ritual %s revealing region %s', context:ritual():ritual_key(), region:name())
+            cm:make_region_visible_in_shroud(performing_faction:name(), region:name())
+        end
+        Klissan_CH:faction_resource_mod(performing_faction:name(), MGSWT.rituals.current_ritual.currency_type, -MGSWT.rituals.current_ritual.value)
+        MGSWT:debug('Ritual %s completed', context:ritual():ritual_key())
+	end,
+	true
+)
+
+core:remove_listener(Klissan_CH:get_listener_name(MGSWT.rituals.keys.bombardment)) -- todo remove?
+core:add_listener(
+	Klissan_CH:get_listener_name(MGSWT.rituals.keys.bombardment),
+	"RitualCompletedEvent",
+	function (context)
+        return context:ritual():ritual_category() == "TZEENTCH_RITUAL"
+                and context:ritual():ritual_key() == MGSWT.rituals.keys.bombardment
+    end,
+	function(context)
+        -- thanks to Zarathustra_the_Godless who showed me how to damage buildings via script
+        MGSWT:debug('Performing ritual %s', context:ritual():ritual_key())
+		local performing_faction = context:performing_faction()
+		local ritual = context:ritual() -- ACTIVE_RITUAL_SCRIPT_INTERFACE
+        local target_region = ritual:ritual_target():get_target_region()
+        local slot_list = target_region:settlement():slot_list()
+        local damage_health_percent = 20
+        for i = 0, slot_list:num_items() - 1 do
+            local slot = slot_list:item_at(i)
+            if slot:has_building() then
+                cm:instant_set_building_health_percent(target_region:name(), slot:building():name(), building:percent_health() - damage_health_percent)
+            end
+        end
+        Klissan_CH:faction_resource_mod(performing_faction:name(), MGSWT.rituals.current_ritual.currency_type, -MGSWT.rituals.current_ritual.value)
+        MGSWT:debug('Ritual %s completed', context:ritual():ritual_key())
+	end,
+	true
+)
+
+
+core:remove_listener(Klissan_CH:get_listener_name(MGSWT.rituals.keys.ale)) -- todo remove?
+core:add_listener(
+	Klissan_CH:get_listener_name(MGSWT.rituals.keys.ale),
+	"RitualCompletedEvent",
+	function (context)
+        return context:ritual():ritual_category() == "TZEENTCH_RITUAL"
+                and context:ritual():ritual_key() == MGSWT.rituals.keys.ale
+    end,
+	function(context)
+        MGSWT:debug('Performing ritual %s', context:ritual():ritual_key())
+		local performing_faction = context:performing_faction()
+		local ritual = context:ritual() -- ACTIVE_RITUAL_SCRIPT_INTERFACE
         Klissan_CH:faction_resource_mod(performing_faction:name(), MGSWT.rituals.current_ritual.currency_type, -MGSWT.rituals.current_ritual.value)
         MGSWT:debug('Ritual %s completed', context:ritual():ritual_key())
 	end,
