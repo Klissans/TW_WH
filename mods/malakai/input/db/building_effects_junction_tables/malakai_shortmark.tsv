@@ -1,5 +1,5 @@
 building	effect	context_requirement	effect_scope	value	value_damaged	value_ruined
 #building_effects_junction_tables;0;db/building_effects_junction_tables/malakai_shortmark						
-kls_malakai_karak_vrag_hold	wh3_dlc_25_effect_building_construction_time_mod_defence_buildings		region_to_region_own_unseen_provincewide	-2.0000	1.0000	0.0000
-kls_malakai_karak_vrag_hold	wh2_main_effect_force_enemy_campaign_movement_range		region_to_force_enemy	-50.0000	-25.0000	0.0000
+kls_malakai_karak_vrag_hold	wh3_dlc_25_effect_building_construction_time_mod_defence_buildings		region_to_region_own_unseen_provincewide	-2.0000	-1.0000	0.0000
+kls_malakai_karak_vrag_hold	wh2_main_effect_force_own_campaign_movement_range		region_to_force_own	-50.0000	-75.0000	0.0000
 kls_malakai_karak_vrag_hold	wh_main_effect_force_all_campaign_upkeep		building_to_forces_own_regionwide	-50.0000	-25.0000	0.0000

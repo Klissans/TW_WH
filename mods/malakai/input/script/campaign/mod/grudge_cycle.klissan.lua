@@ -10,6 +10,25 @@ grudge_cycle.unit_roll_base_chance = 5
 
 grudge_cycle.share_reward_prefix = "wh3_dlc25_grudge_cycle_"
 
+grudge_cycle.log_to_file = false
+grudge_cycle.log_file = '_grudges.log'
+
+
+grudge_cycle.log_to_file = Klissan_H:is_file_exist(grudge_cycle.log_file)
+io.open(grudge_cycle.log_file,"w"):close()
+
+function grudge_cycle:debug(fmt, ...)
+	local preformat_str = string.format('[[GRUDGES]] [%d] :: ', cm:turn_number())
+    local str = preformat_str .. string.format(fmt, unpack(arg))
+    out(str)
+    if self.log_to_file then -- not efficient but whateever
+        local log_file = io.open(self.log_file, "a+")
+        log_file:write(str .. '\n')
+        log_file:flush()
+        io.close(log_file)
+    end
+end
+
 
 function grudge_cycle:setup()
 	local faction_list = cm:get_factions_by_culture(self.cultures.dwarf)
@@ -68,7 +87,6 @@ function grudge_cycle:get_faction_settled_grudges_share(faction_name)
 	if self.settled_grudges_total == 0 then
 		return 0
 	end
-
 	return self.cycle_grudges[faction_name] / self.settled_grudges_total
 end
 
@@ -107,8 +125,8 @@ end
 
 
 function grudge_cycle:update_cycle_tracker(faction_name)
+	local percentage = 0
 	if self.cycle_grudges[faction_name] then
-		local percentage = 0
 
 		if self.target_grudge_value[faction_name] > 0 then
 			percentage = math.floor(self.settled_grudges_total / self.target_grudge_value[faction_name] * 100)
@@ -125,32 +143,27 @@ function grudge_cycle:update_cycle_tracker(faction_name)
 			common.set_context_value("world_grudge_value", self:get_world_grudges())
 		end
 	end
+	return percentage
 end
 
 
 -- main loop
 function grudge_cycle:cycle_timer()
+	core:remove_listener('GrudgeCycleCounter')
 	core:add_listener(
 		"GrudgeCycleCounter",
 		"FactionTurnStart",
 		function(context)
 			local faction = context:faction()
-				if faction:culture() == self.cultures.dwarf and faction:can_be_human() then
-					return true
-				end
-			return false
+			return faction:culture() == self.cultures.dwarf and faction:can_be_human()
 		end,
 		function(context)
 			local faction = context:faction()
 			local faction_key = faction:name()
 
-			if not faction:can_be_human() then
-				return
-			end
-
 			self:update_settled_grudges_total()
 			local level = self:get_current_grudge_level(faction_key)
-			local share_level = self:get_faction_settled_grudges_share_level(faction_name)
+			local share_level = self:get_faction_settled_grudges_share_level(faction_key)
 			for i = 0, 5 do
 				cm:remove_effect_bundle(self.reward_prefix..i, faction_key)
 				cm:remove_effect_bundle(self.share_reward_prefix..i, faction_key)
@@ -161,19 +174,32 @@ function grudge_cycle:cycle_timer()
 
 			self:set_grudge_target(faction, level)
 
-			for i = 0, level do
-				-- todo fix this, failed on campaign start
-				for k, unit in ipairs(self.settler_units[i]) do
-					local random_roll = cm:random_number()
-					-- TODO it seems units are in each pool so we can just use base chance
-					if random <= (level - i + 1) * self.unit_roll_base_chance then
-						cm:add_units_to_faction_mercenary_pool(faction:command_queue_index(), unit, 1)
-					end
-				end
-			end
+			--for i = 0, level do
+			--	-- todo fix this, failed on campaign start
+			--	for k, unit in ipairs(self.settler_units[i]) do
+			--		local random_roll = cm:random_number()
+			--		-- TODO it seems units are in each pool so we can just use base chance
+			--		if random <= (level - i + 1) * self.unit_roll_base_chance then
+			--			cm:add_units_to_faction_mercenary_pool(faction:command_queue_index(), unit, 1)
+			--		end
+			--	end
+			--end
 
-			self:update_cycle_tracker(faction_key) -- needed?
+			local percentage = self:update_cycle_tracker(faction_key) -- needed?
+
+			local cycle_grudges_str = ''
+			for _, k in pairs(Klissan_H:get_key_sorted(self.cycle_grudges)) do
+				cycle_grudges_str = cycle_grudges_str.. ' | '..k..' : '..self.cycle_grudges[k]
+			end
+			self:debug(cycle_grudges_str)
+			self:debug('Cycle for %s | FCG=%s, SGT=%s, WG=%s, TG=%s | lvls %s/%s | FS=%s, TS=%s',
+					faction_key,
+					tostring(self.cycle_grudges[faction_key]), tostring(self.settled_grudges_total), tostring(self:get_world_grudges()), tostring(self.target_grudge_value[faction_key]),
+					tostring(level), tostring(share_level),
+					tostring(self:get_faction_settled_grudges_share(faction_key)),  tostring(percentage/100.0))
 		end,
 		true
 	)
 end
+
+--grudge_cycle:cycle_timer() -- todo remove
