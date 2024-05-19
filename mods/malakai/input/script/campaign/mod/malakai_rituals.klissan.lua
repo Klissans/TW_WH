@@ -336,7 +336,7 @@ core:add_listener(
         local drink_effects = MGSWT.rituals.drink.effects
         cm:shuffle_table(drink_effects)
         for i=1, n_effects do
-            local chance_positive = cm:random_number() - 50 + strength_level * 10
+            local chance_positive = cm:random_number() - 50 -- todo take into account effect pos/neg state+ strength_level * 10
             local sign = chance_positive >= 0 and 1 or -1
             local base_random_value = cm:random_number(5) + strength_level
             custom_bundle:add_effect(drink_effects[i], 'force_to_force_own', sign * base_random_value)
