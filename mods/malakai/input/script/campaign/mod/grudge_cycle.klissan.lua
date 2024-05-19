@@ -8,7 +8,35 @@ grudge_cycle.target_grudge_goal = 50000
 grudge_cycle.settled_grudges_total = 0
 grudge_cycle.unit_roll_base_chance = 5
 
-grudge_cycle.share_reward_prefix = "wh3_dlc25_grudge_cycle_"
+grudge_cycle.share_reward_prefix = "wh3_dlc25_grudge_cycle_share_"
+
+
+--grudge_cycle.unit_rewards.repl_chance_per_age_level = 10
+--grudge_cycle.unit_rewards.repl_chance_per_share_level = 10
+grudge_cycle.unit_rewards = {
+	max_units = 2,
+	repl_chance_per_age_level = 10,
+	repl_chance_per_share_level = 10,
+	last_tier_chance_multiplier = 2,
+	max_repl_units = 1,
+	recruitment_source_pool = 'wh3_dlc25_dwf_book_of_grudges_mercenary_pool',
+	group_to_unit_map = {
+		["wh3_dlc25_dwf_grudges_quarrellers_1"] = "wh_main_dwf_inf_quarrellers_1_grudge_reward",
+		["wh3_dlc25_dwf_grudges_slayers"] = "wh_main_dwf_inf_slayers_grudge_reward",
+		["wh3_dlc25_dwf_grudges_grudge_thrower"] = "wh3_dlc25_dwf_art_grudge_thrower_grudge_reward",
+		["wh3_dlc25_dwf_grudges_longbeards_1"] = "wh_main_dwf_inf_longbeards_1_grudge_reward",
+		["wh3_dlc25_dwf_grudges_hammerers"] = "wh_main_dwf_inf_hammerers_grudge_reward",
+		["wh3_dlc25_dwf_grudges_irondrakes_0"] = "wh_main_dwf_inf_irondrakes_0_grudge_reward",
+		["wh3_dlc25_dwf_grudges_gyrocopter_1"] = "wh_main_dwf_veh_gyrocopter_1_grudge_reward",
+		["wh3_dlc25_dwf_grudges_flame_cannon"] = "wh_main_dwf_art_flame_cannon_grudge_reward",
+	},
+	group_tiers = {
+		{'wh3_dlc25_dwf_grudges_quarrellers_1',  'wh3_dlc25_dwf_grudges_slayers'},
+		{'wh3_dlc25_dwf_grudges_grudge_thrower',  'wh3_dlc25_dwf_grudges_longbeards_1'},
+		{'wh3_dlc25_dwf_grudges_hammerers',  'wh3_dlc25_dwf_grudges_irondrakes_0'},
+		{'wh3_dlc25_dwf_grudges_gyrocopter_1',  'wh3_dlc25_dwf_grudges_flame_cannon'},
+	}
+}
 
 grudge_cycle.log_to_file = false
 grudge_cycle.log_file = '_grudges.log'
@@ -90,6 +118,8 @@ function grudge_cycle:get_faction_settled_grudges_share(faction_name)
 	return self.cycle_grudges[faction_name] / self.settled_grudges_total
 end
 
+
+-- returns int in [0, 5]
 function grudge_cycle:get_faction_settled_grudges_share_level(faction_name)
 	return math.floor(self:get_faction_settled_grudges_share(faction_name) * 100 / 20)
 end
@@ -147,6 +177,26 @@ function grudge_cycle:update_cycle_tracker(faction_name)
 end
 
 
+function grudge_cycle:get_mecenary_count_in_reward_pool(faction_key, main_unit_key)
+	    local ucount = cco('CcoCampaignRoot', 'CampaignRoot'):Call(string.format([=[
+        (
+            faction = CampaignRoot.FactionList.FirstContext(FactionRecordContext.Key == '%s'),
+            pool = faction.MercenaryPoolContext,
+            unit = pool.MercenaryPoolUnitList.FirstContext(MainUnitRecordContext.Key == '%s')
+        ) => unit.AvailableUnitCount
+    ]=], faction_key, main_unit_key))
+    return ucount
+end
+-- common_level gives rewards from 1 to 4 with 5 doubling chances
+-- tier - reward tiers matching common_level when available
+-- share_level - [0, 5] flat bonus to chance based on particular dawi faction performance
+function grudge_cycle:get_reward_chance(common_level, share_level, tier)
+	local chance_per_tier = self.unit_rewards.repl_chance_per_age_level * (common_level == 5 and self.unit_rewards.last_tier_chance_multiplier or 1)
+	local share_chance = share_level * self.unit_rewards.repl_chance_per_share_level
+	local repl_chance = (common_level - tier + 1) * chance_per_tier + share_chance
+	return repl_chance
+end
+
 -- main loop
 function grudge_cycle:cycle_timer()
 	core:remove_listener('GrudgeCycleCounter')
@@ -174,24 +224,30 @@ function grudge_cycle:cycle_timer()
 
 			self:set_grudge_target(faction, level)
 
-			--for i = 0, level do
-			--	-- todo fix this, failed on campaign start
-			--	for k, unit in ipairs(self.settler_units[i]) do
-			--		local random_roll = cm:random_number()
-			--		-- TODO it seems units are in each pool so we can just use base chance
-			--		if random <= (level - i + 1) * self.unit_roll_base_chance then
-			--			cm:add_units_to_faction_mercenary_pool(faction:command_queue_index(), unit, 1)
-			--		end
-			--	end
-			--end
-
-			local percentage = self:update_cycle_tracker(faction_key) -- needed?
-
-			local cycle_grudges_str = ''
-			for _, k in pairs(Klissan_H:get_key_sorted(self.cycle_grudges)) do
-				cycle_grudges_str = cycle_grudges_str.. ' | '..k..' : '..self.cycle_grudges[k]
+			-- in this implementation all dawi start at 1 common level
+			for tier = 1, #self.unit_rewards.group_tiers do
+				for _, group_reward_key in ipairs(self.unit_rewards.group_tiers[tier]) do
+					local unit_key = self.unit_rewards.group_to_unit_map[group_reward_key]
+					local repl_chance = 0
+					if tier <= level then
+						repl_chance = self:get_reward_chance(level, share_level, tier)
+					end
+					local current_count = self:get_mecenary_count_in_reward_pool(faction_key, unit_key)
+					local new_count = math.min(current_count + ((cm:random_number() <= repl_chance) and 1 or 0), self.unit_rewards.max_units)
+					cm:add_unit_to_faction_mercenary_pool(
+							faction, unit_key, self.unit_rewards.recruitment_source_pool,
+							new_count, repl_chance, self.unit_rewards.max_units, self.unit_rewards.max_repl_units,
+							faction:name(), faction:subculture(), '', false, group_reward_key)
+				end
 			end
-			self:debug(cycle_grudges_str)
+
+			local percentage = self:update_cycle_tracker(faction_key)
+
+			--local cycle_grudges_str = ''
+			--for _, k in pairs(Klissan_H:get_key_sorted(self.cycle_grudges)) do
+			--	cycle_grudges_str = cycle_grudges_str.. ' | '..k..' : '..self.cycle_grudges[k]
+			--end
+			--self:debug(cycle_grudges_str)
 			self:debug('Cycle for %s | FCG=%s, SGT=%s, WG=%s, TG=%s | lvls %s/%s | FS=%s, TS=%s',
 					faction_key,
 					tostring(self.cycle_grudges[faction_key]), tostring(self.settled_grudges_total), tostring(self:get_world_grudges()), tostring(self.target_grudge_value[faction_key]),

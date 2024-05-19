@@ -24,6 +24,10 @@ def edit_docker_right_timer(xml):
     s = '''
         (
             LF = StringGet('ui_text_replacements_localised_text_new_line'),
+            effect_bundle = PlayersFaction.EffectBundleList.FirstContext(Key.Contains('wh3_dlc25_grudge_cycle_share_')),
+            effects = effect_bundle.EffectList.JoinString(Format('[[img:%s]][[/img]]%s', IconPath, LocalisedText), LF),
+            effect_str = Format('[[img:icon_grudges]][[/img]]%s', effect_bundle.Name) + LF + effects + LF + LF,
+            
             dwarf_factions = CampaignRoot.FactionList.Filter(CultureContext.Key == 'wh_main_dwf_dwarfs' && !IsDead).Sort(PooledResourceContext('wh3_dlc25_dwf_grudge_points').Total),
             total_settled_grudges = dwarf_factions.Sum(PooledResourceContext('wh3_dlc25_dwf_grudge_points').Total),
             formatted_string = dwarf_factions.JoinString(
@@ -39,7 +43,7 @@ def edit_docker_right_timer(xml):
             share_string = Format('%d / %d = %d%%', RoundFloat(players_settled_grudges), RoundFloat(total_settled_grudges), share)
         ) =>
         {
-            '[[img:icon_grudges]][[/img]] ' + share_string + LF + LF + formatted_string
+            effect_str + '[[img:icon_grudges]][[/img]] ' + share_string + LF + LF + formatted_string
         }
     '''
     create_context_callback(find_by_id(xml, 'docker_right_timer'), "ContextTooltipSetter", "CcoStaticObject", s, {'update_constant': '100'})

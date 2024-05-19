@@ -1,0 +1,24 @@
+effect	icon	priority	icon_negative	category	is_positive_value_good
+#effects_tables;0;db/effects_tables/!Klissan_malakai_travel					
+wh3_dlc25_effect_grudge_units_unlock_1_dummy		0		campaign	true
+wh3_dlc25_effect_grudge_units_unlock_2_dummy		0		campaign	true
+wh3_dlc25_effect_grudge_units_unlock_3_dummy		0		campaign	true
+wh3_dlc25_effect_grudge_units_unlock_4_dummy		0		campaign	true
+wh3_dlc25_effect_grudge_units_unlock_1_merc	merc.png	500	merc.png	campaign	true
+wh3_dlc25_effect_grudge_units_unlock_2_merc	merc.png	500	merc.png	campaign	true
+wh3_dlc25_effect_grudge_units_unlock_3_merc	merc.png	500	merc.png	campaign	true
+wh3_dlc25_effect_grudge_units_unlock_4_merc	merc.png	500	merc.png	campaign	true
+wh3_dlc25_effect_grudge_units_unlock_1_merc_repl_1	merc.png	0	merc.png	campaign	true
+wh3_dlc25_effect_grudge_units_unlock_2_merc_repl_1	merc.png	0	merc.png	campaign	true
+wh3_dlc25_effect_grudge_units_unlock_2_merc_repl_2	merc.png	0	merc.png	campaign	true
+wh3_dlc25_effect_grudge_units_unlock_3_merc_repl_1	merc.png	0	merc.png	campaign	true
+wh3_dlc25_effect_grudge_units_unlock_3_merc_repl_2	merc.png	0	merc.png	campaign	true
+wh3_dlc25_effect_grudge_units_unlock_3_merc_repl_3	merc.png	0	merc.png	campaign	true
+wh3_dlc25_effect_grudge_units_unlock_4_merc_repl_1	merc.png	0	merc.png	campaign	true
+wh3_dlc25_effect_grudge_units_unlock_4_merc_repl_2	merc.png	0	merc.png	campaign	true
+wh3_dlc25_effect_grudge_units_unlock_4_merc_repl_3	merc.png	0	merc.png	campaign	true
+wh3_dlc25_effect_grudge_units_unlock_4_merc_repl_4	merc.png	0	merc.png	campaign	true
+wh3_dlc25_effect_grudge_units_unlock_5_merc_repl_1	merc.png	0	merc.png	campaign	true
+wh3_dlc25_effect_grudge_units_unlock_5_merc_repl_2	merc.png	0	merc.png	campaign	true
+wh3_dlc25_effect_grudge_units_unlock_5_merc_repl_3	merc.png	0	merc.png	campaign	true
+wh3_dlc25_effect_grudge_units_unlock_5_merc_repl_4	merc.png	0	merc.png	campaign	true

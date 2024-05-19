@@ -1,0 +1,6 @@
+key	use_unit_exp_level_range	min_unit_exp_level_inclusive	max_unit_exp_level_inclusive	special_category
+#unit_sets_tables;2;db/unit_sets_tables/!Klissan_malakai_travel				
+wh3_dlc25_dwf_grudge_reward_units_1	false	-1	-1	elector_counts
+wh3_dlc25_dwf_grudge_reward_units_2	false	-1	-1	elector_counts
+wh3_dlc25_dwf_grudge_reward_units_3	false	-1	-1	elector_counts
+wh3_dlc25_dwf_grudge_reward_units_4	false	-1	-1	elector_counts

@@ -79,6 +79,7 @@ function MGSWT:can_perform_ritual()
     if is_range_dependant then
         can_perform = can_perform and self:is_target_in_range()
     end
+    -- todo refactor
     if selected_ritual_key == self.rituals.keys.scout then
         -- is target a nearby province ?
         local is_region_valid = false
@@ -93,6 +94,10 @@ function MGSWT:can_perform_ritual()
             end
         end
         can_perform = can_perform and is_region_valid
+    end
+    if selected_ritual_key == self.rituals.keys.travel then
+        local has_action_points = self.faction:faction_leader():action_points_remaining_percent() == 100
+        can_perform = can_perform and has_action_points
     end
     return can_perform
 end

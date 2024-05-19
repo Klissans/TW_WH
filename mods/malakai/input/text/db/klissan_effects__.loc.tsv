@@ -1,0 +1,10 @@
+key	text	tooltip
+#Loc;1;text/db/klissan_effects__.loc		
+effects_description_wh3_dlc25_effect_grudge_units_unlock_1_dummy		false
+effects_description_wh3_dlc25_effect_grudge_units_unlock_2_dummy		false
+effects_description_wh3_dlc25_effect_grudge_units_unlock_3_dummy		false
+effects_description_wh3_dlc25_effect_grudge_units_unlock_4_dummy		false
+effects_description_wh3_dlc25_effect_grudge_units_unlock_1_merc	Grudge Settler Quarrellers and Slayers added to available Grudge Settler mercenaries	false
+effects_description_wh3_dlc25_effect_grudge_units_unlock_2_merc	Grudge Settler Quarrellers, Slayers, Grudge Throwers and Longbeards added to available Grudge Settler mercenaries	false
+effects_description_wh3_dlc25_effect_grudge_units_unlock_3_merc	Grudge Settler Quarrellers, Slayers, Grudge Throwers, Longbeards, Irondrakes and Hammerers added to available Grudge Settler mercenaries	false
+effects_description_wh3_dlc25_effect_grudge_units_unlock_4_merc	All Grudge Settler units added to available Grudge Settler mercenaries	false

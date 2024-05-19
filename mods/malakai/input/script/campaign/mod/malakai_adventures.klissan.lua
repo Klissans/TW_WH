@@ -9,7 +9,6 @@ core:add_listener(
     end,
 	function(context)
 		local general_support_army_lookup_str = cm:char_lookup_str(cm:get_military_force_by_cqi(MGSWT.malakai_support_army_cqi):general_character())
-		console_print(''..MGSWT.malakai_support_army_cqi)
 		local ritual_key = context:ritual():ritual_key()
 		local result_str = MGSWT.croot:Call(string.format([=[
 			(

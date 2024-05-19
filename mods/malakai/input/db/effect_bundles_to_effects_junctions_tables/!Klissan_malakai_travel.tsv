@@ -1,2 +1,3 @@
 effect_bundle_key	effect_key	effect_scope	value	advancement_stage
 #effect_bundles_to_effects_junctions_tables;3;db/effect_bundles_to_effects_junctions_tables/!Klissan_malakai_travel				
+klissan_malakai_reveal_hidden_armies	wh3_dlc24_effect_hide_local_own_armies_bad	region_to_force_any	-999.0000	start_turn_completed

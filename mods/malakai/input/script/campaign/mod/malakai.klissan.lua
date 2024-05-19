@@ -167,17 +167,17 @@ end
 
 function MGSWT:get_grungni_radius()
     local radius_modifier = self.croot:Call([=[
-    (
-        malakai_faction = CampaignRoot.FactionList.FirstContext(FactionRecordContext.Key == 'wh3_dlc25_dwf_malakai'),
-        malakai = malakai_faction.FactionLeaderContext,
-        malakai_army = malakai.MilitaryForceContext,
-        malakai_horde = malakai_army.HordeContext,
-        building_chain_key = 'wh3_dlc25_dwf_spirit_of_grungni_support_radius',
-        slot_with_desired_building_chain = malakai_horde.BuildingSlotList.FirstContext(BuildingContext.BuildingLevelRecordContext.BuildingChainRecordContext.Key == building_chain_key),
-        building = slot_with_desired_building_chain.BuildingContext,
-        radius_effect = building.EffectList.FirstContext(EffectKey == 'wh3_dlc25_effect_force_stat_support_radius')
-    ) => GetIfElse(IsContextValid(radius_effect), radius_effect.Value, 0)
-]=]) / 100.0
+        (
+            malakai_faction = CampaignRoot.FactionList.FirstContext(FactionRecordContext.Key == 'wh3_dlc25_dwf_malakai'),
+            malakai = malakai_faction.FactionLeaderContext,
+            malakai_army = malakai.MilitaryForceContext,
+            malakai_horde = malakai_army.HordeContext,
+            building_chain_key = 'wh3_dlc25_dwf_spirit_of_grungni_support_radius',
+            slot_with_desired_building_chain = malakai_horde.BuildingSlotList.FirstContext(BuildingContext.BuildingLevelRecordContext.BuildingChainRecordContext.Key == building_chain_key),
+            building = slot_with_desired_building_chain.BuildingContext,
+            radius_effect = building.EffectList.FirstContext(EffectKey == 'wh3_dlc25_effect_force_stat_support_radius')
+        ) => GetIfElse(IsContextValid(radius_effect), radius_effect.Value, 0)
+    ]=]) / 100.0
     return self.tsog_base_radius * (radius_modifier + 1.0)
 end
 
