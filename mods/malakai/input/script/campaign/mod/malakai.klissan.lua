@@ -123,7 +123,9 @@ function MGSWT:campaign_setup()
             cm:make_diplomacy_available(malakai_faction:name(), faction:name())
             --cm:force_grant_military_access(malakai_faction:name(), faction:name(), false)
             --cm:force_grant_military_access(faction:name(), malakai_faction:name(), false)
-            cm:make_region_seen_in_shroud(malakai_faction:name(), faction:home_region():name())
+            if not faction:home_region():is_null_interface() then
+                cm:make_region_seen_in_shroud(malakai_faction:name(), faction:home_region():name())
+            end
         end
     end
 end
@@ -254,7 +256,8 @@ core:add_listener(
     'malakai_force_created',
     "MilitaryForceCreated",
     function(context)
-        return context:military_force_created():general_character():command_queue_index() == MGSWT.faction:faction_leader():command_queue_index()
+        -- done via get_faction cuz sometimes .faction is nil. Event triggered before inititalisation completed?
+        return context:military_force_created():general_character():command_queue_index() == cm:get_faction(MGSWT.faction_name):faction_leader():command_queue_index()
     end,
     function(context)
         MGSWT:add_support_army_to_malakai()
