@@ -184,171 +184,175 @@ function MGSWT:get_ritual_reinforce_units_cost_pair()
 end
 
 -- LISTENERS
--- todo check if army moved
-core:remove_listener(Klissan_CH:get_listener_name(MGSWT.rituals.keys.travel)) -- todo remove?
-core:add_listener(
-	Klissan_CH:get_listener_name(MGSWT.rituals.keys.travel),
-	"RitualCompletedEvent",
-	function (context)
-        return context:ritual():ritual_category() == "TZEENTCH_RITUAL"
-                and context:ritual():ritual_key() == MGSWT.rituals.keys.travel
-    end,
-	function(context)
-        MGSWT:debug('Performing ritual %s', context:ritual():ritual_key())
-        local performing_faction = context:performing_faction()
-        local ritual = context:ritual() -- ACTIVE_RITUAL_SCRIPT_INTERFACE
 
-        local target_x, target_y = cm:find_valid_spawn_location_for_character_from_settlement(
-                performing_faction:name(),
-                ritual:ritual_target():get_target_region():name(),
-                false,
-                true,
-                5
-        )
+function MGSWT:init_ritual_listeners()
+    -- todo check if army moved
+    core:remove_listener(Klissan_CH:get_listener_name(MGSWT.rituals.keys.travel)) -- todo remove?
+    core:add_listener(
+            Klissan_CH:get_listener_name(MGSWT.rituals.keys.travel),
+            "RitualCompletedEvent",
+            function (context)
+                return context:ritual():ritual_category() == "TZEENTCH_RITUAL"
+                        and context:ritual():ritual_key() == MGSWT.rituals.keys.travel
+            end,
+            function(context)
+                MGSWT:debug('Performing ritual %s', context:ritual():ritual_key())
+                local performing_faction = context:performing_faction()
+                local ritual = context:ritual() -- ACTIVE_RITUAL_SCRIPT_INTERFACE
 
-        local malaki_str = cm:char_lookup_str(performing_faction:faction_leader())
-        cm:teleport_to(malaki_str, target_x, target_y)
-        cm:force_character_force_into_stance(malaki_str, 'MILITARY_FORCE_ACTIVE_STANCE_TYPE_MARCH') -- todo can switch stances??
-        cm:zero_action_points(malaki_str)
-        local engines_level = MGSWT:get_horde_building_level('wh3_dlc25_dwf_spirit_of_grungni_engines')
-        local replenish_chance = engines_level * 20
-        local roll =cm:random_number()
-            MGSWT:debug('Chance to restore action points %d / %d', roll, replenish_chance)
-        if roll <= replenish_chance then
-            cm:replenish_action_points(malaki_str)
-            MGSWT:debug('Action points replenished')
-        end
-        -- todo add a chance to get lost (travel to random location)
+                local target_x, target_y = cm:find_valid_spawn_location_for_character_from_settlement(
+                        performing_faction:name(),
+                        ritual:ritual_target():get_target_region():name(),
+                        false,
+                        true,
+                        5
+                )
 
-        -- subtract ritual cost
-        Klissan_CH:faction_resource_mod(performing_faction:name(), MGSWT.rituals.current_ritual.currency_type, -MGSWT.rituals.current_ritual.value)
-        MGSWT:debug('Ritual %s completed', context:ritual():ritual_key())
-	end,
-	true
-)
+                local malaki_str = cm:char_lookup_str(performing_faction:faction_leader())
+                cm:teleport_to(malaki_str, target_x, target_y)
+                cm:force_character_force_into_stance(malaki_str, 'MILITARY_FORCE_ACTIVE_STANCE_TYPE_MARCH') -- todo can switch stances??
+                cm:zero_action_points(malaki_str)
+                local engines_level = MGSWT:get_horde_building_level('wh3_dlc25_dwf_spirit_of_grungni_engines')
+                local replenish_chance = engines_level * 20
+                local roll =cm:random_number()
+                MGSWT:debug('Chance to restore action points %d / %d', roll, replenish_chance)
+                if roll <= replenish_chance then
+                    cm:replenish_action_points(malaki_str)
+                    MGSWT:debug('Action points replenished')
+                end
+                -- todo add a chance to get lost (travel to random location)
 
-
-core:remove_listener(Klissan_CH:get_listener_name(MGSWT.rituals.keys.reinforce)) -- todo remove?
-core:add_listener(
-	Klissan_CH:get_listener_name(MGSWT.rituals.keys.reinforce),
-	"RitualCompletedEvent",
-	function (context)
-        return context:ritual():ritual_category() == "TZEENTCH_RITUAL"
-                and context:ritual():ritual_key() == MGSWT.rituals.keys.reinforce
-    end,
-	function(context)
-        MGSWT:debug('Performing ritual %s', context:ritual():ritual_key())
-		local performing_faction = context:performing_faction()
-		local ritual = context:ritual() -- ACTIVE_RITUAL_SCRIPT_INTERFACE
-        local target_char = cm:char_lookup_str(ritual:ritual_target():get_target_force():general_character())
-        MGSWT:debug('Ritual %s target_char %s', context:ritual():ritual_key(), target_char)
-        local unit_keys = string.split(MGSWT.rituals.cache.ritual_reinforce.units_str, ',')
-        for i=1, #unit_keys do
-            MGSWT:debug('Ritual %s unit  %s', context:ritual():ritual_key(), unit_keys[i])
-            cm:grant_unit_to_character(target_char, unit_keys[i])
-        end
-        Klissan_CH:faction_resource_mod(performing_faction:name(), MGSWT.rituals.current_ritual.currency_type, -MGSWT.rituals.current_ritual.value)
-        MGSWT:debug('Ritual %s completed', context:ritual():ritual_key())
-	end,
-	true
-)
+                -- subtract ritual cost
+                Klissan_CH:faction_resource_mod(performing_faction:name(), MGSWT.rituals.current_ritual.currency_type, -MGSWT.rituals.current_ritual.value)
+                MGSWT:debug('Ritual %s completed', context:ritual():ritual_key())
+            end,
+            true
+    )
 
 
-core:remove_listener(Klissan_CH:get_listener_name(MGSWT.rituals.keys.scout)) -- todo remove?
-core:add_listener(
-	Klissan_CH:get_listener_name(MGSWT.rituals.keys.scout),
-	"RitualCompletedEvent",
-	function (context)
-        return context:ritual():ritual_category() == "TZEENTCH_RITUAL"
-                and context:ritual():ritual_key() == MGSWT.rituals.keys.scout
-    end,
-	function(context)
-        MGSWT:debug('Performing ritual %s', context:ritual():ritual_key())
-		local performing_faction = context:performing_faction()
-		local ritual = context:ritual() -- ACTIVE_RITUAL_SCRIPT_INTERFACE
-        local target_province = ritual:ritual_target():get_target_region():province()
-        local scout_building_level = MGSWT:get_horde_building_level('wh3_dlc25_dwf_spirit_of_grungni_support_radius')
-        for i=0, target_province:regions():num_items()-1 do
-            local region = target_province:regions():item_at(i)
-            MGSWT:debug('Ritual %s revealing region %s', context:ritual():ritual_key(), region:name())
-            cm:make_region_visible_in_shroud(performing_faction:name(), region:name())
-            if scout_building_level == 4 then
-                cm:apply_effect_bundle_to_region('klissan_malakai_reveal_hidden_armies', region:name(), 1 + 1)
-                MGSWT:debug('Reveling hidden armies in the region as building requirements is satisfied')
-            end
-        end
-        Klissan_CH:faction_resource_mod(performing_faction:name(), MGSWT.rituals.current_ritual.currency_type, -MGSWT.rituals.current_ritual.value)
-        MGSWT:debug('Ritual %s completed', context:ritual():ritual_key())
-	end,
-	true
-)
-
-core:remove_listener(Klissan_CH:get_listener_name(MGSWT.rituals.keys.bombardment)) -- todo remove?
-core:add_listener(
-	Klissan_CH:get_listener_name(MGSWT.rituals.keys.bombardment),
-	"RitualCompletedEvent",
-	function (context)
-        return context:ritual():ritual_category() == "TZEENTCH_RITUAL"
-                and context:ritual():ritual_key() == MGSWT.rituals.keys.bombardment
-    end,
-	function(context)
-        -- thanks to Zarathustra_the_Godless who showed me how to damage buildings via script
-        MGSWT:debug('Performing ritual %s', context:ritual():ritual_key())
-		local performing_faction = context:performing_faction()
-		local ritual = context:ritual() -- ACTIVE_RITUAL_SCRIPT_INTERFACE
-        local target_region = ritual:ritual_target():get_target_region()
-        local slot_list = target_region:settlement():slot_list()
-        local damage_health_percent = 20 + 15 * MGSWT:get_horde_building_level('wh3_dlc25_dwf_spirit_of_grungni_army_ability_2')
-        for i = 0, slot_list:num_items() - 1 do
-            local slot = slot_list:item_at(i)
-            if slot:has_building() then
-                local randomized_damage = cm:random_number(damage_health_percent, math.floor(damage_health_percent / 2))
-                local damaged = math.max(slot:building():percent_health() - randomized_damage, 1)
-                cm:instant_set_building_health_percent(target_region:name(), slot:building():name(), damaged)
-                MGSWT:debug('Target damage %d', damaged)
-            end
-        end
-        Klissan_CH:faction_resource_mod(performing_faction:name(), MGSWT.rituals.current_ritual.currency_type, -MGSWT.rituals.current_ritual.value)
-        MGSWT:debug('Ritual %s completed', context:ritual():ritual_key())
-	end,
-	true
-)
+    core:remove_listener(Klissan_CH:get_listener_name(MGSWT.rituals.keys.reinforce)) -- todo remove?
+    core:add_listener(
+            Klissan_CH:get_listener_name(MGSWT.rituals.keys.reinforce),
+            "RitualCompletedEvent",
+            function (context)
+                return context:ritual():ritual_category() == "TZEENTCH_RITUAL"
+                        and context:ritual():ritual_key() == MGSWT.rituals.keys.reinforce
+            end,
+            function(context)
+                MGSWT:debug('Performing ritual %s', context:ritual():ritual_key())
+                local performing_faction = context:performing_faction()
+                local ritual = context:ritual() -- ACTIVE_RITUAL_SCRIPT_INTERFACE
+                local target_char = cm:char_lookup_str(ritual:ritual_target():get_target_force():general_character())
+                MGSWT:debug('Ritual %s target_char %s', context:ritual():ritual_key(), target_char)
+                local unit_keys = string.split(MGSWT.rituals.cache.ritual_reinforce.units_str, ',')
+                for i=1, #unit_keys do
+                    MGSWT:debug('Ritual %s unit  %s', context:ritual():ritual_key(), unit_keys[i])
+                    cm:grant_unit_to_character(target_char, unit_keys[i])
+                end
+                Klissan_CH:faction_resource_mod(performing_faction:name(), MGSWT.rituals.current_ritual.currency_type, -MGSWT.rituals.current_ritual.value)
+                MGSWT:debug('Ritual %s completed', context:ritual():ritual_key())
+            end,
+            true
+    )
 
 
-core:remove_listener(Klissan_CH:get_listener_name(MGSWT.rituals.keys.ale)) -- todo remove?
-core:add_listener(
-	Klissan_CH:get_listener_name(MGSWT.rituals.keys.ale),
-	"RitualCompletedEvent",
-	function (context)
-        return context:ritual():ritual_category() == "TZEENTCH_RITUAL"
-                and context:ritual():ritual_key() == MGSWT.rituals.keys.ale
-    end,
-	function(context)
-        MGSWT:debug('Performing ritual %s', context:ritual():ritual_key())
-		local performing_faction = context:performing_faction()
-		local ritual = context:ritual() -- ACTIVE_RITUAL_SCRIPT_INTERFACE
-        local beer_level = MGSWT:get_horde_building_level('wh3_dlc25_dwf_spirit_of_grungni_beer_hall')
-        local strength_level = MGSWT:get_horde_building_level('wh3_dlc25_dwf_spirit_of_grungni_cargo_hold')
+    core:remove_listener(Klissan_CH:get_listener_name(MGSWT.rituals.keys.scout)) -- todo remove?
+    core:add_listener(
+            Klissan_CH:get_listener_name(MGSWT.rituals.keys.scout),
+            "RitualCompletedEvent",
+            function (context)
+                return context:ritual():ritual_category() == "TZEENTCH_RITUAL"
+                        and context:ritual():ritual_key() == MGSWT.rituals.keys.scout
+            end,
+            function(context)
+                MGSWT:debug('Performing ritual %s', context:ritual():ritual_key())
+                local performing_faction = context:performing_faction()
+                local ritual = context:ritual() -- ACTIVE_RITUAL_SCRIPT_INTERFACE
+                local target_province = ritual:ritual_target():get_target_region():province()
+                local scout_building_level = MGSWT:get_horde_building_level('wh3_dlc25_dwf_spirit_of_grungni_support_radius')
+                for i=0, target_province:regions():num_items()-1 do
+                    local region = target_province:regions():item_at(i)
+                    MGSWT:debug('Ritual %s revealing region %s', context:ritual():ritual_key(), region:name())
+                    cm:make_region_visible_in_shroud(performing_faction:name(), region:name())
+                    if scout_building_level == 4 then
+                        cm:apply_effect_bundle_to_region('klissan_malakai_reveal_hidden_armies', region:name(), 1 + 1)
+                        MGSWT:debug('Reveling hidden armies in the region as building requirements is satisfied')
+                    end
+                end
+                Klissan_CH:faction_resource_mod(performing_faction:name(), MGSWT.rituals.current_ritual.currency_type, -MGSWT.rituals.current_ritual.value)
+                MGSWT:debug('Ritual %s completed', context:ritual():ritual_key())
+            end,
+            true
+    )
 
-        local n_effects = 1 + beer_level
-        local custom_bundle = cm:create_new_custom_effect_bundle('klissan_malakai_drink')
-        custom_bundle:set_duration(1)
-        local drink_effects = MGSWT.rituals.drink.effects
-        cm:shuffle_table(drink_effects)
-        for i=1, n_effects do
-            local chance_positive = cm:random_number() - 50 -- todo take into account effect pos/neg state+ strength_level * 10
-            local sign = chance_positive >= 0 and 1 or -1
-            local base_random_value = cm:random_number(5) + strength_level
-            custom_bundle:add_effect(drink_effects[i], 'force_to_force_own', sign * base_random_value)
-            MGSWT:debug('Drink effect %s, chance %d, value %d', drink_effects[i], chance_positive, sign * base_random_value)
-        end
-        cm:apply_custom_effect_bundle_to_force(custom_bundle, context:performing_faction():faction_leader():military_force())
+    core:remove_listener(Klissan_CH:get_listener_name(MGSWT.rituals.keys.bombardment)) -- todo remove?
+    core:add_listener(
+            Klissan_CH:get_listener_name(MGSWT.rituals.keys.bombardment),
+            "RitualCompletedEvent",
+            function (context)
+                return context:ritual():ritual_category() == "TZEENTCH_RITUAL"
+                        and context:ritual():ritual_key() == MGSWT.rituals.keys.bombardment
+            end,
+            function(context)
+                -- thanks to Zarathustra_the_Godless who showed me how to damage buildings via script
+                MGSWT:debug('Performing ritual %s', context:ritual():ritual_key())
+                local performing_faction = context:performing_faction()
+                local ritual = context:ritual() -- ACTIVE_RITUAL_SCRIPT_INTERFACE
+                local target_region = ritual:ritual_target():get_target_region()
+                local slot_list = target_region:settlement():slot_list()
+                local damage_health_percent = 20 + 15 * MGSWT:get_horde_building_level('wh3_dlc25_dwf_spirit_of_grungni_army_ability_2')
+                for i = 0, slot_list:num_items() - 1 do
+                    local slot = slot_list:item_at(i)
+                    if slot:has_building() then
+                        local randomized_damage = cm:random_number(damage_health_percent, math.floor(damage_health_percent / 2))
+                        local damaged = math.max(slot:building():percent_health() - randomized_damage, 1)
+                        cm:instant_set_building_health_percent(target_region:name(), slot:building():name(), damaged)
+                        MGSWT:debug('Target damage %d', damaged)
+                    end
+                end
+                Klissan_CH:faction_resource_mod(performing_faction:name(), MGSWT.rituals.current_ritual.currency_type, -MGSWT.rituals.current_ritual.value)
+                MGSWT:debug('Ritual %s completed', context:ritual():ritual_key())
+            end,
+            true
+    )
 
-        Klissan_CH:faction_resource_mod(performing_faction:name(), MGSWT.rituals.current_ritual.currency_type, -MGSWT.rituals.current_ritual.value)
-        MGSWT:debug('Ritual %s completed', context:ritual():ritual_key())
-	end,
-	true
-)
+
+    core:remove_listener(Klissan_CH:get_listener_name(MGSWT.rituals.keys.ale)) -- todo remove?
+    core:add_listener(
+            Klissan_CH:get_listener_name(MGSWT.rituals.keys.ale),
+            "RitualCompletedEvent",
+            function (context)
+                return context:ritual():ritual_category() == "TZEENTCH_RITUAL"
+                        and context:ritual():ritual_key() == MGSWT.rituals.keys.ale
+            end,
+            function(context)
+                MGSWT:debug('Performing ritual %s', context:ritual():ritual_key())
+                local performing_faction = context:performing_faction()
+                local ritual = context:ritual() -- ACTIVE_RITUAL_SCRIPT_INTERFACE
+                local beer_level = MGSWT:get_horde_building_level('wh3_dlc25_dwf_spirit_of_grungni_beer_hall')
+                local strength_level = MGSWT:get_horde_building_level('wh3_dlc25_dwf_spirit_of_grungni_cargo_hold')
+
+                local n_effects = 1 + beer_level
+                local custom_bundle = cm:create_new_custom_effect_bundle('klissan_malakai_drink')
+                custom_bundle:set_duration(1)
+                local drink_effects = MGSWT.rituals.drink.effects
+                cm:shuffle_table(drink_effects)
+                for i=1, n_effects do
+                    local chance_positive = cm:random_number() - 50 -- todo take into account effect pos/neg state+ strength_level * 10
+                    local sign = chance_positive >= 0 and 1 or -1
+                    local base_random_value = cm:random_number(5) + strength_level
+                    custom_bundle:add_effect(drink_effects[i], 'force_to_force_own', sign * base_random_value)
+                    MGSWT:debug('Drink effect %s, chance %d, value %d', drink_effects[i], chance_positive, sign * base_random_value)
+                end
+                cm:apply_custom_effect_bundle_to_force(custom_bundle, context:performing_faction():faction_leader():military_force())
+
+                Klissan_CH:faction_resource_mod(performing_faction:name(), MGSWT.rituals.current_ritual.currency_type, -MGSWT.rituals.current_ritual.value)
+                MGSWT:debug('Ritual %s completed', context:ritual():ritual_key())
+            end,
+            true
+    )
+
+end
 
 -- not triggered when loading into it
 --core:add_listener(
@@ -367,4 +371,5 @@ core:add_listener(
 -- INIT
 cm:add_post_first_tick_callback(function()
     MGSWT:init_ritual_cost_mapping()
+    MGSWT:init_ritual_listeners()
 end)
