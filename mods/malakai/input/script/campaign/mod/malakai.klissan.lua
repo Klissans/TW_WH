@@ -96,6 +96,9 @@ function MGSWT:campaign_setup()
     local malakai_x, malakai_y = Klissan_CH:get_logical_position(malakai_faction:faction_leader())
     cm:teleport_military_force_to(malakai_faction:faction_leader():military_force(), 1011, 647)
 
+    --remove thunderes as we give him slayer-pirates via support army
+    cm:remove_unit_from_character(cm:char_lookup_str(malakai_faction:faction_leader()), 'wh_main_dwf_inf_thunderers_0')
+
     cm:force_declare_war(malakai_faction:name(), new_ogre_enemy_factions:name(), false, false)
     cm:force_make_peace(malakai_faction:name(), old_enemy_faction:name())
 
@@ -252,18 +255,6 @@ function MGSWT:update_malakai_support_army_cqi()
     end
 end
 
-core:add_listener(
-    'malakai_force_created',
-    "MilitaryForceCreated",
-    function(context)
-        -- done via get_faction cuz sometimes .faction is nil. Event triggered before inititalisation completed?
-        return context:military_force_created():general_character():command_queue_index() == cm:get_faction(MGSWT.faction_name):faction_leader():command_queue_index()
-    end,
-    function(context)
-        MGSWT:add_support_army_to_malakai()
-    end,
-    true
-)
 
 
 
@@ -275,4 +266,18 @@ cm:add_post_first_tick_callback(function()
         MGSWT:add_support_army_to_malakai()
     end
     MGSWT:update_malakai_support_army_cqi() -- always update on game load as we don't store it
+
+
+    core:add_listener(
+        'malakai_force_created',
+        "MilitaryForceCreated",
+        function(context)
+            -- done via get_faction cuz sometimes .faction is nil. Event triggered before inititalisation completed?
+            return context:military_force_created():general_character():command_queue_index() == cm:get_faction(MGSWT.faction_name):faction_leader():command_queue_index()
+        end,
+        function(context)
+            MGSWT:add_support_army_to_malakai()
+        end,
+        true
+    )
 end)
