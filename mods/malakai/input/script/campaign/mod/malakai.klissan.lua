@@ -46,7 +46,13 @@ end
 
 function MGSWT:resurrect_kraka_drak(force_coord_x, force_coord_y, malakai_old_enemy)
     local kraka_drak_faction = cm:get_faction('wh_main_dwf_kraka_drak')
-    local kraka_drak_region = cm:get_region('wh3_main_combi_region_kraka_drak')
+    local kraka_drak_region = nil
+    if cm:model():campaign_name_key() == 'wh3_main_chaos' then
+        kraka_drak_region = cm:get_region('wh3_main_chaos_region_kraka_drak')
+        cm:set_region_abandoned(cm:get_region('wh3_main_chaos_region_kraka_dorden'):name())
+    else
+        kraka_drak_region = cm:get_region('wh3_main_combi_region_kraka_drak')
+    end
 
     if kraka_drak_region:owning_faction():name() == kraka_drak_faction:name() then
         return
@@ -82,18 +88,11 @@ function MGSWT:resurrect_kraka_drak(force_coord_x, force_coord_y, malakai_old_en
     cm:force_declare_war(kraka_drak_faction:name(), malakai_old_enemy:name(), false, false)
 end
 
-
-function MGSWT:campaign_setup()
-    if not (cm:is_new_game()
-            and (cm:model():campaign_name_key() ~= "wh3_main_combi"
-            or cm:model():campaign_name_key() ~= "cr_combi_expanded")) then
-        return
-    end
+function MGSWT:ie_campaign_setup()
     local old_enemy_faction = cm:get_faction('wh3_main_nur_maggoth_kin')
     local new_ogre_enemy_factions = cm:get_faction('wh3_main_ogr_fulg')
     local malakai_faction = self.faction
 
-    local malakai_x, malakai_y = Klissan_CH:get_logical_position(malakai_faction:faction_leader())
     cm:teleport_military_force_to(malakai_faction:faction_leader():military_force(), 1011, 647)
 
     --remove thunderes as we give him slayer-pirates via support army
@@ -113,6 +112,63 @@ function MGSWT:campaign_setup()
         karak_vrag_level = 3 -- after capturing it'll became 2
     end
     cm:instantly_set_settlement_primary_slot_level(karak_vrag:settlement(), karak_vrag_level)
+    return old_enemy_faction
+end
+
+
+function MGSWT:roc_campaign_setup()
+    local old_enemy_faction = cm:get_faction('wh_main_nor_baersonling')
+    local new_ogre_enemy_factions = cm:get_faction('wh3_main_ogr_blood_guzzlers')
+    local malakai_faction = self.faction
+
+    local target_region = cm:get_region('wh3_main_chaos_region_bloodpeak')
+
+    local target_x, target_y = cm:find_valid_spawn_location_for_character_from_settlement(
+        malakai_faction:name(),
+        target_region:name(),
+        false,
+        true,
+        7
+    )
+
+    cm:teleport_military_force_to(malakai_faction:faction_leader():military_force(), target_x, target_y)
+
+    --remove thunderes as we give him slayer-pirates via support army
+    cm:remove_unit_from_character(cm:char_lookup_str(malakai_faction:faction_leader()), 'wh_main_dwf_inf_thunderers_0')
+
+    cm:force_declare_war(malakai_faction:name(), new_ogre_enemy_factions:name(), false, false)
+    cm:force_make_peace(malakai_faction:name(), old_enemy_faction:name())
+
+    local target_region_level = nil
+    if not malakai_faction:is_human() then
+        cm:transfer_region_to_faction(target_region:name(), malakai_faction:name())
+        cm:heal_garrison(target_region:cqi())
+        target_region_level = 2
+    else
+        -- TODO Zoom camera to new position
+        target_region_level = 3 -- after capturing it'll became 2
+    end
+    cm:instantly_set_settlement_primary_slot_level(target_region:settlement(), target_region_level)
+    return old_enemy_faction
+end
+
+
+function MGSWT:campaign_setup()
+    if not cm:is_new_game() then
+        return
+    end
+
+    local campaign_key = cm:model():campaign_name_key()
+    local malakai_faction = self.faction
+    local malakai_x, malakai_y = Klissan_CH:get_logical_position(malakai_faction:faction_leader())
+    local old_enemy_faction = nil
+    if campaign_key == 'wh3_main_combi' or campaign_key == 'cr_combi_expanded' then
+        old_enemy_faction = self:ie_campaign_setup()
+    elseif campaign_key == 'wh3_main_chaos' then
+        old_enemy_faction = self:roc_campaign_setup()
+    else
+        return
+    end
 
     self:resurrect_kraka_drak(malakai_x, malakai_y, old_enemy_faction)
 
