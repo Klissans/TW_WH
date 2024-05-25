@@ -1,5 +1,5 @@
 key	localised_description	localised_title	bundle_target	priority	ui_icon	is_global_effect	show_in_3d_space	owner_only
-#effect_bundles_tables;4;db/effect_bundles_tables/!Klissan_malakai_travel								
+#effect_bundles_tables;4;db/effect_bundles_tables/Klissan_malakai_travel								
 wh3_dlc25_grudge_cycle_share_0	Not contributing to the striking of Grudges from the book is a Grudge in itself! You hear the Dawi referring to you as an "Elf with no beard", since you're not acting like a Dwarf!	Age of Reckoning Share (0-19%)	faction	1	grudges.png	false	false	true
 wh3_dlc25_grudge_cycle_share_1	Doing the bare minimum is the same as growing nothing but stubble. Get out there and strike more Grudges, or you'll never earn the respect of the Dawi AND put hair on your chin!	Age of Reckoning Share (20-39%)	faction	1	grudges.png	false	false	true
 wh3_dlc25_grudge_cycle_share_2	A strong beard for a strong Dwarf. If every Dawi does their part, the Dammaz Kron will be complete in no time.	Age of Reckoning Share (40-59%)	faction	1	grudges.png	false	false	true

@@ -1,4 +1,4 @@
 key	human_only	payload_base
-#ritual_payloads_tables;0;db/ritual_payloads_tables/!Klissan_malakai_travel		
+#ritual_payloads_tables;0;db/ritual_payloads_tables/Klissan_malakai_travel		
 klissan_malakai_travel_payload	true	klissan_malakai_travel_cpayload
 klissan_malakai_support_army_payload	false	

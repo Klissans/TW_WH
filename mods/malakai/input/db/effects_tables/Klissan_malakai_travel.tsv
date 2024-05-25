@@ -1,5 +1,5 @@
 effect	icon	priority	icon_negative	category	is_positive_value_good
-#effects_tables;0;db/effects_tables/!Klissan_malakai_travel					
+#effects_tables;0;db/effects_tables/Klissan_malakai_travel					
 wh3_dlc25_effect_grudge_units_unlock_1_dummy		0		campaign	true
 wh3_dlc25_effect_grudge_units_unlock_2_dummy		0		campaign	true
 wh3_dlc25_effect_grudge_units_unlock_3_dummy		0		campaign	true
