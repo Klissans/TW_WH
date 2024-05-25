@@ -10,13 +10,15 @@ grudge_cycle.unit_roll_base_chance = 5
 
 grudge_cycle.share_reward_prefix = "wh3_dlc25_grudge_cycle_share_"
 
+grudge_cycle.share_thresholds = {5, 10, 20, 40, 80, 101}
+
 
 --grudge_cycle.unit_rewards.repl_chance_per_age_level = 10
 --grudge_cycle.unit_rewards.repl_chance_per_share_level = 10
 grudge_cycle.unit_rewards = {
 	max_units = 2,
 	repl_chance_per_age_level = 7,
-	repl_chance_per_share_level = 8,
+	repl_chance_per_share_level = 5,
 	last_tier_chance_multiplier = 2,
 	max_repl_units = 1,
 	recruitment_source_pool = 'wh3_dlc25_dwf_book_of_grudges_mercenary_pool',
@@ -121,7 +123,12 @@ end
 
 -- returns int in [0, 5]
 function grudge_cycle:get_faction_settled_grudges_share_level(faction_name)
-	return math.floor(self:get_faction_settled_grudges_share(faction_name) * 100 / 20)
+	local value = self:get_faction_settled_grudges_share(faction_name) * 100
+	for i, th in ipairs(self.share_thresholds) do
+		if not (th <= value) then
+			return i-1
+		end
+	end
 end
 
 -- TODO remove accumulated grudges of DAWI faction dead if not implemented yet
@@ -153,8 +160,8 @@ function grudge_cycle:update_settled_grudges_total()
 end
 
 
-
 function grudge_cycle:update_cycle_tracker(faction_name)
+	self:update_settled_grudges_total()
 	local percentage = 0
 	if self.cycle_grudges[faction_name] then
 
@@ -162,7 +169,7 @@ function grudge_cycle:update_cycle_tracker(faction_name)
 			percentage = math.floor(self.settled_grudges_total / self.target_grudge_value[faction_name] * 100)
 		end
 
-		out.design(faction_name.." - "..self.cycle_grudges[faction_name].." / "..self.target_grudge_value[faction_name].." - Setting grudge % to: "..percentage)
+		out.design(faction_name.." - "..self.settled_grudges_total.." / "..self.target_grudge_value[faction_name].." - Setting grudge % to: "..percentage)
 
 		-- reset the % to 0 to the min value of 0 before assigning the updated value.
 		cm:faction_add_pooled_resource(faction_name, self.resources.cycle_percent, self.factors.settled, -100)
@@ -195,6 +202,17 @@ function grudge_cycle:get_reward_chance(common_level, share_level, tier)
 	local share_chance = share_level * self.unit_rewards.repl_chance_per_share_level
 	local repl_chance = (common_level - tier + 1) * chance_per_tier + share_chance
 	return repl_chance
+end
+
+
+function grudge_cycle:get_current_grudge_level(faction_key)
+	local faction = cm:get_faction(faction_key)
+	local grudge_cycle_value = faction:pooled_resource_manager():resource(self.resources.cycle_percent):value()
+	for level, ranges in ipairs(self.ranges) do
+		if grudge_cycle_value >= ranges.min and grudge_cycle_value <= ranges.max then
+			return level
+		end
+	end
 end
 
 -- main loop
@@ -258,7 +276,6 @@ function grudge_cycle:cycle_timer()
 	)
 end
 
---grudge_cycle:cycle_timer() -- todo remove
 
 
 --- fix for legendary grudges
