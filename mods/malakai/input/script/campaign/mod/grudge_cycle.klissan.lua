@@ -6,7 +6,6 @@ grudge_cycle.cycle_time = 1
 
 grudge_cycle.target_grudge_goal = 50000
 grudge_cycle.settled_grudges_total = 0
-grudge_cycle.unit_roll_base_chance = 5
 
 grudge_cycle.share_reward_prefix = "wh3_dlc25_grudge_cycle_share_"
 
@@ -17,8 +16,8 @@ grudge_cycle.share_thresholds = {5, 10, 20, 40, 80, 101}
 --grudge_cycle.unit_rewards.repl_chance_per_share_level = 10
 grudge_cycle.unit_rewards = {
 	max_units = 2,
-	repl_chance_per_age_level = 7,
-	repl_chance_per_share_level = 5,
+	repl_chance_per_age_level = 5,
+	repl_chance_per_share_level = 3,
 	last_tier_chance_multiplier = 2,
 	max_repl_units = 1,
 	recruitment_source_pool = 'wh3_dlc25_dwf_book_of_grudges_mercenary_pool',
@@ -87,12 +86,12 @@ function grudge_cycle:setup()
 	-- assign starting effect_bundle
 	for _, faction in ipairs(faction_list) do
 		local faction_name = faction:name()
-		if faction:can_be_human() then
+		if faction:can_be_human() and not faction:is_dead() and not faction:is_rebel() then
 			self.cycle_grudges[faction_name] = 0
 			self.faction_times[faction_name] = self.cycle_time
 
 			cm:apply_effect_bundle(self.reward_prefix..starting_grudge_level, faction_name, self.cycle_time + 1)
-			cm:apply_effect_bundle(self.reward_prefix..self:get_faction_settled_grudges_share_level(faction_name), faction_name, self.cycle_time + 1)
+			cm:apply_effect_bundle(self.share_reward_prefix..self:get_faction_settled_grudges_share_level(faction_name), faction_name, self.cycle_time + 1)
 
 			if cm:get_local_faction_name(true) == faction_name then
 				common.set_context_value("cycle_grudge_value", self.cycle_grudges[faction_name])
@@ -108,8 +107,11 @@ function grudge_cycle:setup()
 	end
 
 	for _, faction in ipairs(faction_list) do
+		--self:debug('Setting grudge target for %s', faction:name())
 		self:set_grudge_target(faction)
+		--self:debug('[success] Setting grudge target for %s', faction:name())
 	end
+	--self:debug('Setting world_grudge_value COntext value')
 	common.set_context_value("world_grudge_value", self:get_world_grudges())
 end
 
@@ -139,7 +141,9 @@ function grudge_cycle:set_grudge_target(faction, previous_level, value_override)
 	end
 
 	-- TODO CAn it be different because we update world grudges on each faction turn?
+	--self:debug('Setting target for %s ', faction_name)
 	self.target_grudge_value[faction_name] = math.max(self.target_grudge_value[faction_name], self:get_world_grudges())
+	--self:debug('Target %d is set for faction %s ', self.target_grudge_value[faction_name], faction_name)
 
 	if faction:is_human() then
 		if cm:get_local_faction_name(true) == faction_name then
@@ -147,13 +151,17 @@ function grudge_cycle:set_grudge_target(faction, previous_level, value_override)
 			common.set_context_value("cycle_grudge_value", self.cycle_grudges[faction_name])
 		end
 	end
+	--self:debug('Returning from grudge_cycle:set_grudge_target for faction %s ', faction_name)
 end
 
 
 function grudge_cycle:update_settled_grudges_total()
 	local accumulated_grudges = 0
 	for _, k in pairs(Klissan_H:get_key_sorted(self.cycle_grudges)) do
-		accumulated_grudges = accumulated_grudges + self.cycle_grudges[k]
+		local faction = cm:get_faction(k)
+		if not faction:is_dead() and not faction:is_rebel() then
+			accumulated_grudges = accumulated_grudges + self.cycle_grudges[k]
+		end
 	end
 	self.settled_grudges_total = accumulated_grudges
 	return accumulated_grudges
@@ -207,7 +215,7 @@ end
 
 function grudge_cycle:get_current_grudge_level(faction_key)
 	local faction = cm:get_faction(faction_key)
-	local grudge_cycle_value = faction:pooled_resource_manager():resource(self.resources.cycle_percent):value()
+	local grudge_cycle_value = faction:pooled_resource_manager():resource(self.resources.cycle_percent):value() -- self.settled_grudges_total --
 	for level, ranges in ipairs(self.ranges) do
 		if grudge_cycle_value >= ranges.min and grudge_cycle_value <= ranges.max then
 			return level
@@ -223,13 +231,16 @@ function grudge_cycle:cycle_timer()
 		"FactionTurnStart",
 		function(context)
 			local faction = context:faction()
-			return faction:culture() == self.cultures.dwarf and faction:can_be_human()
+			return faction:culture() == self.cultures.dwarf and faction:can_be_human() and not faction:is_dead() and not faction:is_rebel()
 		end,
 		function(context)
 			local faction = context:faction()
 			local faction_key = faction:name()
 
 			self:update_settled_grudges_total()
+			self:set_grudge_target(faction)
+			local percentage = self:update_cycle_tracker(faction_key)
+
 			local level = self:get_current_grudge_level(faction_key)
 			local share_level = self:get_faction_settled_grudges_share_level(faction_key)
 			for i = 0, 5 do
@@ -239,8 +250,6 @@ function grudge_cycle:cycle_timer()
 			-- effect bundle duration comes through as 1 less than the cycle time when applied so adding
 			cm:apply_effect_bundle(self.reward_prefix..level, faction_key, self.cycle_time + 1)
 			cm:apply_effect_bundle(self.share_reward_prefix..share_level, faction_key, self.cycle_time + 1)
-
-			self:set_grudge_target(faction, level)
 
 			-- in this implementation all dawi start at 1 common level
 			for tier = 1, #self.unit_rewards.group_tiers do
@@ -258,8 +267,6 @@ function grudge_cycle:cycle_timer()
 							faction:name(), faction:subculture(), '', false, group_reward_key)
 				end
 			end
-
-			local percentage = self:update_cycle_tracker(faction_key)
 
 			--local cycle_grudges_str = ''
 			--for _, k in pairs(Klissan_H:get_key_sorted(self.cycle_grudges)) do

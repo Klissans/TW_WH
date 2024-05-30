@@ -5,7 +5,7 @@ MGSWT = { -- MALAKAI_GRUDGE_SETTLING_WORLD_TOUR
     malakai_support_army_cqi = nil,
 
     -- The Spirit of Grungni's circle of influence base radius measured in logical coordinates --27,
-    tsog_base_radius = spirit_of_grungni.radius_size,
+    tsog_base_radius = 27, -- spirit_of_grungni.radius_size,
 
     -- logging to separate file for easy debug
     log_to_file = false,
