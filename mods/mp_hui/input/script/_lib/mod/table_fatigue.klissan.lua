@@ -24,14 +24,14 @@ local fatigue_states_table = {
     "exhausted",
 }
 
-register_function{function()
+Klissan_H:register_function{function()
     common:set_context_value('fatigue_effects', fatigue_effects_table)
 end, is_battle=true}
 
-register_function{function()
+Klissan_H:register_function{function()
     common:set_context_value('fatigue_effects_leadership', fatigue_effects_leadership)
 end, is_battle=true}
 
-register_function{function()
+Klissan_H:register_function{function()
     common:set_context_value('fatigue_states', fatigue_states_table)
 end, is_battle=true}

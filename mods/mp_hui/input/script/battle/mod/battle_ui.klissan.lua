@@ -69,7 +69,7 @@ function battle_ui:init_listener_tele()
 
     local do_dumps_file = "_enable_telestration_hotkeys.mpui"
     out('Checking if enabling dumps file exists')
-    if not is_file_exist(do_dumps_file) then
+    if not Klissan_H:is_file_exist(do_dumps_file) then
         out(do_dumps_file .. " doesn't exist")
         return
     end

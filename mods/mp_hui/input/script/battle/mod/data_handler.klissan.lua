@@ -40,7 +40,7 @@ function battle_data_dumper:init()
 
     local do_dumps_file = "_enable_replay_dumps"
     self:out('Checking if enabling dumps file exists')
-    if not is_file_exist(do_dumps_file) then
+    if not Klissan_H:is_file_exist(do_dumps_file) then
         self:out(do_dumps_file .. " doesn't exist")
         return
     end
@@ -49,7 +49,7 @@ function battle_data_dumper:init()
 
     -- check if marker file exists
     self:out('Checking if dump exists ' .. self._replay_name)
-    if is_file_exist(self:get_full_path('')) then
+    if Klissan_H:is_file_exist(self:get_full_path('')) then
         self:out("Replay Dump already exists " .. self._replay_name)
         return
     end
@@ -77,7 +77,7 @@ end
 
 function battle_data_dumper:dump_all_tables()
     self:out('Dumping tables')
-    local table_names = get_key_sorted(self._dump_tables)
+    local table_names = Klissan_H:get_key_sorted(self._dump_tables)
     for _, tname in pairs(table_names) do
         if not (self._is_dump_battle_units_during_battle and tname == 'battle_units') then
             self:write_dump(tname)
@@ -104,7 +104,7 @@ function battle_data_dumper:write_dump(table_name)
         self:out("FAILED TO CREATE FILE " .. table_name)
         return
     end
-    local column_names = get_key_sorted(table_to_dump[1])
+    local column_names = Klissan_H:get_key_sorted(table_to_dump[1])
 
     local columns_row = table.concat(column_names, sep)
     self:out(columns_row)
@@ -144,7 +144,7 @@ function battle_data_dumper:collecting_static_info()
     if bm:reinforcements():reinforcement_army_count() == 0 then
         self:out('Emulating table')
         local nilinfo = {}
-        for _, k in pairs(get_key_sorted(self._dump_tables['armies'][1])) do
+        for _, k in pairs(Klissan_H:get_key_sorted(self._dump_tables['armies'][1])) do
             nilinfo[k] = ''
         end
         table.insert(self._dump_tables['reinforcement_armies'], nilinfo)
@@ -163,7 +163,7 @@ function battle_data_dumper:get_battle_info()
 end
 
 function battle_data_dumper:track_battle_alliances()
-    self:out("Gathering battle ALLIANCES data " .. ' entries# ' .. table_size(self._dump_tables['battle_alliances']))
+    self:out("Gathering battle ALLIANCES data " .. ' entries# ' .. Klissan_H:table_size(self._dump_tables['battle_alliances']))
     local alliances = bm:alliances()
     for i = 1, alliances:count() do
         self:get_battle_alliance_info(i)
@@ -171,7 +171,7 @@ function battle_data_dumper:track_battle_alliances()
 end
 
 function battle_data_dumper:track_battle_armies()
-    self:out("Gathering battle ARMIES data " .. ' entries# ' .. table_size(self._dump_tables['battle_armies']))
+    self:out("Gathering battle ARMIES data " .. ' entries# ' .. Klissan_H:table_size(self._dump_tables['battle_armies']))
     local alliances = bm:alliances()
     for i = 1, bm:alliances():count() do
         local armies = bm:alliances():item(i):armies()
@@ -188,7 +188,7 @@ function battle_data_dumper:track_battle_armies()
 end
 
 function battle_data_dumper:track_battle_units()
-    self:out("Gathering battle UNITS data " .. ' entries# ' .. table_size(self._dump_tables['battle_units']))
+    self:out("Gathering battle UNITS data " .. ' entries# ' .. Klissan_H:table_size(self._dump_tables['battle_units']))
     -- dump armies
     local alliances = bm:alliances()
     for i = 1, bm:alliances():count() do
@@ -538,39 +538,39 @@ function battle_data_dumper:get_battle_unit_info(unit, is_reinforcement)
     local info = {}
     info['time'] = bm:time_elapsed_ms()
     info['unique_ui_id'] = unit:unique_ui_id()
-    info['is_reinforcement'] = minify_bool(is_reinforcement)
+    info['is_reinforcement'] = Klissan_H:minify_bool(is_reinforcement)
     -- dynamic stats
-    info['is_currently_flying'] = minify_bool(unit:is_currently_flying())
+    info['is_currently_flying'] = Klissan_H:minify_bool(unit:is_currently_flying())
     --Location and Movement
     local pos = unit:position()
     -- info['position'] = table.concat({pos:get_x(), pos:get_y(), pos:get_z()}, ',')
-    info['is_moving_fast'] = minify_bool(unit:is_moving_fast())
-    info['is_idle'] = minify_bool(unit:is_idle())
-    info['is_leaving_battle'] = minify_bool(unit:is_leaving_battle())
+    info['is_moving_fast'] = Klissan_H:minify_bool(unit:is_moving_fast())
+    info['is_idle'] = Klissan_H:minify_bool(unit:is_idle())
+    info['is_leaving_battle'] = Klissan_H:minify_bool(unit:is_leaving_battle())
     --Visibility
-    info['is_hidden'] = minify_bool(unit:is_hidden())
+    info['is_hidden'] = Klissan_H:minify_bool(unit:is_hidden())
     --Combat
-    info['is_under_missile_attack'] = minify_bool(unit:is_under_missile_attack())
-    info['is_in_melee'] = minify_bool(unit:is_in_melee())
+    info['is_under_missile_attack'] = Klissan_H:minify_bool(unit:is_under_missile_attack())
+    info['is_in_melee'] = Klissan_H:minify_bool(unit:is_in_melee())
     --Unit Strength
     info['number_of_enemies_killed'] = unit:number_of_enemies_killed() --?
     -- out_data_handler('Morale and Fatigue')
     --Morale and Fatigue
-    info['is_wavering'] = minify_bool(unit:is_wavering())
-    info['is_routing'] = minify_bool(unit:is_routing())
-    info['is_invulnerable'] = minify_bool(unit:is_invulnerable())
-    info['is_rampaging'] = minify_bool(unit:is_rampaging())
-    info['is_shattered'] = minify_bool(unit:is_shattered())
+    info['is_wavering'] = Klissan_H:minify_bool(unit:is_wavering())
+    info['is_routing'] = Klissan_H:minify_bool(unit:is_routing())
+    info['is_invulnerable'] = Klissan_H:minify_bool(unit:is_invulnerable())
+    info['is_rampaging'] = Klissan_H:minify_bool(unit:is_rampaging())
+    info['is_shattered'] = Klissan_H:minify_bool(unit:is_shattered())
     -- doesn't exist? info['is_crumbling'] = unit:is_crumbling()
     -- doesn't exist? info['is_unstable'] = unit:is_unstable()
-    info['is_left_flank_threatened'] = minify_bool(unit:is_left_flank_threatened())
-    info['is_right_flank_threatened'] = minify_bool(unit:is_right_flank_threatened())
-    info['is_rear_flank_threatened'] = minify_bool(unit:is_rear_flank_threatened())
+    info['is_left_flank_threatened'] = Klissan_H:minify_bool(unit:is_left_flank_threatened())
+    info['is_right_flank_threatened'] = Klissan_H:minify_bool(unit:is_right_flank_threatened())
+    info['is_rear_flank_threatened'] = Klissan_H:minify_bool(unit:is_rear_flank_threatened())
     info['left_flank_threat'] = unit:left_flank_threat()
     info['right_flank_threat'] = unit:right_flank_threat()
     info['rear_threat'] = unit:rear_threat()
     info['current_target'] = unit:current_target()
-    info['is_deployed'] = minify_bool(unit:is_deployed()) --?
+    info['is_deployed'] = Klissan_H:minify_bool(unit:is_deployed()) --?
     info['fatigue_state'] = self.encode_fatigue_states(unit:fatigue_state())
     -- out_data_handler('Ammunition and Range')
     --Ammunition and Range
@@ -580,63 +580,63 @@ function battle_data_dumper:get_battle_unit_info(unit, is_reinforcement)
     -- info['owned_passive_special_abilities'] = table.concat(unit:owned_passive_special_abilities(), ';') -- TODO use map?
     -- info['owned_non_passive_special_abilities'] = table.concat(unit:owned_non_passive_special_abilities(), ';') -- TODO use map?
     -- info['owned_special_abilities'] = table.concat(unit:owned_special_abilities(), ';') -- TODO use map?
-    info['can_use_magic'] = minify_bool(unit:can_use_magic())
+    info['can_use_magic'] = Klissan_H:minify_bool(unit:can_use_magic())
 
 
     -- self:out('DEBUG :: Dynamic Units :: cco_unit')
     -- info['StatusList'] = cco_unit:Call('StatusList.JoinString(Key, ",")') -- TODO use map?
-    info['IsWalking'] = minify_bool(cco_unit:Call('IsWalking'))
-    info['HasHarmonyEffect'] = minify_bool(cco_unit:Call('HasHarmonyEffect'))
+    info['IsWalking'] = Klissan_H:minify_bool(cco_unit:Call('IsWalking'))
+    info['HasHarmonyEffect'] = Klissan_H:minify_bool(cco_unit:Call('HasHarmonyEffect'))
     info['HealthPercent'] = cco_unit:Call('HealthPercent')
     -- info['IsUndead'] = cco_unit:Call('IsUndead')
-    info['IsIdle'] = minify_bool(cco_unit:Call('IsIdle'))
-    info['IsCapturing'] = minify_bool(cco_unit:Call('IsCapturing'))
+    info['IsIdle'] = Klissan_H:minify_bool(cco_unit:Call('IsIdle'))
+    info['IsCapturing'] = Klissan_H:minify_bool(cco_unit:Call('IsCapturing'))
     -- info['IsWalking'] = cco_unit:Call('IsWalking')
     info['BarrierMaxHp'] = cco_unit:Call('BarrierMaxHp')
-    info['IsWithdrawing'] = minify_bool(cco_unit:Call('IsWithdrawing'))
+    info['IsWithdrawing'] = Klissan_H:minify_bool(cco_unit:Call('IsWithdrawing'))
     info['BarrierCapPercent'] = cco_unit:Call('BarrierCapPercent')
-    info['IsInLastStand'] = minify_bool(cco_unit:Call('IsInLastStand'))
-    info['IsBarrierCharging'] = minify_bool(cco_unit:Call('IsBarrierCharging'))
-    info['IsFiringMissiles'] = minify_bool(cco_unit:Call('IsFiringMissiles'))
+    info['IsInLastStand'] = Klissan_H:minify_bool(cco_unit:Call('IsInLastStand'))
+    info['IsBarrierCharging'] = Klissan_H:minify_bool(cco_unit:Call('IsBarrierCharging'))
+    info['IsFiringMissiles'] = Klissan_H:minify_bool(cco_unit:Call('IsFiringMissiles'))
     info['DelayedBarrierHpPercent'] = cco_unit:Call('DelayedBarrierHpPercent')
     info['BarrierHp'] = cco_unit:Call('BarrierHp')
-    info['IsTerrified'] = minify_bool(cco_unit:Call('IsTerrified'))
+    info['IsTerrified'] = Klissan_H:minify_bool(cco_unit:Call('IsTerrified'))
     info['BarrierHpPercent'] = cco_unit:Call('BarrierHpPercent')
-    info['IsAlive'] = minify_bool(cco_unit:Call('IsAlive'))
-    info['IsShattered'] = minify_bool(cco_unit:Call('IsShattered'))
-    info['IsAwaitingOrderAfterRally'] = minify_bool(cco_unit:Call('IsAwaitingOrderAfterRally'))
+    info['IsAlive'] = Klissan_H:minify_bool(cco_unit:Call('IsAlive'))
+    info['IsShattered'] = Klissan_H:minify_bool(cco_unit:Call('IsShattered'))
+    info['IsAwaitingOrderAfterRally'] = Klissan_H:minify_bool(cco_unit:Call('IsAwaitingOrderAfterRally'))
     -- info['IsWounded'] = cco_unit:Call('IsWounded')
-    info['IsTakingDamage'] = minify_bool(cco_unit:Call('IsTakingDamage'))
-    info['IsUnderMissileAttack'] = minify_bool(cco_unit:Call('IsUnderMissileAttack'))
-    info['IsRouting'] = minify_bool(cco_unit:Call('IsRouting'))
+    info['IsTakingDamage'] = Klissan_H:minify_bool(cco_unit:Call('IsTakingDamage'))
+    info['IsUnderMissileAttack'] = Klissan_H:minify_bool(cco_unit:Call('IsUnderMissileAttack'))
+    info['IsRouting'] = Klissan_H:minify_bool(cco_unit:Call('IsRouting'))
     info['NumKills'] = cco_unit:Call('NumKills')
-    info['IsInMelee'] = minify_bool(cco_unit:Call('IsInMelee'))
-    info['IsWavering'] = minify_bool(cco_unit:Call('IsWavering'))
+    info['IsInMelee'] = Klissan_H:minify_bool(cco_unit:Call('IsInMelee'))
+    info['IsWavering'] = Klissan_H:minify_bool(cco_unit:Call('IsWavering'))
     info['MaxHealthPercentCanReplenish'] = cco_unit:Call('MaxHealthPercentCanReplenish')
     info['FatigueState'] = cco_unit:Call('FatigueState')
-    info['IsVisible'] = minify_bool(cco_unit:Call('IsVisible'))
+    info['IsVisible'] = Klissan_H:minify_bool(cco_unit:Call('IsVisible'))
 
     -- self:out('DEBUG :: Dynamic Units :: cco_unit 2222')
     -- info['PercentCasualtiesRecently'] = cco_unit:Call('PercentCasualtiesRecently')
     -- info['PercentHpLostRecently'] = cco_unit:Call('PercentHpLostRecently')
     -- info['ActiveEffectState'] = cco_unit:Call('ActiveEffectState')
-    info['IsOutOfControl'] = minify_bool(cco_unit:Call('IsOutOfControl'))
+    info['IsOutOfControl'] = Klissan_H:minify_bool(cco_unit:Call('IsOutOfControl'))
     info['MoraleState'] = cco_unit:Call('MoraleState')
-    info['IsHidden'] = minify_bool(cco_unit:Call('IsHidden'))
+    info['IsHidden'] = Klissan_H:minify_bool(cco_unit:Call('IsHidden'))
     -- info['IsOrderable'] = cco_unit:Call('IsOrderable')
-    info['IsSelected'] = minify_bool(cco_unit:Call('IsSelected'))
+    info['IsSelected'] = Klissan_H:minify_bool(cco_unit:Call('IsSelected'))
     info['ExperienceLevel'] = cco_unit:Call('ExperienceLevel')
     info['MoralePercent'] = cco_unit:Call('MoralePercent')
-    info['IsSelectable'] = minify_bool(cco_unit:Call('IsSelectable'))
-    info['IsFlying'] = minify_bool(cco_unit:Call('IsFlying'))
+    info['IsSelectable'] = Klissan_H:minify_bool(cco_unit:Call('IsSelectable'))
+    info['IsFlying'] = Klissan_H:minify_bool(cco_unit:Call('IsFlying'))
     -- info['SecondsLeftToTeleport'] = cco_unit:Call('SecondsLeftToTeleport')
     -- info['ExperiencePercent'] = cco_unit:Call('ExperiencePercent')
     info['NumEntities'] = cco_unit:Call('NumEntities')
     -- info['IsForceRampage'] = cco_unit:Call('IsForceRampage')
-    info['IsTeleportWithdrawing'] = minify_bool(cco_unit:Call('IsTeleportWithdrawing'))
-    info['IsFiringAtWill'] = minify_bool(cco_unit:Call('IsFiringAtWill'))
+    info['IsTeleportWithdrawing'] = Klissan_H:minify_bool(cco_unit:Call('IsTeleportWithdrawing'))
+    info['IsFiringAtWill'] = Klissan_H:minify_bool(cco_unit:Call('IsFiringAtWill'))
     -- info['DamageInflictedRecently'] = cco_unit:Call('DamageInflictedRecently')
-    info['IsBuffedByHarmony'] = minify_bool(cco_unit:Call('IsBuffedByHarmony'))
+    info['IsBuffedByHarmony'] = Klissan_H:minify_bool(cco_unit:Call('IsBuffedByHarmony'))
     -- info['IsRunning'] = cco_unit:Call('IsRunning')
     info['HealthValue'] = cco_unit:Call('HealthValue')
 

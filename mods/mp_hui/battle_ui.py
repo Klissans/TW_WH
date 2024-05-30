@@ -219,7 +219,7 @@ def change_unit_info_hit_points(xml):
             IsKnownHp,
             GetIf(is_on_fire, '[[img:ui/skins/default/icon_status_on_fire.png]][[/img]]')
             + HitPoints + GetIf(is_actually_healing && regen_rate_absolute > 0,
-                GetIfElse(heal_power < 1, Format('[[col:red]]+%d[[/col]]', Floor(regen_rate_absolute)), Format('[[col:green]]+%d[[/col]]', Floor(regen_rate_absolute)))),
+                GetIfElse(heal_power < 1, Format('[[col:red]]+%d[[/col]]', RoundFloat(regen_rate_absolute)), Format('[[col:green]]+%d[[/col]]', RoundFloat(regen_rate_absolute)))),
             "??"
         )
     '''
@@ -1099,17 +1099,18 @@ def edit_ability_info(xml):
     # language=javascript
     s = '''
         (
-            ticks = Duration / HpChangeFrequency + 1,
             n_entities = MaxDamagedEntities,
+            ticks_per_sec = DamagePerSecond / ToNumber(DamageAmount * n_entities),
+            ticks = GetIfElse(Duration == -1, ticks_per_sec, Duration * ticks_per_sec + 1),
             dmg = ToNumber(IntensifiedValueText(DamageAmount, '%f')),
             bottom_range_entity = Floor(dmg / 2.0),
-            top_range_entity = Floor(dmg - 1),
-            bottom_range_unit = bottom_range_entity * n_entities,
-            top_range_unit =  top_range_entity * n_entities,
-            expected_dmg = RoundFloat((bottom_range_unit + top_range_unit) / 2.0 * ticks)
+            top_range_entity = Floor((dmg - 1)),
+            bottom_range_unit = bottom_range_entity * n_entities * ticks_per_sec,
+            top_range_unit =  top_range_entity * n_entities * ticks_per_sec,
+            expected_dmg = RoundFloat((bottom_range_unit + top_range_unit) / ticks_per_sec / 2.0 * ticks)
         ) =>
         {
-            Format('%d-%d (~%d)', bottom_range_unit, top_range_unit, expected_dmg)
+            Format('%d-%d (~%d)', RoundFloat(bottom_range_unit), RoundFloat(top_range_unit), expected_dmg)
         }
     '''
     set_context_callback(find_by_id(xml, "value_damage"), 'ContextTextLabel', s)
