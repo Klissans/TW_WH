@@ -594,10 +594,11 @@ def mod_stats_fatigue(xml):
                 r_armour = DisplayedValue,
                 f_armour = RoundFloat(fatigue_coeff * r_armour),
                 f_armour_str = Format("[[img:ui/mod/icons/icon_stat_armour.png]][[/img]]%d", f_armour),
-                avg_armour_res = GetIf(f_armour <= 100, RoundFloat(0.75 * f_armour))
+                armour_roll_lower_cap = kv_rules.ValueForKey('armour_roll_lower_cap'),
+                avg_armour_res = GetIf(f_armour <= 100, RoundFloat((1 + armour_roll_lower_cap) / 2 * f_armour))
                     + GetIf(100 < f_armour && f_armour < 200,
                         (
-                            half = 0.5 * f_armour,
+                            half = armour_roll_lower_cap * f_armour,
                             diff = f_armour - half,
                             lh = 100 - half,
                             rh = f_armour - 100
@@ -606,11 +607,11 @@ def mod_stats_fatigue(xml):
                     + GetIf(f_armour >= 200, 100)
             ) =>
             {
-                Format("%S %S [%d%] ", mass_str, f_armour_str, avg_armour_res)
+                Format("%S %S [%d%]  ", mass_str, f_armour_str, avg_armour_res)
             }
         ) +
-        GetIf(Key == "stat_morale", Format("[[img:ui/mod/icons/icon_stat_morale.png]][[/img]]%d ", RoundFloat(DisplayedValue))) +
-        GetIf(Key == "scalar_speed", Format("[[img:ui/mod/icons/icon_stat_speed.png]][[/img]]%d ", RoundFloat(fatigue_coeff * DisplayedValue)) ) +
+        GetIf(Key == "stat_morale", Format("[[img:ui/mod/icons/icon_stat_morale.png]][[/img]]%d  ", RoundFloat(DisplayedValue))) +
+        GetIf(Key == "scalar_speed", Format("[[img:ui/mod/icons/icon_stat_speed.png]][[/img]]%d  ", RoundFloat(fatigue_coeff * DisplayedValue)) ) +
         GetIf(Key == "stat_melee_attack",
             (
                 r_ma = DisplayedValue,
@@ -622,7 +623,7 @@ def mod_stats_fatigue(xml):
                 f_ma_Bvi_str = GetIfElse(has_Bvi, Format("[[img:ui/mod/icons/modifier_icon_bonus_vs_infantry.png]][[/img]]%d", f_ma_Bvi), "")
             ) =>
             {
-                Format("  %S%S %S ", f_ma_BvL_str, f_ma_Bvi_str, f_ma_str)
+                Format(" %S%S %S  ", f_ma_BvL_str, f_ma_Bvi_str, f_ma_str)
             }
         ) +
         GetIf(Key == "stat_melee_defence",
@@ -636,7 +637,7 @@ def mod_stats_fatigue(xml):
                 rear_md_str = Format("[[img:ui/mod/icons/icon_stat_defence_rear.png]][[/img]]%d", rear_md)
             ) =>
             {
-                Format("%S %S %S ", rear_md_str, flank_md_str, f_md_str)
+                Format("%S %S %S  ", rear_md_str, flank_md_str, f_md_str)
             }
         ) +
         GetIf(Key == "stat_weapon_damage",
@@ -693,7 +694,7 @@ def mod_stats_fatigue(xml):
                 set_total_wd = ScriptObjectContext('unit_info_ui.total_weapon_damage').SetNumericValue(f_bwd + f_apwd)
             ) =>
             {
-                Format("  %S%S %S%S ", BvL_str, Bvi_str, f_bwd_str, f_apwd_str)
+                Format(" %S%S %S%S  ", BvL_str, Bvi_str, f_bwd_str, f_apwd_str)
             }
         ) +
         GetIf(Key == "stat_charge_bonus",
@@ -709,7 +710,7 @@ def mod_stats_fatigue(xml):
 
                 r_cb = DisplayedValue,
                 f_cb = RoundFloat(fatigue_coeff * DisplayedValue),
-                f_cb_str = Format("%S%S [[img:ui/mod/icons/icon_stat_charge_bonus.png]][[/img]]%d ", charging_str, bracing_str, f_cb)
+                f_cb_str = Format("%S%S [[img:ui/mod/icons/icon_stat_charge_bonus.png]][[/img]]%d  ", charging_str, bracing_str, f_cb)
             ) =>
             {
                 f_cb_str
@@ -778,10 +779,10 @@ def mod_stats_fatigue(xml):
                 set_total_ammo = ScriptObjectContext('unit_info_ui.total_ammo').SetNumericValue(GetIfElse(total_ammo > 0, total_ammo, 1))
             ) =>
             {
-                Format("  %S%S%S %S %S ", bs_str, nop_str, spv_str, rt_str, ammo_str)
+                Format(" %S%S%S %S %S  ", bs_str, nop_str, spv_str, rt_str, ammo_str)
             }
         ) +
-        GetIf(Key == "scalar_missile_range", Format("[[img:ui/mod/icons/icon_distance_to_target.png]][[/img]]%d ", RoundFloat(DisplayedValue))) +
+        GetIf(Key == "scalar_missile_range", Format("[[img:ui/mod/icons/icon_distance_to_target.png]][[/img]]%d  ", RoundFloat(DisplayedValue))) +
         GetIf(Key == "stat_missile_damage_over_time",
             (
                 tp = Tooltip.Replace('||', ''),
@@ -891,7 +892,7 @@ def mod_stats_fatigue(xml):
                 ap_ratio_set = ScriptObjectContext('unit_info_ui.range_ap_ratio').SetNumericValue(ap_ratio)
             ) =>
             {
-                Format("  %S%S %S%S%S%S ", mBvL_str, mBvi_str, f_mdb_str, f_mdap_str, f_medb_str, f_medap_str)
+                Format(" %S%S %S%S%S%S  ", mBvL_str, mBvi_str, f_mdb_str, f_mdap_str, f_medb_str, f_medap_str)
             }
         )
     }
@@ -928,7 +929,7 @@ def mod_stats_fatigue(xml):
             func_get_localization = ScriptObjectContext('hui_context_functions').TableValue.ValueForKey('get_localization').Value
         ) =>
         Tooltip
-        + GetIf(Key == "stat_armour", EvaluateExpression(Format(func_get_localization, 'tooltip_unit_stat_uitooltip_unit_stat_armour')))
+        + GetIf(Key == "stat_armour", Format(EvaluateExpression(Format(func_get_localization, 'tooltip_unit_stat_armour')), kv_rules.ValueForKey('armour_roll_lower_cap')))
         + GetIf(Key == "stat_melee_attack",
             (
                 mwc = ud.UnitRecordContext.UnitLandRecordContext.PrimaryMeleeWeaponContext,
