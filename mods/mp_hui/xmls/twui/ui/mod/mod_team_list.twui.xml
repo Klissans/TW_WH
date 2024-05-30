@@ -1243,7 +1243,7 @@
                 <callback_with_context
                         callback_id="ContextTooltipSetter"
                         context_object_id="CcoBattleArmy"
-                        context_function_id=""/>
+                        context_function_id="EvaluateExpression(Format(ScriptObjectContext('hui_context_functions').TableValue.ValueForKey('get_localization').Value, 'mod_team_list_army_gold_value'))"/>
                 <callback_with_context
                         callback_id="ContextStateSetter"
                         context_object_id="CcoBattleArmy"
@@ -1345,6 +1345,10 @@
                         context_object_id="CcoBattleArmy"
                         context_function_id="RoundFloat(UnitList.Sum(BattleResultUnitContext.NumKillsFriendlies))"/>
                 <callback_with_context
+                        callback_id="ContextTooltipSetter"
+                        context_object_id="CcoBattleArmy"
+                        context_function_id="EvaluateExpression(Format(ScriptObjectContext('hui_context_functions').TableValue.ValueForKey('get_localization').Value, 'mod_team_list_killed_friendly_entities'))"/>
+                <callback_with_context
                         callback_id="ContextStateSetter"
                         context_object_id="CcoBattleArmy"
                         context_function_id="IsAlive"/>
@@ -1434,8 +1438,8 @@
                 allowhorizontalresize="false"
                 allowverticalresize="false"
                 tooltipslocalised="true"
-                componentleveltooltip="Killed Entities"
-                tooltiplabel="label_score_Tooltip_e407SS03"
+                componentleveltooltip=""
+                tooltiplabel="StateText_7661e1bc"
                 uniqueguid="BBB62593-8863-460B-ACD4BA7EDBAESS03"
                 currentstate="E3F7D9F8-F884-4122-A32F59A91FCBSS03"
                 defaultstate="E3F7D9F8-F884-4122-A32F59A91FCBSS03">
@@ -1444,6 +1448,10 @@
                         callback_id="ContextTextLabel"
                         context_object_id="CcoBattleArmy"
                         context_function_id="RoundFloat(UnitList.Sum(NumKills))"/>
+                <callback_with_context
+                        callback_id="ContextTooltipSetter"
+                        context_object_id="CcoBattleArmy"
+                        context_function_id="EvaluateExpression(Format(ScriptObjectContext('hui_context_functions').TableValue.ValueForKey('get_localization').Value, 'mod_team_list_killed_enemy_entities'))"/>
                 <callback_with_context
                         callback_id="ContextStateSetter"
                         context_object_id="CcoBattleArmy"
@@ -1544,6 +1552,10 @@
                         context_object_id="CcoBattleArmy"
                         context_function_id="NumMenDied"/>
                 <callback_with_context
+                        callback_id="ContextTooltipSetter"
+                        context_object_id="CcoBattleArmy"
+                        context_function_id="EvaluateExpression(Format(ScriptObjectContext('hui_context_functions').TableValue.ValueForKey('get_localization').Value, 'mod_team_list_dead_entities'))"/>
+                <callback_with_context
                         callback_id="ContextStateSetter"
                         context_object_id="CcoBattleArmy"
                         context_function_id="IsAlive"/>
@@ -1634,8 +1646,8 @@
                 allowhorizontalresize="false"
                 allowverticalresize="false"
                 tooltipslocalised="true"
-                componentleveltooltip="Winds of Magic"
-                tooltiplabel="label_score_Tooltip_e407SS00"
+                componentleveltooltip=""
+                tooltiplabel="ComponentTooltip_13a667f4"
                 uniqueguid="BBB62593-8863-460B-ACD4BA7EDBAESS00"
                 currentstate="E3F7D9F8-F884-4122-A32F59A91FCBSS00"
                 defaultstate="E3F7D9F8-F884-4122-A32F59A91FCBSS00">
@@ -1644,6 +1656,10 @@
                         callback_id="ContextTextLabel"
                         context_object_id="CcoBattleArmy"
                         context_function_id=""/>
+                <callback_with_context
+                        callback_id="ContextTooltipSetter"
+                        context_object_id="CcoBattleArmy"
+                        context_function_id="EvaluateExpression(Format(ScriptObjectContext('hui_context_functions').TableValue.ValueForKey('get_localization').Value, 'mod_team_list_wom'))"/>
                 <callback_with_context
                         callback_id="ContextStateSetter"
                         context_object_id="CcoBattleArmy"
@@ -1734,8 +1750,8 @@
                 allowhorizontalresize="false"
                 allowverticalresize="false"
                 tooltipslocalised="true"
-                componentleveltooltip="Winds of Magic Reserves"
-                tooltiplabel="label_score_Tooltip_e407SS01"
+                componentleveltooltip=""
+                tooltiplabel="label_mana_depletion_header_false_Text_2f0063"
                 uniqueguid="BBB62593-8863-460B-ACD4BA7EDBAESS01"
                 currentstate="E3F7D9F8-F884-4122-A32F59A91FCBSS01"
                 defaultstate="E3F7D9F8-F884-4122-A32F59A91FCBSS01">
@@ -1744,6 +1760,10 @@
                         callback_id="ContextTextLabel"
                         context_object_id="CcoBattleArmy"
                         context_function_id=""/>
+                <callback_with_context
+                        callback_id="ContextTooltipSetter"
+                        context_object_id="CcoBattleArmy"
+                        context_function_id="EvaluateExpression(Format(ScriptObjectContext('hui_context_functions').TableValue.ValueForKey('get_localization').Value, 'mod_team_list_wom_reserves'))"/>
                 <callback_with_context
                         callback_id="ContextStateSetter"
                         context_object_id="CcoBattleArmy"

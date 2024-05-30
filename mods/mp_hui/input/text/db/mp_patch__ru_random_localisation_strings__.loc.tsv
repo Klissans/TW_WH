@@ -1,0 +1,21 @@
+key	text	tooltip
+#Loc;1;text/db/mp_patch__ru_random_localisation_strings__.loc		
+random_localisation_strings_string_tooltip_kills_ff_RU	[[img:ui/battle ui/ability_icons/wh_dlc07_unit_passive_icon_of_devotion.png]][[/img]]Убито своих: %d\\n	false
+random_localisation_strings_string_tooltip_unit_stat_ui_RU	\\n\\nБазовое значение родного интерфейса: [[col:yellow]]%d[[/col]]\\nЗначение родного интерфейса: [[col:yellow]]%d[[/col]]	false
+random_localisation_strings_string_tooltip_unit_stat_ap_ratio_RU	\\nСоотн. ББ урона: [[col:yellow]]%f[[/col]]	false
+random_localisation_strings_string_tooltip_unit_stat_dmg_per_hit_RU	\\n\\nОбщий урон с удара: [[col:yellow]]%d[[/col]]	false
+random_localisation_strings_string_tooltip_unit_stat_armour_RU	\\n\\nБлокирует случайный %% в диапазоне [%f*доспехи, доспехи] (макс. 100%%) входящего:\\n[[img:ui/skins/default/icon_stat_damage_base.png]][[/img]] Базового Урона в Ближнем бою\\n[[img:ui/skins/default/icon_stat_ranged_damage_base.png]][[/img]] Базового Урона в Дальнем бою\\n[[img:ui/skins/default/icon_explosive_damage.png]][[/img]] Базового Взрывного урона\\nМод показывает [[col:yellow]]среднее ожидаемое[[/col]] снижение урона от брони.	false
+random_localisation_strings_string_tooltip_unit_stat_melee_defence_RU	\\n\\n[[img:ui/mod/icons/icon_stat_defence_rear.png]][[/img]]Защита боевой единицы с тыла: [[col:red]]-%d%%[[/col]]\\n[[img:ui/mod/icons/icon_stat_defence_flank.png]][[/img]]Защита боевой единицы с фланга: [[col:red]]-%d%%[[/col]]	false
+random_localisation_strings_string_tooltip_unit_stat_melee_attack_splash_RU	\\n[[img:ui/battle ui/ability_icons/wh2_dlc10_lord_passive_blood_frenzy.png]][[/img]]Атака по области (Сплеш):\\nРазмер цели: [[col:yellow]]%s[[/col]]\\nМакс. целей: [[col:yellow]]%d[[/col]] 	false
+random_localisation_strings_string_tooltip_unit_stat_melee_attack_collision_RU	\\n[[img:ui/battle ui/ability_icons/wh_dlc03_unit_passive_primal_fury.png]][[/img]]Ударные атаки (Атаки Коллизии):\\nМакс. целей: [[col:yellow]]%d[[/col]]\\nОбновляется/Перезарядка: [[col:yellow]]%d[[/col]]	false
+random_localisation_strings_string_tooltip_unit_stat_melee_attack_RU	\\n\\nДлина оружия: [[col:yellow]]%f[[/col]]\\n%S%S	false
+random_localisation_strings_string_tooltip_unit_stat_projectile_damage_RU	\\nУрон снаряда:	false
+random_localisation_strings_string_tooltip_unit_stat_entity_shot_damage_RU	\\nУрон боевой единицы с выстрела:	false
+random_localisation_strings_string_tooltip_unit_stat_volley_damage_RU	\\nУрон отряда с залпа:	false
+random_localisation_strings_string_mod_team_list_army_gold_value_RU	Стоимость Армии в Золоте	false
+random_localisation_strings_string_mod_team_list_killed_enemy_entities_RU	Убито	false
+random_localisation_strings_string_mod_team_list_killed_friendly_entities_RU	Погибло от дружественного огня	false
+random_localisation_strings_string_mod_team_list_dead_entities_RU	Погибло	false
+random_localisation_strings_string_mod_team_list_wom_RU	Ветра Магии	false
+random_localisation_strings_string_mod_team_list_wom_reserves_RU	Резерв Ветров Магии	false
+random_localisation_strings_string_charging_str_RU	[[img:icon_charge]][[/img]]Натиск	false

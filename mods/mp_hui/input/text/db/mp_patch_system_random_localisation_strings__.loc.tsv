@@ -1,0 +1,9 @@
+key	text	tooltip
+#Loc;1;text/db/mp_patch_system_random_localisation_strings__.loc
+random_localisation_strings_string_LF	\\n	false
+random_localisation_strings_string_chinese_colon	：	false
+random_localisation_strings_string_chinese_shield_prefix	有	false
+random_localisation_strings_string_tooltip_unit_stat_melee_dmg_bonus	\\n[[img:ui/mod/icons/modifier_icon_bonus_vs_%s.png]][[/img]][[img:ui/mod/icons/icon_stat_damage_base.png]][[/img]]%d[[img:ui/mod/icons/icon_stat_melee_damage_ap.png]][[/img]]%d ([[col:yellow]]%d[[/col]])	false
+random_localisation_strings_string_tooltip_unit_stat_range_dmg_exp	[[img:ui/mod/icons/icon_explosive_damage.png]][[/img]]%d[[img:ui/mod/icons/icon_stat_explosive_armour_piercing_damage.png]][[/img]]%d	false
+random_localisation_strings_string_tooltip_unit_stat_range_dmg	[[img:ui/mod/icons/icon_stat_ranged_damage_base.png]][[/img]]%d[[img:ui/mod/icons/modifier_icon_armour_piercing_ranged.png]][[/img]]%d	false
+random_localisation_strings_string_tooltip_unit_stat_range_dmg_bonus	[[img:ui/mod/icons/modifier_icon_bonus_vs_%s.png]][[/img]]	false
