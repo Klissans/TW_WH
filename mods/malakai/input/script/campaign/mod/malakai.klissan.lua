@@ -1,5 +1,4 @@
 MGSWT = { -- MALAKAI_GRUDGE_SETTLING_WORLD_TOUR
-    croot = nil,
     faction_name = 'wh3_dlc25_dwf_malakai',
 
     malakai_support_army_cqi = nil,
@@ -35,7 +34,6 @@ end
 
 function MGSWT:init()
     self.faction = cm:get_faction(self.faction_name)
-    self.croot = cco('CcoCampaignRoot', 'CampaignRoot')
 
     self.log_to_file = Klissan_H:is_file_exist(self.log_file)
     if self.log_to_file then
@@ -193,16 +191,16 @@ end
 
 -- cco TargettingContext
 function MGSWT:get_targeting_ritual_key()
-    return self.croot:Call('TargettingContext.RitualContext.RitualContext.Key')
+    return Klissan_CH:croot():Call('TargettingContext.RitualContext.RitualContext.Key')
 end
 --CommandingCharacterContext .AgentSubtypeRecordContext.Key
 
 function MGSWT:get_targeting_target()
     local target_type, target_key = false, false
-    target_type = self.croot:Call([=[
+    target_type = Klissan_CH:croot():Call([=[
         ContextTypeId(TargettingContext.CurrentTargetContext)
     ]=])
-    target_key = self.croot:Call([=[
+    target_key = Klissan_CH:croot():Call([=[
         (
             target = TargettingContext.CurrentTargetContext,
             target_type = ContextTypeId(target)
@@ -222,14 +220,14 @@ end
 
 
 function MGSWT:is_target_context_exists()
-    return self.croot:Call([=[
+    return Klissan_CH:croot():Call([=[
         IsContextValid(TargettingContext.CurrentTargetContext)
     ]=])
 end
 
 
 function MGSWT:get_grungni_radius()
-    local radius_modifier = self.croot:Call([=[
+    local radius_modifier = Klissan_CH:croot():Call([=[
         (
             malakai_faction = CampaignRoot.FactionList.FirstContext(FactionRecordContext.Key == 'wh3_dlc25_dwf_malakai'),
             malakai = malakai_faction.FactionLeaderContext,
@@ -246,7 +244,7 @@ end
 
 
 function MGSWT:extract_effects_from_bundles(source_army_cqi)
-    local skills_str = self.croot:Call(string.format([=[
+    local skills_str = Klissan_CH:croot():Call(string.format([=[
         (
             army = CampaignRoot.MilitaryForceList.FirstContext(CQI == %d),
             effects = army.EffectBundleUnfilteredList.Transform(EffectsIncludingHiddenList)
@@ -259,7 +257,7 @@ end
 
 
 function MGSWT:extract_characters_skill_effects(source_army_cqi)
-    local skills_str = self.croot:Call(string.format([=[
+    local skills_str = Klissan_CH:croot():Call(string.format([=[
         (
             army = CampaignRoot.MilitaryForceList.FirstContext(CQI == %d),
             chars_skill_effects = army.CharacterList.Transform(SkillList).Transform(EffectUnfilteredList)
@@ -272,7 +270,7 @@ end
 
 
 function MGSWT:extract_character_trait_effects(source_army_cqi)
-    local skills_str = self.croot:Call(string.format([=[
+    local skills_str = Klissan_CH:croot():Call(string.format([=[
         (
             army = CampaignRoot.MilitaryForceList.FirstContext(CQI == %d),
             chars_skill_effects = army.CharacterList.Transform(TraitsList).Transform(EffectUnfilteredList)
@@ -285,7 +283,7 @@ end
 
 
 function MGSWT:extract_character_background_effects(source_army_cqi)
-    local skills_str = self.croot:Call(string.format([=[
+    local skills_str = Klissan_CH:croot():Call(string.format([=[
         (
             army = CampaignRoot.MilitaryForceList.FirstContext(CQI == %d),
             chars_skill_effects = army.CharacterList.Transform(BackgroundSkillContext.EffectUnfilteredList)
@@ -297,7 +295,7 @@ function MGSWT:extract_character_background_effects(source_army_cqi)
 end
 
 function MGSWT:extract_character_ancillary_effects(source_army_cqi)
-    local skills_str = self.croot:Call(string.format([=[
+    local skills_str = Klissan_CH:croot():Call(string.format([=[
         (
             army = CampaignRoot.MilitaryForceList.FirstContext(CQI == %d),
             chars_skill_effects = army.CharacterList.Transform(AncillaryList).Transform(EffectUnfilteredList)

@@ -138,7 +138,7 @@ end
 --'wh3_dlc25_dwf_spirit_of_grungni_engines'
 --'wh3_dlc25_dwf_spirit_of_grungni_support_radius'
 function MGSWT:get_horde_building_level(building_chain_key)
-    local level = self.croot:Call(string.format([=[
+    local level = Klissan_CH:croot():Call(string.format([=[
         (
             building_chain_key = '%s',
             malakai_faction = CampaignRoot.FactionList.FirstContext(FactionRecordContext.Key == 'wh3_dlc25_dwf_malakai'),
@@ -155,7 +155,7 @@ end
 
 
 function MGSWT:get_ritual_reinforce_units_cost_pair()
-    local result_str =  self.croot:Call([=[
+    local result_str =  Klissan_CH:croot():Call([=[
         (
             malakai_faction = CampaignRoot.FactionList.FirstContext(FactionRecordContext.Key == 'wh3_dlc25_dwf_malakai'),
             malakai = malakai_faction.FactionLeaderContext,

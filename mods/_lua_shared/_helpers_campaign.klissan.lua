@@ -1,4 +1,5 @@
 Klissan_CH = { -- KLISSAN_CAMPAIGN_HELPERS
+    croot = nil
 }
 
 
@@ -21,4 +22,11 @@ function Klissan_CH:faction_resource_mod(faction_name, currency_type, value)
     if currency_type == 'gold' then
         cm:treasury_mod(faction_name, value)
     end
+end
+
+function Klissan_CH:croot(character)
+    if self.croot == nil then
+        self.croot = cco('CcoCampaignRoot', 'CampaignRoot')
+    end
+    return self.croot
 end

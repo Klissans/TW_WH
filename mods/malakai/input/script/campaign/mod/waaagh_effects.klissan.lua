@@ -1,5 +1,4 @@
 K_WAAAGH_EFFECTS = {
-    croot = nil,
     -- logging to separate file for easy debug
     log_to_file = false,
     log_file = '_waaagh.klissan.log',
@@ -22,8 +21,6 @@ function K_WAAAGH_EFFECTS:debug(fmt, ...)
 end
 
 function K_WAAAGH_EFFECTS:init()
-    self.croot = cco('CcoCampaignRoot', 'CampaignRoot')
-
     self.log_to_file = Klissan_H:is_file_exist(self.log_file)
     if self.log_to_file then
         io.open(self.log_file,"w"):close()
@@ -32,7 +29,7 @@ end
 
 
 function K_WAAAGH_EFFECTS:extract_effects_from_bundles(source_army_cqi)
-    local skills_str = self.croot:Call(string.format([=[
+    local skills_str = Klissan_CH:croot():Call(string.format([=[
         (
             army = CampaignRoot.MilitaryForceList.FirstContext(CQI == %d),
             effects = army.EffectBundleUnfilteredList.Transform(EffectsIncludingHiddenList)
@@ -45,7 +42,7 @@ end
 
 
 function K_WAAAGH_EFFECTS:extract_characters_skill_effects(source_army_cqi)
-    local skills_str = self.croot:Call(string.format([=[
+    local skills_str = Klissan_CH:croot():Call(string.format([=[
         (
             army = CampaignRoot.MilitaryForceList.FirstContext(CQI == %d),
             chars_skill_effects = army.CharacterList.Transform(SkillList).Transform(EffectUnfilteredList)
@@ -58,7 +55,7 @@ end
 
 
 function K_WAAAGH_EFFECTS:extract_character_trait_effects(source_army_cqi)
-    local skills_str = self.croot:Call(string.format([=[
+    local skills_str = Klissan_CH:croot():Call(string.format([=[
         (
             army = CampaignRoot.MilitaryForceList.FirstContext(CQI == %d),
             chars_skill_effects = army.CharacterList.Transform(TraitsList).Transform(EffectUnfilteredList)
@@ -71,7 +68,7 @@ end
 
 
 function K_WAAAGH_EFFECTS:extract_character_background_effects(source_army_cqi)
-    local skills_str = self.croot:Call(string.format([=[
+    local skills_str = Klissan_CH:croot():Call(string.format([=[
         (
             army = CampaignRoot.MilitaryForceList.FirstContext(CQI == %d),
             chars_skill_effects = army.CharacterList.Transform(BackgroundSkillContext.EffectUnfilteredList)
@@ -83,7 +80,7 @@ function K_WAAAGH_EFFECTS:extract_character_background_effects(source_army_cqi)
 end
 
 function K_WAAAGH_EFFECTS:extract_character_ancillary_effects(source_army_cqi)
-    local skills_str = self.croot:Call(string.format([=[
+    local skills_str = Klissan_CH:croot():Call(string.format([=[
         (
             army = CampaignRoot.MilitaryForceList.FirstContext(CQI == %d),
             chars_skill_effects = army.CharacterList.Transform(AncillaryList).Transform(EffectUnfilteredList)
@@ -190,3 +187,7 @@ cm:add_post_first_tick_callback(function()
     K_WAAAGH_EFFECTS:init()
     K_WAAAGH_EFFECTS:init_update_waaagh_army_effects_listeners()
 end)
+
+
+--todo refactor logging, croot
+--todo campaign movement bug?
