@@ -395,7 +395,7 @@ function MGSWT:add_support_army_to_malakai()
         local mf = mfs:item_at(i)
         local char = mf:general_character()
         local xx, yy = Klissan_CH:get_logical_position(char)
-        if mf:force_type():key() == 'SUPPORT_ARMY' and x ~= xx and y ~= yy then
+        if mf:force_type():key() == 'KLISSAN_MALAKAI_SUPPORT_ARMY' and x ~= xx and y ~= yy then
             cm:kill_character(cm:char_lookup_str(char), true)
         end
     end
@@ -408,7 +408,7 @@ function MGSWT:update_malakai_support_army_cqi()
     local mfl = MGSWT.faction:military_force_list()
     for i = 0, mfl:num_items() - 1 do
         local mf = mfl:item_at(i)
-        if mf:force_type():key() == 'SUPPORT_ARMY' then
+        if mf:force_type():key() == 'KLISSAN_MALAKAI_SUPPORT_ARMY' then
             MGSWT.malakai_support_army_cqi = mf:command_queue_index()
         end
     end
@@ -430,7 +430,7 @@ function MGSWT:init_malakai_force_created_listener()
 end
 
 
-function MGSWT:init_update_malakai_support_army_listeners()
+function MGSWT:init_update_malakai_support_army_effects_listeners()
     local events = {
         'FactionTurnStart',
         'FactionTurnEnd',
@@ -471,5 +471,5 @@ cm:add_post_first_tick_callback(function()
     end
     MGSWT:update_malakai_support_army_cqi() -- always update on game load as we don't store it
     MGSWT:init_malakai_force_created_listener()
-    MGSWT:init_update_malakai_support_army_listeners()
+    MGSWT:init_update_malakai_support_army_effects_listeners()
 end)
