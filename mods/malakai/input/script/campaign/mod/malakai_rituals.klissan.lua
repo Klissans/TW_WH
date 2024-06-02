@@ -345,6 +345,9 @@ function MGSWT:init_ritual_listeners()
                     MGSWT:debug('Drink effect %s, chance %d, value %d', drink_effects[i], chance_positive, sign * base_random_value)
                 end
                 cm:apply_custom_effect_bundle_to_force(custom_bundle, context:performing_faction():faction_leader():military_force())
+                if MGSWT.malakai_support_army_cqi ~= nil and cm:get_military_force_by_cqi(MGSWT.malakai_support_army_cqi) then
+					cm:apply_custom_effect_bundle_to_force(custom_bundle, cm:get_military_force_by_cqi(MGSWT.malakai_support_army_cqi))
+				end
 
                 Klissan_CH:faction_resource_mod(performing_faction:name(), MGSWT.rituals.current_ritual.currency_type, -MGSWT.rituals.current_ritual.value)
                 MGSWT:debug('Ritual %s completed', context:ritual():ritual_key())

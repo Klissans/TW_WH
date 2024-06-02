@@ -8,3 +8,5 @@ wh3_dlc25_grudge_cycle_share_4	It's a wonder you don't trip on your way into bat
 wh3_dlc25_grudge_cycle_share_5	It's a wonder you don't trip on your way into battle with such a glorious beard! The Dawi celebrate both your achievements and your beard with every breath!	Age of Reckoning Share (100%)	faction	1	grudges.png	false	false	true
 klissan_malakai_reveal_hidden_armies	Reveal hidden armied in the region	Reveal hidden armied in the region	region	1		false	false	true
 klissan_malakai_drink	Drink!	Drink!	force	1	edict_host_festag.png	false	false	true
+klissan_malakai_support_army_bonuses	Bonuses for support army	Bonuses for support army	force	1	dlc12_ikits_workshop.png	false	false	true
+klissan_waaagh_no_upkeep	No upkeep for Waaagh	No upkeep for Waaagh	force	1	army_morale.png	false	false	true

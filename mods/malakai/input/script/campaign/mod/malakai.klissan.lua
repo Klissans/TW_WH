@@ -242,6 +242,109 @@ function MGSWT:get_grungni_radius()
     return self.tsog_base_radius * (radius_modifier + 1.0)
 end
 
+
+function MGSWT:extract_effects_from_bundles(source_army_cqi)
+    local skills_str = self.croot:Call(string.format([=[
+        (
+            army = CampaignRoot.MilitaryForceList.FirstContext(CQI == %d),
+            effects = army.EffectBundleUnfilteredList.Transform(EffectsIncludingHiddenList)
+                .Filter(EffectScopeContext.Key == 'general_to_force_own' || EffectScopeContext.Key == 'agent_to_parent_army_own'),
+            effects_str = effects.JoinString(Format('%%s,%%d', EffectKey, Value), ';')
+        ) => effects_str
+    ]=], source_army_cqi))
+    return skills_str
+end
+
+
+function MGSWT:extract_characters_skill_effects(source_army_cqi)
+    local skills_str = self.croot:Call(string.format([=[
+        (
+            army = CampaignRoot.MilitaryForceList.FirstContext(CQI == %d),
+            chars_skill_effects = army.CharacterList.Transform(SkillList).Transform(EffectUnfilteredList)
+                .Filter(EffectScopeContext.Key == 'general_to_force_own' || EffectScopeContext.Key == 'agent_to_parent_army_own' || EffectKey == 'wh_main_effect_agent_movement_range_mod'),
+            skill_effects_str = chars_skill_effects.JoinString(Format('%%s,%%d', EffectKey, Value), ';')
+        ) => skill_effects_str
+    ]=], source_army_cqi))
+    return skills_str
+end
+
+
+function MGSWT:extract_character_trait_effects(source_army_cqi)
+    local skills_str = self.croot:Call(string.format([=[
+        (
+            army = CampaignRoot.MilitaryForceList.FirstContext(CQI == %d),
+            chars_skill_effects = army.CharacterList.Transform(TraitsList).Transform(EffectUnfilteredList)
+                .Filter(EffectScopeContext.Key == 'general_to_force_own' || EffectScopeContext.Key == 'agent_to_parent_army_own'),
+            skill_effects_str = chars_skill_effects.JoinString(Format('%%s,%%d', EffectKey, Value), ';')
+        ) => skill_effects_str
+    ]=], source_army_cqi))
+    return skills_str
+end
+
+
+function MGSWT:extract_character_background_effects(source_army_cqi)
+    local skills_str = self.croot:Call(string.format([=[
+        (
+            army = CampaignRoot.MilitaryForceList.FirstContext(CQI == %d),
+            chars_skill_effects = army.CharacterList.Transform(BackgroundSkillContext.EffectUnfilteredList)
+                .Filter(EffectScopeContext.Key == 'general_to_force_own' || EffectScopeContext.Key == 'agent_to_parent_army_own'),
+            skill_effects_str = chars_skill_effects.JoinString(Format('%%s,%%d', EffectKey, Value), ';')
+        ) => skill_effects_str
+    ]=], source_army_cqi))
+    return skills_str
+end
+
+function MGSWT:extract_character_ancillary_effects(source_army_cqi)
+    local skills_str = self.croot:Call(string.format([=[
+        (
+            army = CampaignRoot.MilitaryForceList.FirstContext(CQI == %d),
+            chars_skill_effects = army.CharacterList.Transform(AncillaryList).Transform(EffectUnfilteredList)
+                .Filter(EffectScopeContext.Key == 'general_to_force_own' || EffectScopeContext.Key == 'agent_to_parent_army_own'),
+            skill_effects_str = chars_skill_effects.JoinString(Format('%%s,%%d', EffectKey, Value), ';')
+        ) => skill_effects_str
+    ]=], source_army_cqi))
+    return skills_str
+end
+
+function MGSWT:add_effects_to_table(bundle_table, effects_str)
+    local effect_value_pairs = string.split(effects_str, ';')
+    for i=1, #effect_value_pairs do
+        local effect_value = string.split(effect_value_pairs[i], ',')
+        local effect_key, value = effect_value[1], math.floor(tonumber(effect_value[2]))
+        if bundle_table[effect_key] ~= nil then
+            bundle_table[effect_key] = bundle_table[effect_key] + value
+        else
+            bundle_table[effect_key]= value
+        end
+    end
+    return bundle_table
+end
+
+function MGSWT:create_effects_table_for_army(source_army_cqi)
+    local effects = {}
+    self:add_effects_to_table(effects, self:extract_effects_from_bundles(source_army_cqi))
+    self:add_effects_to_table(effects, self:extract_characters_skill_effects(source_army_cqi))
+    self:add_effects_to_table(effects, self:extract_character_trait_effects(source_army_cqi))
+    self:add_effects_to_table(effects, self:extract_character_background_effects(source_army_cqi))
+    self:add_effects_to_table(effects, self:extract_character_ancillary_effects(source_army_cqi))
+    return effects
+end
+
+function MGSWT:apply_effect_bundle_to_support_army(source_army_cqi, target_army_cqi)
+    if MGSWT.malakai_support_army_cqi == nil or not cm:get_military_force_by_cqi(target_army_cqi) then
+        return
+    end
+    local bundle_key = 'klissan_malakai_support_army_bonuses'
+    local custom_bundle = cm:create_new_custom_effect_bundle(bundle_key)
+    --custom_bundle:set_duration(2)
+    local effects = self:create_effects_table_for_army(source_army_cqi)
+    for key, value in pairs(effects) do
+        custom_bundle:add_effect(key, 'force_to_force_own', value)
+    end
+    cm:remove_effect_bundle_from_force(bundle_key, target_army_cqi)
+    cm:apply_custom_effect_bundle_to_force(custom_bundle, cm:get_military_force_by_cqi(target_army_cqi))
+end
+
 function MGSWT:is_target_in_range()
     local radius = self:get_grungni_radius()
     local distance_to_target = self:get_travel_distance()
@@ -311,6 +414,51 @@ function MGSWT:update_malakai_support_army_cqi()
     end
 end
 
+function MGSWT:init_malakai_force_created_listener()
+    core:add_listener(
+        Klissan_CH:get_listener_name('malakai_force_created'),
+        "MilitaryForceCreated",
+        function(context)
+            -- done via get_faction cuz sometimes .faction is nil. Event triggered before inititalisation completed?
+            return not cm:get_faction(MGSWT.faction_name):is_dead() and context:military_force_created():general_character():command_queue_index() == cm:get_faction(MGSWT.faction_name):faction_leader():command_queue_index()
+        end,
+        function(context)
+            MGSWT:add_support_army_to_malakai()
+        end,
+        true
+    )
+end
+
+
+function MGSWT:init_update_malakai_support_army_listeners()
+    local events = {
+        'FactionTurnStart',
+        'FactionTurnEnd',
+    }
+
+    for i=1,#events do
+        local event_name = events[i]
+
+        core:add_listener(
+            Klissan_CH:get_listener_name('malakai_update_support_army_effects_'..event_name),
+            event_name,
+            function(context)
+                return context:faction():name() == MGSWT.faction_name
+                        and not cm:get_faction(MGSWT.faction_name):is_dead()
+                        and cm:get_faction(MGSWT.faction_name):faction_leader():has_military_force()
+                        and (MGSWT.malakai_support_army_cqi ~= nil and cm:get_military_force_by_cqi(MGSWT.malakai_support_army_cqi))
+            end,
+            function(context)
+                local source_army_cqi = cm:get_faction(MGSWT.faction_name):faction_leader():military_force():command_queue_index()
+                local target_army_cqi = MGSWT.malakai_support_army_cqi
+                MGSWT:apply_effect_bundle_to_support_army(source_army_cqi, target_army_cqi)
+            end,
+            true
+        )
+
+    end
+end
+
 
 
 
@@ -322,18 +470,6 @@ cm:add_post_first_tick_callback(function()
         MGSWT:add_support_army_to_malakai()
     end
     MGSWT:update_malakai_support_army_cqi() -- always update on game load as we don't store it
-
-
-    core:add_listener(
-        'malakai_force_created',
-        "MilitaryForceCreated",
-        function(context)
-            -- done via get_faction cuz sometimes .faction is nil. Event triggered before inititalisation completed?
-            return context:military_force_created():general_character():command_queue_index() == cm:get_faction(MGSWT.faction_name):faction_leader():command_queue_index()
-        end,
-        function(context)
-            MGSWT:add_support_army_to_malakai()
-        end,
-        true
-    )
+    MGSWT:init_malakai_force_created_listener()
+    MGSWT:init_update_malakai_support_army_listeners()
 end)
