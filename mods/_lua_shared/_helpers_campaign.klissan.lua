@@ -1,5 +1,5 @@
 Klissan_CH = { -- KLISSAN_CAMPAIGN_HELPERS
-    croot = nil
+    croot_cco = nil
 }
 
 
@@ -25,8 +25,8 @@ function Klissan_CH:faction_resource_mod(faction_name, currency_type, value)
 end
 
 function Klissan_CH:croot()
-    if self.croot == nil then
-        self.croot = cco('CcoCampaignRoot', 'CampaignRoot')
+    if self.croot_cco == nil then
+        self.croot_cco = cco('CcoCampaignRoot', 'CampaignRoot')
     end
-    return self.croot
+    return self.croot_cco
 end

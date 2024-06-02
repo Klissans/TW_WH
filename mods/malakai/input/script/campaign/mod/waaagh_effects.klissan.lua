@@ -1,7 +1,4 @@
 K_WAAAGH_EFFECTS = {
-    -- logging to separate file for easy debug
-    log_to_file = false,
-    log_file = '_waaagh.klissan.log',
 }
 
 Klissan_H:setup_logging(K_WAAAGH_EFFECTS, 'K_WAAAGH_EFFECTS')
