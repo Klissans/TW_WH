@@ -357,6 +357,47 @@ function MGSWT:init_ritual_listeners()
 
 end
 
+
+function MGSWT:alcoholism()
+    core:add_listener(
+        Klissan_CH:get_listener_name(MGSWT.rituals.keys.ale),
+        "FactionTurnStart",
+        function (context)
+            return context:faction():name() == MGSWT.faction_name and performing_faction:faction_leader():has_military_force()
+        end,
+        function(context)
+            MGSWT:debug('Drinking!')
+            local performing_faction = cm:get_faction(MGSWT.faction_name)
+            local beer_level = MGSWT:get_horde_building_level('wh3_dlc25_dwf_spirit_of_grungni_beer_hall')
+            local strength_level = MGSWT:get_horde_building_level('wh3_dlc25_dwf_spirit_of_grungni_cargo_hold')
+
+            local n_effects = 1 + beer_level
+            local custom_bundle = cm:create_new_custom_effect_bundle('klissan_malakai_drink')
+            --custom_bundle:set_duration(1)
+            local drink_effects = MGSWT.rituals.drink.effects
+            cm:shuffle_table(drink_effects)
+            for i=1, n_effects do
+                local chance_positive = cm:random_number() - 50 -- todo take into account effect pos/neg state+ strength_level * 10
+                local sign = chance_positive >= 0 and 1 or -1
+                local base_random_value = cm:random_number(5) + strength_level
+                custom_bundle:add_effect(drink_effects[i], 'force_to_force_own', sign * base_random_value)
+                MGSWT:debug('Drink effect %s, chance %d, value %d', drink_effects[i], chance_positive, sign * base_random_value)
+            end
+            local malakai_force = performing_faction:faction_leader():military_force()
+            cm:remove_effect_bundle_from_force(custom_bundle:key(), malakai_force:command_queue_index()) -- todo crash?
+            cm:apply_custom_effect_bundle_to_force(custom_bundle, malakai_force)
+
+            -- todo make sure effects don't apply twice to support army (via effect copying)
+            if MGSWT.malakai_support_army_cqi ~= nil and cm:get_military_force_by_cqi(MGSWT.malakai_support_army_cqi) then
+                cm:remove_effect_bundle_from_force(custom_bundle:key(), MGSWT.malakai_support_army_cqi)
+                cm:apply_custom_effect_bundle_to_force(custom_bundle, cm:get_military_force_by_cqi(MGSWT.malakai_support_army_cqi))
+            end
+            MGSWT:debug('Drinking completed!')
+        end,
+        true
+    )
+end
+
 -- not triggered when loading into it
 --core:add_listener(
 --	Klissan_CH:get_listener_name('GarrisonAttackedEvent'),
@@ -375,4 +416,8 @@ end
 cm:add_post_first_tick_callback(function()
     MGSWT:init_ritual_cost_mapping()
     MGSWT:init_ritual_listeners()
+    MGSWT:alcoholism()
 end)
+
+
+-- todo add new ritual (population boost) using malakai's?

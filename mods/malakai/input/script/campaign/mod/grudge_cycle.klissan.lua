@@ -40,11 +40,12 @@ grudge_cycle.unit_rewards = {
 }
 
 grudge_cycle.log_to_file = false
-grudge_cycle.log_file = '_grudges.log'
-
+grudge_cycle.log_file = '_grudges.klissan.log'
 
 grudge_cycle.log_to_file = Klissan_H:is_file_exist(grudge_cycle.log_file)
-io.open(grudge_cycle.log_file,"w"):close()
+if grudge_cycle.log_to_file then
+	io.open(grudge_cycle.log_file,"w"):close()
+end
 
 function grudge_cycle:debug(fmt, ...)
 	local preformat_str = string.format('[[GRUDGES]] [%d] :: ', cm:turn_number())

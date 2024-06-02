@@ -9,7 +9,7 @@ MGSWT = { -- MALAKAI_GRUDGE_SETTLING_WORLD_TOUR
 
     -- logging to separate file for easy debug
     log_to_file = false,
-    log_file = '_malakai.log',
+    log_file = '_malakai.klissan.log',
 }
 
 function MGSWT:out(fmt, ...)
@@ -38,7 +38,9 @@ function MGSWT:init()
     self.croot = cco('CcoCampaignRoot', 'CampaignRoot')
 
     self.log_to_file = Klissan_H:is_file_exist(self.log_file)
-    io.open(self.log_file,"w"):close()
+    if self.log_to_file then
+        io.open(self.log_file,"w"):close()
+    end
 
     --cm:set_character_excluded_from_trespassing(self.faction:faction_leader(), true)
 end
@@ -334,15 +336,18 @@ function MGSWT:apply_effect_bundle_to_support_army(source_army_cqi, target_army_
     if MGSWT.malakai_support_army_cqi == nil or not cm:get_military_force_by_cqi(target_army_cqi) then
         return
     end
+    self:debug('Creating an effect bundle for malakai support army')
     local bundle_key = 'klissan_malakai_support_army_bonuses'
     local custom_bundle = cm:create_new_custom_effect_bundle(bundle_key)
     --custom_bundle:set_duration(2)
     local effects = self:create_effects_table_for_army(source_army_cqi)
     for key, value in pairs(effects) do
+        self:debug('Adding effect to support army: %s %d', key, value)
         custom_bundle:add_effect(key, 'force_to_force_own', value)
     end
-    cm:remove_effect_bundle_from_force(bundle_key, target_army_cqi)
+    cm:remove_effect_bundle_from_force(custom_bundle:key(), target_army_cqi)
     cm:apply_custom_effect_bundle_to_force(custom_bundle, cm:get_military_force_by_cqi(target_army_cqi))
+    self:debug('Effect bundle applied to support army')
 end
 
 function MGSWT:is_target_in_range()
