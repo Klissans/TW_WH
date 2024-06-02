@@ -363,7 +363,7 @@ function MGSWT:alcoholism()
         Klissan_CH:get_listener_name(MGSWT.rituals.keys.ale),
         "FactionTurnStart",
         function (context)
-            return context:faction():name() == MGSWT.faction_name and performing_faction:faction_leader():has_military_force()
+            return context:faction():name() == MGSWT.faction_name and context:faction():faction_leader():has_military_force()
         end,
         function(context)
             MGSWT:debug('Drinking!')

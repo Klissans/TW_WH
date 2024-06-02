@@ -24,7 +24,7 @@ function Klissan_CH:faction_resource_mod(faction_name, currency_type, value)
     end
 end
 
-function Klissan_CH:croot(character)
+function Klissan_CH:croot()
     if self.croot == nil then
         self.croot = cco('CcoCampaignRoot', 'CampaignRoot')
     end

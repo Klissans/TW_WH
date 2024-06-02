@@ -4,27 +4,9 @@ K_WAAAGH_EFFECTS = {
     log_file = '_waaagh.klissan.log',
 }
 
-function K_WAAAGH_EFFECTS:out(fmt, ...)
-    local str = string.format('[[K_WAAAGH_EFFECTS]] :: '.. fmt, unpack(arg))
-    out(str)
-    if self.log_to_file then -- not efficient but whateever
-        local log_file = io.open(self.log_file, "a+")
-        log_file:write(str .. '\n')
-        log_file:flush()
-        io.close(log_file)
-    end
-end
-
-
-function K_WAAAGH_EFFECTS:debug(fmt, ...)
-    self:out('(DEBUG) '.. fmt, unpack(arg))
-end
+Klissan_H:setup_logging(K_WAAAGH_EFFECTS, 'K_WAAAGH_EFFECTS')
 
 function K_WAAAGH_EFFECTS:init()
-    self.log_to_file = Klissan_H:is_file_exist(self.log_file)
-    if self.log_to_file then
-        io.open(self.log_file,"w"):close()
-    end
 end
 
 

@@ -72,6 +72,57 @@ function Klissan_H:inspect_object(object, out)
 end
 
 
+function Klissan_H:get_var_name(var)
+    local index = 1
+    while true do
+        local name, value = debug.getlocal(2, index)
+        if not name then break end
+        if value == var then
+            return name
+        end
+        index = index + 1
+    end
+    -- NOT working for manuallycreated globals, import issues?
+    for k, v in pairs(_G) do
+        if v == var then
+            return k
+        end
+    end
+    return nil
+end
+
+function Klissan_H:setup_logging(obj, class_name)
+    -- todo infer class_name by using get_var_name
+    obj.log_to_file = false
+    obj.log_file = '_'..class_name:lower()..'.klissan.log'
+
+    obj.out = function(selfe, fmt, ...)
+        local str = string.format('[['..class_name:upper()..']] :: '.. fmt, unpack(arg))
+        out(str)
+        if selfe.log_to_file then -- not efficient but whateever
+            local log_file = io.open(selfe.log_file, "a+")
+            log_file:write(str .. '\n')
+            log_file:flush()
+            io.close(log_file)
+        end
+    end
+
+    obj.debug = function(selfe, fmt, ...)
+        selfe:out('(DEBUG) '.. fmt, unpack(arg))
+    end
+
+    obj.error = function(selfe, fmt, ...)
+        selfe:out('(ERROR) '.. fmt, unpack(arg))
+    end
+
+    obj.log_to_file = Klissan_H:is_file_exist(obj.log_file)
+    if obj.log_to_file then
+        io.open(obj.log_file,"w"):close()
+    end
+
+    return obj
+end
+
 
 --   function stringify_table(t)
 --     local s = ''

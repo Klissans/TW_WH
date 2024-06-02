@@ -5,41 +5,12 @@ MGSWT = { -- MALAKAI_GRUDGE_SETTLING_WORLD_TOUR
 
     -- The Spirit of Grungni's circle of influence base radius measured in logical coordinates --27,
     tsog_base_radius = 27, -- spirit_of_grungni.radius_size,
-
-    -- logging to separate file for easy debug
-    log_to_file = false,
-    log_file = '_malakai.klissan.log',
 }
 
-function MGSWT:out(fmt, ...)
-    local str = string.format('[[MGSWT]] :: '.. fmt, unpack(arg))
-    out(str)
-    if self.log_to_file then -- not efficient but whateever
-        local log_file = io.open(self.log_file, "a+")
-        log_file:write(str .. '\n')
-        log_file:flush()
-        io.close(log_file)
-    end
-end
-
-
-function MGSWT:debug(fmt, ...)
-    self:out('(DEBUG) '.. fmt, unpack(arg))
-end
-
-function MGSWT:error(fmt, ...)
-    self:out('(ERROR) '.. fmt, unpack(arg))
-end
-
+Klissan_H:setup_logging(MGSWT, 'MGSWT')
 
 function MGSWT:init()
     self.faction = cm:get_faction(self.faction_name)
-
-    self.log_to_file = Klissan_H:is_file_exist(self.log_file)
-    if self.log_to_file then
-        io.open(self.log_file,"w"):close()
-    end
-
     --cm:set_character_excluded_from_trespassing(self.faction:faction_leader(), true)
 end
 
@@ -461,8 +432,6 @@ function MGSWT:init_update_malakai_support_army_effects_listeners()
 
     end
 end
-
-
 
 
 -- INIT
