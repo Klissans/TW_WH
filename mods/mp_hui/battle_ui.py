@@ -1331,6 +1331,48 @@ def prepare_mod_team_list(xml):
         RoundFloat(UnitList.Sum(BattleResultUnitContext.DamageDealtCost))
     '''  # In Domination summoned units from reinforcements are moved from reinf pool to army list and stay there
     set_context_callback(find_by_id(xml, elem_id), 'ContextTextLabel', s)
+
+    # language=javascript
+    s = '''
+        StringGet('uied_component_texts_localised_string_label_score_Tooltip_e40781bb') + Loc('LF') +
+        UnitList
+            .Transform(BattleResultUnitContext)
+            .JoinString(Format("[[img:%S]][[/img]]%S [[img:ui/skins/default/icon_stat_damage_base.png]][[/img]]%d", UnitRecordContext.CategoryIcon, UnitRecordContext.Name, DamageDealtCost), Loc('LF'))
+    '''
+    create_context_callback(find_by_id(xml, elem_id), "ContextTooltipSetter", "CcoBattleArmy", s, {'update_constant': '100'})
+    
+    
+    elem_id = "killed_entities"
+    # language=javascript
+    s = '''
+        EvaluateExpression(Format(ScriptObjectContext('hui_context_functions').TableValue.ValueForKey('get_localization').Value, 'mod_team_list_killed_enemy_entities')) + Loc('LF') +
+        UnitList
+            .JoinString(Format("[[img:%S]][[/img]]%S [[img:ui/skins/default/icon_kills.png]][[/img]]%d", UnitRecordContext.CategoryIcon, UnitRecordContext.Name, NumKills), Loc('LF'))
+    '''  # In Domination summoned units from reinforcements are moved from reinf pool to army list and stay there
+    set_context_callback(find_by_id(xml, elem_id), 'ContextTooltipSetter', s)
+    
+    
+    elem_id = "friendly_fire"
+    # language=javascript
+    s = '''
+        EvaluateExpression(Format(ScriptObjectContext('hui_context_functions').TableValue.ValueForKey('get_localization').Value, 'mod_team_list_killed_friendly_entities')) + Loc('LF') +
+        UnitList
+            .Transform(BattleResultUnitContext)
+            .JoinString(Format("[[img:%S]][[/img]]%S [[img:ui/battle ui/ability_icons/wh_dlc07_unit_passive_icon_of_devotion.png]][[/img]]%d", UnitRecordContext.CategoryIcon, UnitRecordContext.Name, NumKillsFriendlies), Loc('LF'))
+    '''  # In Domination summoned units from reinforcements are moved from reinf pool to army list and stay there
+    set_context_callback(find_by_id(xml, elem_id), 'ContextTooltipSetter', s)
+    
+    
+    elem_id = "dead_entities"
+    # language=javascript
+    s = '''
+        EvaluateExpression(Format(ScriptObjectContext('hui_context_functions').TableValue.ValueForKey('get_localization').Value, 'mod_team_list_dead_entities'))
+    '''  # In Domination summoned units from reinforcements are moved from reinf pool to army list and stay there
+    set_context_callback(find_by_id(xml, elem_id), 'ContextTooltipSetter', s)
+    #  +
+    #         UnitList
+    #             .JoinString(Format("[[img:%S]][[/img]]%S [[img:ui/skins/warhammer3/khorne_skull_icon.png]][[/img]]%d", UnitRecordContext.CategoryIcon, UnitRecordContext.Name, NumMenDied), Loc('LF'))
+    
     
     elem_id = "wom_current"
     # language=javascript
