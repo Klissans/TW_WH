@@ -1302,6 +1302,22 @@ def prepare_mod_team_list(xml):
     '''
     set_context_callback(find_by_id(xml, elem_id), 'ContextVisibilitySetter', s)
     
+    
+    elem_id = "label_supplies"
+    # language=javascript
+    s = '''
+        StringGet('uied_component_texts_localised_string_label_supplies_Tooltip_4f8f1a10')
+        + GetIf((BattleRoot.IsSpectator || BattleRoot.IsReplay || !BattleRoot.IsMultiplayer || this.AllianceContext.Id == BattleRoot.PlayerAllianceContext.Id),
+            Loc('LF') +
+            BattleRoot.BattleReinforcementPoolContext.UnitsForArmy(
+                this,
+                BattleRoot.SpawnZoneList.FirstContext(!IsVanguardOnly && IsAvailableToAlliance(this.AllianceIndex)).UniqueID
+            ).JoinString(Format("[[img:%S]][[/img]]%S [[img:ui/skins/default/icon_supplies_18px.png]][[/img]]%d", UnitContext.UnitRecordContext.CategoryIcon, UnitContext.UnitRecordContext.Name, RoundFloat(CostPerUnit(this.ArmyIndex))), Loc('LF'))
+        )
+    '''  # In Domination summoned units from reinforcements are moved from reinf pool to army list and stay there
+    set_context_callback(find_by_id(xml, elem_id), 'ContextTooltipSetter', s)
+    
+    
     elem_id = "gold_value"
     # language=javascript
     s = '''
@@ -1436,7 +1452,7 @@ def prepare_mod_team_list(xml):
     elem_id = "label_supplies"
     # language=javascript
     s = '''
-        (BattleRoot.IsSpectator || BattleRoot.IsReplay || !BattleRoot.IsMultiplayer)
+        (BattleRoot.IsSpectator || BattleRoot.IsReplay || !BattleRoot.IsMultiplayer || this.AllianceContext.Id == BattleRoot.PlayerAllianceContext.Id)
         | Ceiling(
             BattleRoot.BattleCurrencyManagerContext.GetArmyCurrencyForType(this, "supplies_currency")
         )

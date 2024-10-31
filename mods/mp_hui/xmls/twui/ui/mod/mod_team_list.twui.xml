@@ -2361,6 +2361,11 @@
                     </child_m_user_properties>
                 </callback_with_context>
                 <callback_with_context
+                        callback_id="ContextTooltipSetter"
+                        context_object_id="CcoBattleArmy"
+                        context_function_id="">
+                </callback_with_context>
+                <callback_with_context
                         callback_id="ContextStateSetter"
                         context_object_id="CcoBattleArmy"
                         context_function_id="IsAlive"/>
