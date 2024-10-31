@@ -152,8 +152,8 @@ function RoflanBuildiga:pick_random_faction()
             soc = ScriptObjectContext('klissan.lucky.faction_explainer'),
             pslot = Component('recruitment_parent').ContextsList[0],
             subcultures = pslot.AvailableSubcultureList
-                .Sort((x=false, _) => DatabaseRecords("CcoCustomBattleFactionRecord").FirstContext(FactionContext.SubcultureContext == x).CultureSortOrder, true)
-                .Filter((x=false, _) =>
+                .Sort((x) => DatabaseRecords("CcoCustomBattleFactionRecord").FirstContext(FactionContext.SubcultureContext == x).CultureSortOrder, true)
+                .Filter((x) =>
                 { (factions = false, __ = pslot.FactionsForCulture(x.Culture).Filter(OwnershipProductRequirementList.IsEmpty == false)) =>
                     {!((x.Culture.Key.Contains("wh3_main_") == false || x.Culture.IsOgreKingdoms) && factions.IsEmpty == false && factions.All(OwnershipProductRequirementList.All(OwnershipProductRecordList.Any(IsOwned == false && IsFlc == false))))}
                 }),
@@ -186,8 +186,8 @@ function RoflanBuildiga:pick_random_unit()
             unit_list_size = GetIfElse(pslot.IsRecruitingReinforcements, pslot.ReinforcingUnitList.Size, pslot.UnitList.Size),
             max_unit_list_size = GetIfElse(pslot.IsRecruitingReinforcements, sc.MaxUnitsCanReinforce(pslot.TeamContext.TeamIndex), sc.MaxUnitsCanRecruit(pslot.TeamContext.TeamIndex)),
             unit_groups = DefaultDatabaseRecord('CcoUiUnitGroupParentRecord').RecordList.Filter(!Key.Contains('commander') && !Key.Contains('heroes_agents') ),
-            faction_units= unit_groups.Transform((x=false, _) => pslot.UnitListForUnitGroupParent(x)),
-            available_units = faction_units.Filter((x=false, _) => pslot.CanRecruitUnit(x.UnitContext, pslot.IsRecruitingReinforcements)),
+            faction_units= unit_groups.Transform((x) => pslot.UnitListForUnitGroupParent(x)),
+            available_units = faction_units.Filter((x) => pslot.CanRecruitUnit(x.UnitContext, pslot.IsRecruitingReinforcements)),
             affordable_units = available_units.Filter(Cost <= funds_available)
         ) =>
         {
@@ -222,7 +222,7 @@ function RoflanBuildiga:pick_random_char(typee)
             unit_type = '%s',
             pslot = Component('recruitment_parent').ContextsList[0],
             unit_group_record = DatabaseRecordContext('CcoUiUnitGroupParentRecord', unit_type),
-            unit_list = pslot.UnitListForUnitGroupParent(unit_group_record).Filter((x=false, _) => pslot.CanRecruitUnit(x.UnitContext, pslot.IsRecruitingReinforcements)),
+            unit_list = pslot.UnitListForUnitGroupParent(unit_group_record).Filter((x) => pslot.CanRecruitUnit(x.UnitContext, pslot.IsRecruitingReinforcements)),
             rand = TrueRandomInRange(1, unit_list.Size),
             runit = unit_list[rand-1],
             explain_str = Format(Loc('explain'), '[[col:red]]' + unit_group_record.OnscreenName + '[[/col]]', rand, unit_list.Size, runit.UnitContext.CategoryIcon, runit.UnitContext.Name)
@@ -286,7 +286,7 @@ function RoflanBuildiga:randomize_category(key)
                     category_type = category_types[0],
                     unit_types = unit.UnitTypes.Filter(TypeCategoryContext == category_type)
                         .Filter(AlternateUnitContext.Cost - unit.UnitRecordContext.Cost <= funds_available)
-                        .Filter((x=false, _) => pslot.CanRecruitUnit(x.AlternateUnitContext, unit.IsReinforcement, unit.UnitRecordContext))
+                        .Filter((x) => pslot.CanRecruitUnit(x.AlternateUnitContext, unit.IsReinforcement, unit.UnitRecordContext))
                         .Sort(CategoryTypeName).Sort(SortOrder, true),
                     rand = TrueRandomInRange(1, unit_types.Size),
                     unit_type = unit_types[rand-1],
@@ -647,7 +647,7 @@ function RoflanBuildiga:subculture_mapping(subculture_key)
         ["wh_main_sc_grn_greenskins"] = "`f_gs`Greenskins",
         ["wh2_main_sc_hef_high_elves"] = "`f_he`High Elves",
         ["wh3_main_sc_kho_khorne"] = "`f_khr`Khorne",
-        ["wh3_main_sc_ksl_kislev"] = "`f_ksl`Kislev",
+        ["wh3_main_sc_ksl_kislev"] = "`f_ksv`Kislev",
         ["wh2_main_sc_lzd_lizardmen"] = "`f_lm`Lizardmen",
         ["wh_dlc08_sc_nor_norsca"] = "`f_nsc`Norsca",
         ["wh3_main_sc_nur_nurgle"] = "`f_ngl`Nurgle",
@@ -672,7 +672,7 @@ end
 function RoflanBuildiga:go_lucky_factions()
     common:set_context_value('klissan.lucky.faction_explainer', '')
     key = self:pick_random_faction()
-    local button_lucky_factions = find_uicomponent(core:get_ui_root(), "custom_battle", "ready_parent", "recruitment_visibility_parent", "recruitment_parent", "faction_holder", 'faction_pic_mask_parent', "button_lucky_factions")
+    local button_lucky_factions = find_uicomponent(core:get_ui_root(), "custom_battle", "ready_parent", "recruitment_visibility_parent", "recruitment_parent", "faction_holder", 'faction_pic_mask_parent','strip_holder', "button_lucky_factions")
 
     button_lucky_factions:SetTooltipText(common.get_context_value('CcoScriptObject', 'klissan.lucky.faction_explainer', 'StringValue'), true)
     self:increase_faction_roll_count()
@@ -734,11 +734,15 @@ function RoflanBuildiga:lucky_check_if_mp_lobby()
         local army_roster_parent = find_uicomponent(cb, "ready_parent", "recruitment_visibility_parent", "recruitment_parent", "roster_holder", "army_roster_parent")
         local unit_list_holder = find_uicomponent(army_roster_parent, "recruited_army_parent", "army_recruitment_parent", "unit_list_holder")
         local clear_autogen_parent = find_uicomponent(unit_list_holder, "row_header", "button_bar_parent", "button_list", "clear_autogen_parent")
-        local faction_pic_mask_parent = find_uicomponent(cb, "ready_parent", "recruitment_visibility_parent", "recruitment_parent", "faction_holder", 'faction_pic_mask_parent', 'strip_holder')
+        local strip_holder = find_uicomponent(cb, "ready_parent", "recruitment_visibility_parent", "recruitment_parent", "faction_holder", 'faction_pic_mask_parent', 'strip_holder')
         local button_lucky = find_uicomponent(clear_autogen_parent, "button_lucky")
         if not button_lucky then
             self:create_button(clear_autogen_parent, 'button_lucky')
-            self:create_button(faction_pic_mask_parent, 'button_lucky_factions')
+            self:create_button(strip_holder, 'button_lucky_factions')
+            strip_holder:SetVisible(true)
+            find_uicomponent(strip_holder, "cycle_button_arrow_previous"):SetVisible(false)
+            find_uicomponent(strip_holder, "faction_symbol"):SetVisible(false)
+            find_uicomponent(strip_holder, "cycle_button_arrow_next"):SetVisible(false)
         end
 
         local title = find_uicomponent(cb, 'ready_parent', 'title_plaque', 'tx_header'):CurrentState()
