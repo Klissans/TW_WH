@@ -1305,25 +1305,17 @@ def prepare_mod_team_list(xml):
     elem_id = "gold_value"
     # language=javascript
     s = '''
-        RoundFloat(
-            UnitList.Filter(IsAlive && !IsShattered).Sum(
-                (
-                    exp_cost = GetIfElse(UnitRecordContext.IsRenown, 0, ExperienceLevel * (3 * UnitRecordContext.Cost / 100.0 + 11) ),
-                    al = GetIf(
-                        IsCharacter,
-                        UnitDetailsContext.AbilityDetailsList
-                            .Transform(DatabaseRecordContext("CcoUnitAbilityRecord", Key))
-                            .Filter(IsUnitUpgrade)
-                            .Transform(DatabaseRecordContext("CcoUnitSpecialAbilityRecord", Key))
-                            .Sum(AdditionalMeleeCp + AdditionalMissileCp)
-                    )
-                ) =>
-                {HealthPercent * (UnitRecordContext.Cost + exp_cost + al)}
-            )
-        )
-
+        RoundFloat( UnitList.Filter(IsAlive && !IsShattered).Sum(GetGoldValue(true) ) )
     '''
     set_context_callback(find_by_id(xml, elem_id), 'ContextTextLabel', s)
+    # language=javascript
+    s = '''
+        EvaluateExpression(Format(ScriptObjectContext('hui_context_functions').TableValue.ValueForKey('get_localization').Value, 'mod_team_list_army_gold_value')) + Loc('LF') +
+        UnitList
+            .Filter(IsAlive && !IsShattered)
+            .JoinString(Format("[[img:%S]][[/img]]%S [[img:ui/skins/default/icon_income.png]][[/img]]%d", UnitRecordContext.CategoryIcon, UnitRecordContext.Name, GetGoldValue(true)), Loc('LF'))
+    '''  # In Domination summoned units from reinforcements are moved from reinf pool to army list and stay there
+    set_context_callback(find_by_id(xml, elem_id), 'ContextTooltipSetter', s)
     
     elem_id = "label_score"
     # language=javascript

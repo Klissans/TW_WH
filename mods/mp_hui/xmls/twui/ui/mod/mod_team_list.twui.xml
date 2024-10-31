@@ -1243,7 +1243,7 @@
                 <callback_with_context
                         callback_id="ContextTooltipSetter"
                         context_object_id="CcoBattleArmy"
-                        context_function_id="EvaluateExpression(Format(ScriptObjectContext('hui_context_functions').TableValue.ValueForKey('get_localization').Value, 'mod_team_list_army_gold_value'))"/>
+                        context_function_id=""/>
                 <callback_with_context
                         callback_id="ContextStateSetter"
                         context_object_id="CcoBattleArmy"
