@@ -96,8 +96,8 @@ function battle_data_dumper:write_dump(table_name)
     local table_to_dump = self._dump_tables[table_name]
     local fpath = self:get_full_path(table_name .. '.csv')
     self:out('DEBUG tname:' .. table_name)
-    self:out('DEBUG tsize:' .. table_size(table_to_dump))
-    self:out('Writing Dump of ' .. table_name .. ' Rows #' .. table_size(table_to_dump) .. ' Cols #' .. table_size(table_to_dump[1]) .. ' to ' .. fpath)
+    self:out('DEBUG tsize:' .. Klissan_H:table_size(table_to_dump))
+    self:out('Writing Dump of ' .. table_name .. ' Rows #' .. Klissan_H:table_size(table_to_dump) .. ' Cols #' .. Klissan_H:table_size(table_to_dump[1]) .. ' to ' .. fpath)
 
     local replay_dump_file = io.open(fpath, "w+")
     if not replay_dump_file then
