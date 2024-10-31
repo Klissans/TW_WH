@@ -2020,7 +2020,7 @@
                 <callback_with_context
                         callback_id="ContextVisibilitySetter"
                         context_object_id="CcoStaticObject"
-                        context_function_id="BattleRoot.IsCampaignBattle == false"/>
+                        context_function_id="true"/>
             </callbackwithcontextlist>
             <userproperties>
                 <property
@@ -2109,7 +2109,7 @@
                 <callback_with_context
                         callback_id="ContextTextLabel"
                         context_object_id="CcoBattleArmy"
-                        context_function_id="PlayerName"/>
+                        context_function_id="GetIfElse(PlayerName.Length > 0, PlayerName, FactionName)"/>
                 <callback_with_context
                         callback_id="ContextStateSetter"
                         context_object_id="CcoBattleArmy"
