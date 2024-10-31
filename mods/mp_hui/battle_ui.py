@@ -305,12 +305,12 @@ def add_unit_info_gold_value(xml):
             UnitRecordContext.Cost,
             GetIf(ExperienceLevel > 0, GetIfElse(UnitRecordContext.IsRenown, "", Format(" [[img:ui/skins/default/experience_%d.png]][[/img]]%d", ExperienceLevel, exp_cost) )),
             GetIf(IsCharacter,
-                Format(" %S",
+                Format(Loc('LF') + "%S",
                     AbilityDetailsList
                     .Transform(DatabaseRecordContext("CcoUnitAbilityRecord", Key))
                     .Filter(IsUnitUpgrade)
                     .Transform(DatabaseRecordContext("CcoUnitSpecialAbilityRecord", Key))
-                    .JoinString(Format("[[img:%S]][[/img]]%d", BaseRecordContext.IconPath, RoundFloat(AdditionalMeleeCp + AdditionalMissileCp)), " ")
+                    .JoinString(Format("[[img:%S]][[/img]]%S [[img:ui/skins/default/icon_income.png]][[/img]]%d", BaseRecordContext.IconPath, UnitAbilityContext.Name, RoundFloat(AdditionalMeleeCp + AdditionalMissileCp)), Loc('LF'))
             ))
         )
     }
@@ -610,7 +610,9 @@ def mod_stats_fatigue(xml):
                 Format("%S %S [%d%]  ", mass_str, f_armour_str, avg_armour_res)
             }
         ) +
-        GetIf(Key == "stat_morale", Format("[[img:ui/mod/icons/icon_stat_morale.png]][[/img]]%d  ", RoundFloat(DisplayedValue))) +
+        GetIf(Key == "stat_morale",
+             GetIfElse(buc.CapturePower > 0, Format("[[img:ui/skins/default/icon_capture_point.png]][[/img]][[col:ui_font_faded_grey_beige]]%.1f[[/col]] ", buc.CapturePower), "") + Format("[[img:ui/mod/icons/icon_stat_morale.png]][[/img]]%d  ", RoundFloat(DisplayedValue) )
+        ) +
         GetIf(Key == "scalar_speed", Format("[[img:ui/mod/icons/icon_stat_speed.png]][[/img]]%d  ", RoundFloat(fatigue_coeff * DisplayedValue)) ) +
         GetIf(Key == "stat_melee_attack",
             (
@@ -875,7 +877,7 @@ def mod_stats_fatigue(xml):
 
                 medb_fatigue_coeff = GetIfElse(is_valid_battle_context, ScriptObjectContext('fatigue_effects').TableValue.ValueForKey('scalar_missile_explosion_damage_base')[f_state].Value, 1.0),
                 f_medb = GetIfElse(has_medb, RoundFloat(medb_fatigue_coeff * medb), 0),
-                f_medb_str = GetIfElse(has_medb, Format(" [[img:ui/mod/icons/icon_explosive_damage.png]][[/img]]%d", f_medb), ""),
+                f_medb_str = GetIfElse(has_medb, Format("[[img:ui/mod/icons/icon_explosive_damage.png]][[/img]]%d", f_medb), ""),
                 set_f_medb = ScriptObjectContext('unit_info_ui.range_damage_explosion_base').SetNumericValue(f_medb),
 
                 medap_fatigue_coeff = GetIfElse(is_valid_battle_context, ScriptObjectContext('fatigue_effects').TableValue.ValueForKey('scalar_missile_explosion_damage_ap')[f_state].Value, 1.0),
@@ -892,7 +894,7 @@ def mod_stats_fatigue(xml):
                 ap_ratio_set = ScriptObjectContext('unit_info_ui.range_ap_ratio').SetNumericValue(ap_ratio)
             ) =>
             {
-                Format(" %S%S %S%S%S%S  ", mBvL_str, mBvi_str, f_mdb_str, f_mdap_str, f_medb_str, f_medap_str)
+                Format("%S%S%S%S%S%S  ", mBvL_str, mBvi_str, f_mdb_str, f_mdap_str, f_medb_str, f_medap_str)
             }
         )
     }
