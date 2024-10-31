@@ -310,7 +310,7 @@ def add_unit_info_gold_value(xml):
                     .Transform(DatabaseRecordContext("CcoUnitAbilityRecord", Key))
                     .Filter(IsUnitUpgrade)
                     .Transform(DatabaseRecordContext("CcoUnitSpecialAbilityRecord", Key))
-                    .JoinString(Format("[[img:%S]][[/img]]%d", BaseRecordContext.IconPath.ToLower, RoundFloat(AdditionalMeleeCp + AdditionalMissileCp)), " ")
+                    .JoinString(Format("[[img:%S]][[/img]]%d", BaseRecordContext.IconPath, RoundFloat(AdditionalMeleeCp + AdditionalMissileCp)), " ")
             ))
         )
     }
@@ -1359,6 +1359,11 @@ def prepare_mod_team_list(xml):
         + GetIf(PlayerName.Contains("Exul et ignotus"), "ui/mod/images/players/exul_et_ignotus.png")
         + GetIf(PlayerName.Contains("lunacy"), "ui/mod/images/players/cb2.png")
         + GetIf(PlayerName.Contains("Not Alpharius"), "ui/mod/images/players/not_alpharius.png")
+        + GetIf(PlayerName.Contains("Helmuskar"), "ui/mod/images/players/helmuskar.png")
+        + GetIf(PlayerName.Contains("Ahzek Ahrimem"), "ui/mod/images/players/ahzek.png")
+        + GetIf(PlayerName.Contains("Chained Soldier"), "ui/mod/images/players/chained.png")
+        + GetIf(PlayerName.Contains("leavePls."), "ui/mod/images/players/sham.png")
+        + GetIf(PlayerName.Contains("Karadok"), "ui/mod/images/players/karadok.png")
     '''
     set_context_callback(find_by_id(xml, elem_id), 'ContextImageSetter', s)
     # language=javascript
@@ -1428,7 +1433,7 @@ def mod_battle_ui():
               )
               )
     
-    edit_twui('ui/frontend ui/custom_battle_map_settings', add_dom_ffa_to_custom_battles)
+    # edit_twui('ui/frontend ui/custom_battle_map_settings', add_dom_ffa_to_custom_battles)
     
     edit_twui('ui/common ui/unit_information',
               lambda xml: (
@@ -1465,7 +1470,7 @@ def mod_battle_ui():
               )
               )
     
-    edit_twui('ui/templates/custom_battle_team_entry', enable_button_ai)
+    # edit_twui('ui/templates/custom_battle_team_entry', enable_button_ai)
     
     edit_twui('ui/mod/reinf_panel_supplies', prepare_reinf_panel_supplies)
     edit_twui('ui/mod/mod_team_list', prepare_mod_team_list)

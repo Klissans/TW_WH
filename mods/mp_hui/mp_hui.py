@@ -13,11 +13,13 @@ if __name__ == '__main__':
     
     mod_battle_ui()
     shutil.copytree('input', 'output', dirs_exist_ok=True)
+    shutil.copy2('../_lua_shared/_helpers.klissan.lua', 'output/script/_lib/mod/')
     
     MOD_NAME = '!Klissans_hui'
     OUTPUT_DIR = 'output'
     rpfm = RPFM4Wrapper()
     rpfm.make_package(MOD_NAME, OUTPUT_DIR)
+    # os.startfile(r"F:\runcher-v0.7.102-x86_64-pc-windows-msvc\shortcuts\campaign.lnk")
     os.startfile(r"F:\runcher-v0.7.102-x86_64-pc-windows-msvc\shortcuts\dev.lnk")
     
     # List
