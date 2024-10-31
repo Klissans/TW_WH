@@ -1333,6 +1333,32 @@ def prepare_mod_team_list(xml):
     '''  # In Domination summoned units from reinforcements are moved from reinf pool to army list and stay there
     set_context_callback(find_by_id(xml, elem_id), 'ContextTooltipSetter', s)
     
+    elem_id = "heal_value"
+    # language=javascript
+    s = '''
+    (
+        heal_cap = 0.75,
+        meu_undefined = UnitList.Filter(NumEntitiesInitial > 1).Filter(MaxHealthPercentCanReplenish > 0.999),
+        units_can_be_calculated = UnitList.Filter( ((NumEntitiesInitial > 1) && (MaxHealthPercentCanReplenish < 1.0)) || (NumEntitiesInitial == 1) ),
+        heal_value = units_can_be_calculated.Sum(GetGoldValue(false) * (heal_cap - (MaxHealthPercentCanReplenish - HealthPercent)) ),
+        str = GetIf(meu_undefined.Size > 0, '[[img:ui/mod/icons/greater_approx.png]][[/img]]') + Format("%d", RoundFloat(heal_value))
+    ) =>
+    {str}
+    '''
+    set_context_callback(find_by_id(xml, elem_id), 'ContextTextLabel', s)
+    # language=javascript
+    s = '''
+    (
+        heal_cap = 0.75,
+        str = UnitList
+            .JoinString(Format("[[img:%S]][[/img]]%S [[img:ui/mod/icons/icon_stat_health_gold_value.png]][[/img]]%S", UnitRecordContext.CategoryIcon, UnitRecordContext.Name,
+                    GetIfElse((NumEntitiesInitial > 1) && (MaxHealthPercentCanReplenish > 0.999), 'N/A', '' + RoundFloat(GetGoldValue(false) * (heal_cap - (MaxHealthPercentCanReplenish - HealthPercent))))
+                ), Loc('LF'))
+    ) =>
+    {EvaluateExpression(Format(ScriptObjectContext('hui_context_functions').TableValue.ValueForKey('get_localization').Value, 'mod_team_list_army_heal_value')) + Loc('LF') + str}
+    '''  # In Domination summoned units from reinforcements are moved from reinf pool to army list and stay there
+    set_context_callback(find_by_id(xml, elem_id), 'ContextTooltipSetter', s)
+    
     elem_id = "label_score"
     # language=javascript
     s = '''
@@ -1440,6 +1466,7 @@ def prepare_mod_team_list(xml):
     s = '''
         GetIf(PlayerName.StartsWith("VM.") || PlayerName.StartsWith("V_M") || PlayerName.StartsWith("VM ") || PlayerName.StartsWith("VM_"), "ui/mod/images/clans/vm.png")
         + GetIf(PlayerName.StartsWith("-CB-") || PlayerName.StartsWith("CB "), "ui/mod/images/clans/cb.png")
+        + GetIf(PlayerName.Contains("RoflanBuldiga"), "ui/mod/images/clans/komariga.png")
     '''
     set_context_callback(find_by_id(xml, elem_id), 'ContextImageSetter', s)
     # language=javascript

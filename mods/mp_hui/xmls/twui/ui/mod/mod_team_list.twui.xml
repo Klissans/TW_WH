@@ -13,7 +13,7 @@
                     <icon_faction this="19418290-4B88-418D-9F4DD23D19A9FCBA"/>
                     <label_supplies this="C6911C9C-6DFC-4C37-A593A3A94CC54B0C"/>
                     <gold_value this="BBB62593-8863-460B-ACD4BA7EDBAESS04"/>
-                    <!--<heal_value this="BBB62593-8863-460B-ACD4BA7EDBAESS05"/>-->
+                    <heal_value this="BBB62593-8863-460B-ACD4BA7EDBAESS05"/>
                     <label_score this="BBB62593-8863-460B-ACD4BA7EDBAE6552"/>
                     <killed_entities this="BBB62593-8863-460B-ACD4BA7EDBAESS03"/>
                     <friendly_fire this="BBB62593-8863-460B-ACD4BA7EDBAESS10"/>
@@ -1139,7 +1139,11 @@
                 <callback_with_context
                         callback_id="ContextTextLabel"
                         context_object_id="CcoBattleArmy"
-                        context_function_id="RoundFloat(UnitList.Filter(IsAlive).Sum(UnitRecordContext.Cost * HealthPercent))"/><!--UnitList.Filter(IsAlive).Sum(MaxHealthPercentCanReplenish)-->
+                        context_function_id=""/><!--UnitList.Filter(IsAlive).Sum(MaxHealthPercentCanReplenish)-->
+                <callback_with_context
+                        callback_id="ContextTooltipSetter"
+                        context_object_id="CcoBattleArmy"
+                        context_function_id=""/><!--UnitList.Filter(IsAlive).Sum(MaxHealthPercentCanReplenish)-->
                 <callback_with_context
                         callback_id="ContextStateSetter"
                         context_object_id="CcoBattleArmy"
@@ -1147,7 +1151,7 @@
                 <callback_with_context
                         callback_id="ContextVisibilitySetter"
                         context_object_id="CcoStaticObject"
-                        context_function_id="(BattleRoot.IsSpectator || BattleRoot.IsReplay || (BattleRoot.IsMultiplayer == false))"/>
+                        context_function_id="(BattleRoot.IsSpectator || BattleRoot.IsReplay || !BattleRoot.IsMultiplayer) &amp;&amp; BattleRoot.IsConquest"/>
             </callbackwithcontextlist>
             <userproperties>
                 <property
@@ -1158,13 +1162,13 @@
                 <component_image
                         this="66C6E19D-E3B8-40A0-81155AF86750SS05"
                         uniqueguid="66C6E19D-E3B8-40A0-81155AF86750SS05"
-                        imagepath="ui/skins/default/icon_stat_health_noframe_16px.png"/>
+                        imagepath="ui/mod/icons/icon_stat_health_gold_value.png"/>
             </componentimages>
             <states>
                 <false
                         this="0708ECB5-0298-4A78-B35800CB62B2SS05"
                         name="false"
-                        width="64"
+                        width="74"
                         text="0000"
                         textvalign="Center"
                         textxoffset="24.00,0.00"
@@ -1193,7 +1197,7 @@
                 <true
                         this="E3F7D9F8-F884-4122-A32F59A91FCBSS05"
                         name="true"
-                        width="64"
+                        width="74"
                         text="0000"
                         textvalign="Center"
                         textxoffset="24.00,0.00"
