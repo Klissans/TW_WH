@@ -1442,6 +1442,7 @@ def prepare_mod_team_list(xml):
         + GetIf(PlayerName.Contains("Chained Soldier"), "ui/mod/images/players/chained.png")
         + GetIf(PlayerName.Contains("leavePls."), "ui/mod/images/players/sham.png")
         + GetIf(PlayerName.Contains("Karadok"), "ui/mod/images/players/karadok.png")
+        + GetIf(PlayerName.EndsWith("Drago"), "ui/mod/images/players/drago.png")
     '''
     set_context_callback(find_by_id(xml, elem_id), 'ContextImageSetter', s)
     # language=javascript
