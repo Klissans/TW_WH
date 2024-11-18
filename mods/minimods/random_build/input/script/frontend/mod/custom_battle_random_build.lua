@@ -704,7 +704,7 @@ end
 
 function RoflanBuildiga:if_chat_available()
     local chat = find_uicomponent(core:get_ui_root(), "sp_frame", 'frame_tr', 'multiplayer_chat')
-    return chat
+    return chat ~= nil
 end
 
 function RoflanBuildiga:increase_map_roll_count()
