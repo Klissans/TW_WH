@@ -36,7 +36,7 @@ end
 function cheat_chat:init_chat_hotkey_if_exists()
     local f = io.open(self._hotkey_file_name, "r")
     if not f then
-        self:out('No hotkey config')
+        self: out('No hotkey config')
         return
     end
     local lines = {}
@@ -163,7 +163,7 @@ function table_size(T)
     local count = 0
     for _ in pairs(T) do count = count + 1 end
     return count
- end
+end
 
 
 function cheat_chat:edit_strings()
