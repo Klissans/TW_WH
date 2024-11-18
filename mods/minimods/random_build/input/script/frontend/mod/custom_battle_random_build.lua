@@ -6,6 +6,7 @@ local RoflanBuildiga = {
     mp = {
         faction_rolls = 0,
         build_rolls = 0,
+        map_rolls = 0,
     }
 }
 
@@ -706,6 +707,11 @@ function RoflanBuildiga:if_chat_available()
     return chat
 end
 
+function RoflanBuildiga:increase_map_roll_count()
+    self.mp.map_rolls = self.mp.map_rolls + 1
+    return self.mp.map_rolls
+end
+
 function RoflanBuildiga:increase_build_roll_count()
     self.mp.build_rolls = self.mp.build_rolls + 1
     return self.mp.build_rolls
@@ -728,7 +734,7 @@ end
 function RoflanBuildiga:lucky_check_if_mp_lobby()
     local cb = find_uicomponent(core:get_ui_root(), "custom_battle")
     if cb then
-        local checkbox_parent =  find_uicomponent(cb, "ready_parent", "settings_parent", "custom_battle_map_settings", "settings_parent", "checkbox_parent")
+        local checkbox_parent = find_uicomponent(cb, "ready_parent", "settings_parent", "custom_battle_map_settings", "settings_parent", "checkbox_parent")
         find_uicomponent(checkbox_parent, "checkbox_storm_of_magic"):SetVisible(checkbox_parent:Visible())
 
         local army_roster_parent = find_uicomponent(cb, "ready_parent", "recruitment_visibility_parent", "recruitment_parent", "roster_holder", "army_roster_parent")
@@ -779,6 +785,26 @@ function RoflanBuildiga:init_frontend()
             end,
             function(context)
                 self:go_lucky_factions()
+            end,
+            true
+    )
+
+    core:add_listener(
+            "klissan_lucky_button_random_map_clicked",
+            "ComponentLClickUp",
+            function(context)
+                return context.string == "button_random_map"
+            end,
+            function(context)
+                self:increase_map_roll_count()
+                core:get_tm():real_callback(
+                    function()
+                        local map_name = find_uicomponent(core:get_ui_root(), 'custom_battle', "ready_parent", "battle_details", "dy_battle_type", "dy_map_name"):GetStateText()
+                        self:report_to_chat(string.format('Player\'s Map Rolls: %d (%s)', self.mp.map_rolls, map_name))
+                    end,
+                    200,
+                    'Klissan_lucky_button_random_map_report_to_chat'
+                )
             end,
             true
     )
