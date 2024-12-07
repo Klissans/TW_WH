@@ -28,7 +28,7 @@ function MGSWT:init_adventure_listeners()
 
 			local general_support_army_lookup_str = cm:char_lookup_str(support_mf:general_character())
 			local ritual_key = context:ritual():ritual_key()
-			local result_str = MGSWT.croot:Call(string.format([=[
+			local result_str = Klissan_CH:croot():Call(string.format([=[
 				(
 					key = '%s',
 					payload = DatabaseRecordContext('CcoRitualRecord', key).CompletionPayloadContext.CampaignPayloadContext,
