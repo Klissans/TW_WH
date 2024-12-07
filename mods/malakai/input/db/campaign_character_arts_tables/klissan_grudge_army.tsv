@@ -1,0 +1,3 @@
+id	art_set_id	level	age	portrait	season	uniform	card	info	sea_uniform	navy_uniform	land_animation	sea_animation	navy_animation	land_animation_vfx_filter	sea_animation_vfx_filter	navy_animation_vfx_filter
+#campaign_character_arts_tables;0;db/campaign_character_arts_tables/klissan_grudge_army																
+1317160933	wh3_dlc25_dwf_daemon_slayer_klissan_grudge_army	0	0		none	wh3_dlc25_uniform_dwf_daemon_slayer_01			wh_main_campaign_dwf_ship_heavy	wh_main_campaign_dwf_ship_heavy	cam_hero_hu3_dlc25_garagrim_dual_axe	cam_heavy_ship_03	cam_heavy_ship_03	0	0	0
