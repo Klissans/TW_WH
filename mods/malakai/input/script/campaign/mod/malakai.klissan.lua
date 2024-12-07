@@ -213,94 +213,6 @@ function MGSWT:get_grungni_radius()
     return self.tsog_base_radius * (radius_modifier + 1.0)
 end
 
-
-function MGSWT:extract_effects_from_bundles(source_army_cqi)
-    local skills_str = Klissan_CH:croot():Call(string.format([=[
-        (
-            army = CampaignRoot.MilitaryForceList.FirstContext(CQI == %d),
-            effects = army.EffectBundleUnfilteredList.Transform(EffectsIncludingHiddenList)
-                .Filter(EffectScopeContext.Key == 'general_to_force_own' || EffectScopeContext.Key == 'agent_to_parent_army_own'),
-            effects_str = effects.JoinString(Format('%%s,%%d', EffectKey, Value), ';')
-        ) => effects_str
-    ]=], source_army_cqi))
-    return skills_str
-end
-
-
-function MGSWT:extract_characters_skill_effects(source_army_cqi)
-    local skills_str = Klissan_CH:croot():Call(string.format([=[
-        (
-            army = CampaignRoot.MilitaryForceList.FirstContext(CQI == %d),
-            chars_skill_effects = army.CharacterList.Transform(SkillList).Transform(EffectUnfilteredList)
-                .Filter(EffectScopeContext.Key == 'general_to_force_own' || EffectScopeContext.Key == 'agent_to_parent_army_own' || EffectKey == 'wh_main_effect_agent_movement_range_mod'),
-            skill_effects_str = chars_skill_effects.JoinString(Format('%%s,%%d', EffectKey, Value), ';')
-        ) => skill_effects_str
-    ]=], source_army_cqi))
-    return skills_str
-end
-
-
-function MGSWT:extract_character_trait_effects(source_army_cqi)
-    local skills_str = Klissan_CH:croot():Call(string.format([=[
-        (
-            army = CampaignRoot.MilitaryForceList.FirstContext(CQI == %d),
-            chars_skill_effects = army.CharacterList.Transform(TraitsList).Transform(EffectUnfilteredList)
-                .Filter(EffectScopeContext.Key == 'general_to_force_own' || EffectScopeContext.Key == 'agent_to_parent_army_own'),
-            skill_effects_str = chars_skill_effects.JoinString(Format('%%s,%%d', EffectKey, Value), ';')
-        ) => skill_effects_str
-    ]=], source_army_cqi))
-    return skills_str
-end
-
-
-function MGSWT:extract_character_background_effects(source_army_cqi)
-    local skills_str = Klissan_CH:croot():Call(string.format([=[
-        (
-            army = CampaignRoot.MilitaryForceList.FirstContext(CQI == %d),
-            chars_skill_effects = army.CharacterList.Transform(BackgroundSkillContext.EffectUnfilteredList)
-                .Filter(EffectScopeContext.Key == 'general_to_force_own' || EffectScopeContext.Key == 'agent_to_parent_army_own'),
-            skill_effects_str = chars_skill_effects.JoinString(Format('%%s,%%d', EffectKey, Value), ';')
-        ) => skill_effects_str
-    ]=], source_army_cqi))
-    return skills_str
-end
-
-function MGSWT:extract_character_ancillary_effects(source_army_cqi)
-    local skills_str = Klissan_CH:croot():Call(string.format([=[
-        (
-            army = CampaignRoot.MilitaryForceList.FirstContext(CQI == %d),
-            chars_skill_effects = army.CharacterList.Transform(AncillaryList).Transform(EffectUnfilteredList)
-                .Filter(EffectScopeContext.Key == 'general_to_force_own' || EffectScopeContext.Key == 'agent_to_parent_army_own'),
-            skill_effects_str = chars_skill_effects.JoinString(Format('%%s,%%d', EffectKey, Value), ';')
-        ) => skill_effects_str
-    ]=], source_army_cqi))
-    return skills_str
-end
-
-function MGSWT:add_effects_to_table(bundle_table, effects_str)
-    local effect_value_pairs = string.split(effects_str, ';')
-    for i=1, #effect_value_pairs do
-        local effect_value = string.split(effect_value_pairs[i], ',')
-        local effect_key, value = effect_value[1], math.floor(tonumber(effect_value[2]))
-        if bundle_table[effect_key] ~= nil then
-            bundle_table[effect_key] = bundle_table[effect_key] + value
-        else
-            bundle_table[effect_key]= value
-        end
-    end
-    return bundle_table
-end
-
-function MGSWT:create_effects_table_for_army(source_army_cqi)
-    local effects = {}
-    self:add_effects_to_table(effects, self:extract_effects_from_bundles(source_army_cqi))
-    self:add_effects_to_table(effects, self:extract_characters_skill_effects(source_army_cqi))
-    self:add_effects_to_table(effects, self:extract_character_trait_effects(source_army_cqi))
-    self:add_effects_to_table(effects, self:extract_character_background_effects(source_army_cqi))
-    self:add_effects_to_table(effects, self:extract_character_ancillary_effects(source_army_cqi))
-    return effects
-end
-
 function MGSWT:apply_effect_bundle_to_support_army(source_army_cqi, target_army_cqi)
     if MGSWT.malakai_support_army_cqi == nil or not cm:get_military_force_by_cqi(target_army_cqi) then
         return
@@ -308,8 +220,14 @@ function MGSWT:apply_effect_bundle_to_support_army(source_army_cqi, target_army_
     self:debug('Creating an effect bundle for malakai support army')
     local bundle_key = 'klissan_malakai_support_army_bonuses'
     local custom_bundle = cm:create_new_custom_effect_bundle(bundle_key)
-    --custom_bundle:set_duration(2)
-    local effects = self:create_effects_table_for_army(source_army_cqi)
+    local effects = Klissan_CH:get_army_effects(source_army_cqi)
+    -- add +10 missing movement
+    local force_movement_key = 'wh_main_effect_force_all_campaign_movement_range'
+    if effects[force_movement_key] == nil then
+        effects[force_movement_key] = 10
+    else
+        effects[force_movement_key] = effects[force_movement_key] + 10
+    end
     for key, value in pairs(effects) do
         self:debug('Adding effect to support army: %s %d', key, value)
         custom_bundle:add_effect(key, 'force_to_force_own', value)
@@ -326,6 +244,7 @@ function MGSWT:is_target_in_range()
     return distance_to_target < radius
 end
 
+--MGSWT:apply_effect_bundle_to_support_army(67, 1012)
 
 -- todo rename to get distance to targeting
 function MGSWT:get_travel_distance()
