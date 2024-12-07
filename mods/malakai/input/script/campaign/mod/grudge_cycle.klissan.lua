@@ -4,6 +4,8 @@
 
 grudge_cycle.cycle_time = 1
 
+grudge_cycle.faction_spawned_army_tier_mapping = {}
+
 grudge_cycle.target_grudge_goal = 50000
 grudge_cycle.settled_grudges_total = 0
 
@@ -66,12 +68,13 @@ function grudge_cycle:setup()
 		end
 	end
 
-	-- assign starting effect_bundle
+	-- assign starting effect_bundle and assign tier level for army spawn tracking
 	for _, faction in ipairs(faction_list) do
 		local faction_name = faction:name()
 		if faction:can_be_human() and not faction:is_dead() and not faction:is_rebel() then
 			self.cycle_grudges[faction_name] = 0
 			self.faction_times[faction_name] = self.cycle_time
+			self.faction_spawned_army_tier_mapping[faction_name] = 1
 
 			cm:apply_effect_bundle(self.reward_prefix..starting_grudge_level, faction_name, self.cycle_time + 1)
 			cm:apply_effect_bundle(self.share_reward_prefix..self:get_faction_settled_grudges_share_level(faction_name), faction_name, self.cycle_time + 1)
@@ -251,6 +254,13 @@ function grudge_cycle:cycle_timer()
 				end
 			end
 
+			-- spawn a grudge army when new global tier is reached for the first time
+			if level > self.faction_spawned_army_tier_mapping[faction_key] then
+				-- todo spawm units only from  available roster for respected tier
+				self:klissan_spawn_grudge_settler_army(faction_key, level, share_level)
+				self.faction_spawned_army_tier_mapping[faction_key] = level
+			end
+
 			--local cycle_grudges_str = ''
 			--for _, k in pairs(Klissan_H:get_key_sorted(self.cycle_grudges)) do
 			--	cycle_grudges_str = cycle_grudges_str.. ' | '..k..' : '..self.cycle_grudges[k]
@@ -265,3 +275,98 @@ function grudge_cycle:cycle_timer()
 		true
 	)
 end
+
+
+function grudge_cycle:klissan_spawn_grudge_settler_army(faction_key, level, share_level)
+	local spawn_at_leader = true
+	local faction = cm:get_faction(faction_key)
+	local faction_leader = faction:faction_leader()
+	local home_region = faction:home_region()
+	local region_name
+	local pos_x, pos_y
+
+	if not faction_leader:is_null_interface() and not faction_leader:is_wounded() and faction_leader:has_region() then
+		region_name = faction_leader:region():name()
+	elseif not home_region:is_null_interface() and not home_region:garrison_residence():is_under_siege() then
+		region_name = home_region:name()
+		spawn_at_leader = false
+	else
+		local region_list = faction:region_list()
+		local region_found = false
+
+		for i = 0, region_list:num_items() - 1 do
+			local region = region_list:item_at(i)
+
+			if not region:garrison_residence():is_under_siege() then
+				region_name = region:name()
+				region_found = true
+				break
+			end
+		end
+
+		if region_found == false then
+			-- if we fail to find a region name then just end the function
+			return
+		end
+	end
+
+	if spawn_at_leader then
+		pos_x, pos_y = cm:find_valid_spawn_location_for_character_from_settlement(faction_key, region_name, false, true, 10)
+	else
+		pos_x, pos_y = cm:find_valid_spawn_location_for_character_from_settlement(faction_key, region_name, false, true, 10)
+	end
+
+	local ram = random_army_manager
+	--ram:remove_force("grudge_settler_army")
+	local ram_key = faction_key.."_grudge_settler_army_"..level
+	ram:new_force(ram_key)
+
+	for tier = 1, #self.unit_rewards.group_tiers do
+		for _, group_reward_key in ipairs(self.unit_rewards.group_tiers[tier]) do
+			local unit_key = self.unit_rewards.group_to_unit_map[group_reward_key]
+			local repl_chance = 0
+			if tier <= level then
+				repl_chance = self:get_reward_chance(level, share_level, tier)
+				self:debug('Grudge ARMY %s %s %d', faction_key, unit_key, repl_chance)
+				ram:add_unit(ram_key, unit_key, repl_chance)
+			end
+		end
+	end
+
+	local army_size = self.grudge_army_size.base + cm:get_factions_bonus_value(faction_key, self.grudge_army_size.bonus_value)
+	local unit_list = ram:generate_force(ram_key, army_size, false)
+
+	cm:create_force_with_general(
+		faction_key,
+		unit_list,
+		region_name,
+		pos_x,
+		pos_y,
+		"general",
+		"wh3_dlc25_dwf_daemon_slayer_klissan_grudge_army",
+		"",
+		"",
+		"",
+		"",
+		false,
+		function(cqi)
+			--cm:apply_effect_bundle_to_characters_force("wh3_dlc25_bundle_force_dwarf_grudge_settler_army", cqi, self.cycle_time + 1)
+			cm:replenish_action_points(cm:char_lookup_str(cqi))
+			--self.grudge_armies[faction_key] = cqi
+		end
+	)
+end
+
+cm:add_saving_game_callback(
+	function(context)
+		cm:save_named_value("grudge_cycle.faction_spawned_army_tier_mapping", grudge_cycle.faction_spawned_army_tier_mapping, context)
+	end
+)
+
+cm:add_loading_game_callback(
+	function(context)
+		if cm:is_new_game() == false then
+			grudge_cycle.faction_spawned_army_tier_mapping = cm:load_named_value("grudge_cycle.faction_spawned_army_tier_mapping", grudge_cycle.faction_spawned_army_tier_mapping, context)
+		end
+	end
+)
