@@ -92,17 +92,26 @@ def remove_supplies_in_replays(xml):
 
 
 def change_unit_info_kill_count(xml):
+    elem_txt = find_by_id(xml, 'dy_kills')
+    elem_img = find_by_guid(xml, '4E7A2193-5DEC-443B-865D61B086AB4772')
+    find_by_guid(xml, '6C3C4E4E-2E10-4EE0-A6AB409629FD53D7')['disabled'] = 'false'
+    find_by_guid(xml, '8057198D-749C-4AA9-9E8494E120C1138E')['disabled'] = 'false'
+    find_by_guid(xml, '8057198D-749C-4AA9-9E8494E120C1138E')['interactive'] = 'true'
+    
+    
     # language=javascript
     s = '''
+    (
+        reg_key = 'klissan.hui.ui_panel_battle_stat',
+        reg_value = GetIfElse(RegistryReadString(reg_key).Length == 0, 'gold', RegistryReadString(reg_key))
+    ) =>
         Format('[[col:ui_font_faded_grey_beige]]%d[[/col]]',
-            GetIfElse(
-                BattleRoot.IsSpectator || BattleRoot.IsReplay || !BattleRoot.IsMultiplayer,
-                BattleUnitContext.BattleResultUnitContext.DamageDealtCost,
-                KillCount
-            )
+            GetIf(reg_value == 'kills', KillCount)
+            + GetIf(reg_value == 'damage', BattleUnitContext.BattleResultUnitContext.DamageDealt)
+            + GetIf(reg_value == 'gold', BattleUnitContext.BattleResultUnitContext.DamageDealtCost)
         )
     '''
-    set_context_callback(find_by_id(xml, 'dy_kills'), 'ContextTextLabel', s)
+    set_context_callback(elem_txt, 'ContextTextLabel', s)
     
     # language=javascript
     s = '''
@@ -114,17 +123,36 @@ def change_unit_info_kill_count(xml):
             + Format(Loc('tooltip_kills'), KillCount, BattleUnitContext.BattleResultUnitContext.DamageDealt, BattleUnitContext.BattleResultUnitContext.DamageDealtCost)
         }
     '''
-    set_context_callback(find_by_id(xml, 'dy_kills'), 'ContextTooltipSetter', s)
+    set_context_callback(elem_txt, 'ContextTooltipSetter', s)
     
     # language=javascript
     s = '''
-        GetIfElse(
-            BattleRoot.IsSpectator || BattleRoot.IsReplay || !BattleRoot.IsMultiplayer,
-            "ui/skins/default/icon_stat_damage_base.png",
-            "ui/skins/default/icon_kills.png"
-        )
+    (
+        reg_key = 'klissan.hui.ui_panel_battle_stat',
+        reg_value = GetIfElse(RegistryReadString(reg_key).Length == 0, 'gold', RegistryReadString(reg_key))
+    ) =>
+        GetIf(reg_value == 'kills', 'ui/skins/default/icon_kills.png')
+        + GetIf(reg_value == 'damage', 'ui/mod/icons/icon_explosive_damage.png')
+        + GetIf(reg_value == 'gold', 'ui/mod/icons/icon_stat_damage_base.png')
     '''
-    create_context_callback(find_by_guid(xml, '4E7A2193-5DEC-443B-865D61B086AB4772'), "ContextImageSetter", "CcoStaticObject", s)
+    create_context_callback(elem_img, "ContextImageSetter", "CcoStaticObject", s, {'update_constant': '500'})
+
+    # language=javascript
+    s = '''
+    (
+        reg_key = 'klissan.hui.ui_panel_battle_stat',
+        reg_value = GetIfElse(RegistryReadString(reg_key).Length == 0, 'gold', RegistryReadString(reg_key))
+    ) =>
+    {
+        DoIfElse(reg_value == 'kills', RegistryWriteString(reg_key, 'damage'),
+            DoIfElse(reg_value == 'damage', RegistryWriteString(reg_key, 'gold'),
+                DoIf(reg_value == 'gold', RegistryWriteString(reg_key, 'kills'))
+            )
+        )
+    }
+    '''
+    create_context_callback(elem_txt, "ContextCommandLeftClick", "CcoStaticObject", s)
+    create_context_callback(elem_img, "ContextCommandLeftClick", "CcoStaticObject", s)
 
 
 def change_unit_health_tooltip(xml):
@@ -545,6 +573,128 @@ def add_unit_info_resistances(xml):
     add_element(xml, elem, "resistances_row")
 
 
+def mod_postbattle_stat(xml):
+    elem = find_by_guid(xml, 'A8F852C0-5761-4850-AA7CC8469B4D72C8')
+    elem['interactive'] = 'true'
+    elem['disabled'] = 'false'
+    
+    # language=javascript
+    s = '''
+        (
+            reg_key = 'klissan.hui.postbattle_stat',
+            reg_value = GetIfElse(RegistryReadString(reg_key).Length == 0, 'gold', RegistryReadString(reg_key)),
+            
+            tooltip = self.CurrentTooltip.Replace('||', Loc('LF')),
+            kills_colon = tooltip.Find(LocalisedColonWithSpace) + 1,
+            kills_lf = tooltip.Find(Loc('LF')),
+            kills_str = '[[img:ui/skins/default/icon_kills.png]][[/img]]' + tooltip.Substr(kills_colon, kills_lf - kills_colon).Replace(' ', ''),
+            
+            tooltip_dmg = tooltip.Substr(kills_lf + 1),
+            dmg_colon = tooltip_dmg.Find(LocalisedColonWithSpace) + 1,
+            dmg_lf = tooltip_dmg.Find(Loc('LF')),
+            damage_str = '[[img:ui/mod/icons/icon_explosive_damage.png]][[/img]]' + tooltip_dmg.Substr(dmg_colon, dmg_lf - dmg_colon).Replace(' ', ''),
+            
+            tooltip_value = tooltip_dmg.Substr(dmg_lf + 1),
+            value_colon = tooltip_value.Find(LocalisedColonWithSpace) + 1,
+            value_lf = tooltip_value.Find(Loc('LF')),
+            value_str = '[[img:ui/mod/icons/icon_stat_damage_base.png]][[/img]]' + tooltip_value.Substr(value_colon, value_lf - value_colon).Replace(' ', '')
+        ) =>
+        {
+            GetIf(reg_value == 'kills', kills_str) + GetIf(reg_value == 'damage', damage_str) + GetIf(reg_value == 'gold', value_str)
+        }
+    '''
+    create_context_callback(elem, 'ContextTextLabel','CcoStaticObject', s, {'update_constant': '1000'})
+
+    # RegistryReadString('klissan.hui.postbattle_stat')
+    # RegistryWriteString('klissan.hui.postbattle_stat', 'gold')
+
+    # language=javascript
+    s = '''
+    (
+        reg_key = 'klissan.hui.postbattle_stat',
+        reg_value = GetIfElse(RegistryReadString(reg_key).Length == 0, 'gold', RegistryReadString(reg_key))
+    ) =>
+    {
+        DoIfElse(reg_value == 'kills', RegistryWriteString(reg_key, 'damage'),
+            DoIfElse(reg_value == 'damage', RegistryWriteString(reg_key, 'gold'),
+                DoIf(reg_value == 'gold', RegistryWriteString(reg_key, 'kills'))
+            )
+        )
+    }
+    '''
+    create_context_callback(elem, "ContextCommandLeftClick", "CcoStaticObject", s)
+    
+    #unit card
+    # elem = find_by_guid(xml, '5024E82C-F70D-4A9A-92395C5FB4972019')
+    # create_context_callback(elem, "ContextCommandLeftClick", "CcoStaticObject", s)
+    
+    #component image
+    find_by_guid(xml, '4DBC2352-AB99-4828-948000457436C956').decompose()
+    elem_state = find_by_guid(xml, '58FE73A0-79D1-4C3F-9F3FEF99F862DE40')
+    elem_state.component_text['textxoffset'] = '-2.00,0.00'
+    elem_state['disabled'] = 'false'
+    
+def mod_postbattle_stat_campaign(xml):
+    elem = find_by_guid(xml, '78D3242B-A88A-4BD7-824F877E7F0B05B0')
+    elem['interactive'] = 'true'
+    elem['disabled'] = 'false'
+    
+    # language=javascript
+    s = '''
+        (
+            reg_key = 'klissan.hui.postbattle_stat_campaign',
+            reg_value = GetIfElse(RegistryReadString(reg_key).Length == 0, 'gold', RegistryReadString(reg_key)),
+
+            tooltip = self.CurrentTooltip.Replace('||', Loc('LF')),
+            kills_colon = tooltip.Find(LocalisedColonWithSpace) + 1,
+            kills_lf = tooltip.Find(Loc('LF')),
+            kills_str = '[[img:ui/skins/default/icon_kills.png]][[/img]]' + tooltip.Substr(kills_colon, kills_lf - kills_colon).Replace(' ', ''),
+
+            tooltip_dmg = tooltip.Substr(kills_lf + 1),
+            dmg_colon = tooltip_dmg.Find(LocalisedColonWithSpace) + 1,
+            dmg_lf = tooltip_dmg.Find(Loc('LF')),
+            damage_str = '[[img:ui/mod/icons/icon_explosive_damage.png]][[/img]]' + tooltip_dmg.Substr(dmg_colon, dmg_lf - dmg_colon).Replace(' ', ''),
+
+            tooltip_value = tooltip_dmg.Substr(dmg_lf + 1),
+            value_colon = tooltip_value.Find(LocalisedColonWithSpace) + 1,
+            value_lf = tooltip_value.Find(Loc('LF')),
+            value_str = '[[img:ui/mod/icons/icon_stat_damage_base.png]][[/img]]' + tooltip_value.Substr(value_colon, value_lf - value_colon).Replace(' ', '')
+        ) =>
+        {
+            GetIf(reg_value == 'kills', kills_str) + GetIf(reg_value == 'damage', damage_str) + GetIf(reg_value == 'gold', value_str)
+        }
+    '''
+    create_context_callback(elem, 'ContextTextLabel', 'CcoStaticObject', s, {'update_constant': '1000'})
+    
+    # RegistryReadString('klissan.hui.postbattle_stat')
+    # RegistryWriteString('klissan.hui.postbattle_stat', 'gold')
+    
+    # language=javascript
+    s = '''
+    (
+        reg_key = 'klissan.hui.postbattle_stat_campaign',
+        reg_value = GetIfElse(RegistryReadString(reg_key).Length == 0, 'gold', RegistryReadString(reg_key))
+    ) =>
+    {
+        DoIfElse(reg_value == 'kills', RegistryWriteString(reg_key, 'damage'),
+            DoIfElse(reg_value == 'damage', RegistryWriteString(reg_key, 'gold'),
+                DoIf(reg_value == 'gold', RegistryWriteString(reg_key, 'kills'))
+            )
+        )
+    }
+    '''
+    create_context_callback(elem, "ContextCommandLeftClick", "CcoStaticObject", s)
+    
+    # unit card
+    # elem = find_by_guid(xml, '5024E82C-F70D-4A9A-92395C5FB4972019')
+    # create_context_callback(elem, "ContextCommandLeftClick", "CcoStaticObject", s)
+    
+    # component image
+    find_by_guid(xml, 'D36D75B5-9CFB-43D6-BBAFD42D022E22A4').decompose()
+    elem_state = find_by_guid(xml, 'ADD01F82-2A4B-44AD-9BC6D37A2F8F8152')
+    elem_state.component_text['textxoffset'] = '-2.00,0.00'
+    elem_state['disabled'] = 'false'
+    
 def mod_stats_fatigue(xml):
     # language=javascript
     s = '''
@@ -633,7 +783,9 @@ def mod_stats_fatigue(xml):
                 r_md = DisplayedValue,
                 f_md = RoundFloat(fatigue_coeff * r_md),
                 f_md_str = Format("[[img:ui/mod/icons/icon_stat_defence.png]][[/img]]%d", f_md),
-                flank_md = RoundFloat(f_md * kv_rules.ValueForKey('melee_defence_direction_penalty_coefficient_flank')),
+                has_flanking_immune = IsContextValid(ud.AbilityDetailsList.FirstContext(Key == 'flanking_immune')),
+                flank_md_coeff = GetIfElse(has_flanking_immune, 1.0, kv_rules.ValueForKey('melee_defence_direction_penalty_coefficient_flank')),
+                flank_md = RoundFloat(f_md * flank_md_coeff),
                 flank_md_str = Format("[[img:ui/mod/icons/icon_stat_defence_flank.png]][[/img]]%d", flank_md),
                 rear_md = RoundFloat(f_md * kv_rules.ValueForKey('melee_defence_direction_penalty_coefficient_rear')),
                 rear_md_str = Format("[[img:ui/mod/icons/icon_stat_defence_rear.png]][[/img]]%d", rear_md)
@@ -1547,6 +1699,18 @@ def mod_battle_ui():
     edit_twui('ui/common ui/spell_browser',
               lambda xml: (
                   spell_browser_unit_historical_desc_asmr(xml)
+              )
+              )
+    
+    edit_twui('ui/loading_ui/postbattle',
+              lambda xml: (
+                  mod_postbattle_stat(xml)
+              )
+              )
+    
+    edit_twui('ui/common ui/land_unit_card',
+              lambda xml: (
+                  mod_postbattle_stat_campaign(xml)
               )
               )
     
