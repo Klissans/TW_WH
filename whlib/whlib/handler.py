@@ -16,7 +16,7 @@ class Handler:
         self.locs = read_loc_tables(settings['extract_path'], read_data=True)
         self.modlocs = {}
         self._set_keys()
-        self.anim_files = read_meta_files()
+        # self.anim_files = read_meta_files()
 
     def isnull(self, key):
         return pd.isnull(key)

@@ -109,9 +109,15 @@ class RPFM4Wrapper:
             paths.append(loc_path)
         pool.map(self._execute_cmd, cmd_list)
         pool.map(os.remove, paths)
+        
+    def rename_cco_files(self, content_path):
+        for path in glob.glob(os.path.join(content_path, 'ui', 'cco', '*.js')):
+            os.rename(path, path.replace('.js', '.cco'))
+        pass
 
     def make_package(self, pack_name:str, content_path:str, additional_path=None):
         install_path = os.path.join(self.game_path, 'data', f'{pack_name}.pack')
+        self.rename_cco_files(content_path)
         if additional_path is not None:
             shutil.copytree(additional_path, content_path, dirs_exist_ok=True)
         if os.path.exists(install_path):

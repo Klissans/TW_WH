@@ -38,7 +38,7 @@ def find_by_callback_id(xml, callback_id: str):
 
 
 def replace_escape_characters(s: str):
-    return s.replace('&lt;', '%%lt%%').replace('&gt;', '%%gt%%').replace('&quot;', '%%quot%%').replace('&amp;', '%%amp%%')
+    return s.replace('&lt;', '%%lt%%').replace('&gt;', '%%gt%%').replace('&quot;', '%%quot%%').replace('&amp;', '%%amp%%').replace('//', '%%#%%')
 
 
 def destroy_element(xml, guid):
@@ -67,9 +67,7 @@ def write(fp: str, xml):
     output = f'output/{fp}.twui.xml'
     os.makedirs(os.path.dirname(output), exist_ok=True)
     with open(output, 'w') as f:
-        f.write(xml.prettify(formatter=None).replace('%%lt%%', '&lt;').replace('%%gt%%', '&gt;').replace('%%quot%%',
-                                                                                                         '&quot;').replace(
-            '%%amp%%', '&amp;'))
+        f.write(xml.prettify(formatter=None).replace('%%lt%%', '&lt;').replace('%%gt%%', '&gt;').replace('%%quot%%', '&quot;').replace( '%%amp%%', '&amp;').replace('%%#%%', ' # '))
 
 
 def edit_twui(fp: str, fn):
