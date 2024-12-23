@@ -727,34 +727,8 @@ def mod_stats_fatigue(xml):
         cmp = GetIf(is_battle, ScriptObjectContext('fatigue_effects').TableValue.ValueForKey(Key)),
         is_valid_battle_context = is_battle && IsContextValid(buc),
         fatigue_coeff = GetIfElse(is_valid_battle_context, cmp[f_state].Value, 1.0),
-        func_get_localization = ScriptObjectContext('hui_context_functions').TableValue.ValueForKey('get_localization').Value,
+        func_get_localization = ScriptObjectContext('hui_context_functions').TableValue.ValueForKey('get_localization').Value
 
-        stat_ws_tp = ud.StatContextFromKey("stat_weapon_damage").Tooltip.Replace('||', ''),
-        rest_pattern = "]][[/img]]",
-
-        BvL_png_pattern = "vs_large.png",
-        BvL_png_i = stat_ws_tp.RFind(BvL_png_pattern) + BvL_png_pattern.Length + rest_pattern.Length,
-        has_BvL = BvL_png_i > (BvL_png_pattern.Length + rest_pattern.Length),
-        BvL_png_str = GetIf(has_BvL, stat_ws_tp.Substr(BvL_png_i)),
-        BvL_colon_i = GetIf(has_BvL, BvL_png_str.Find(":") + 1),
-        BvL_colon_str = GetIf(has_BvL, BvL_png_str.Substr(BvL_colon_i)),
-        BvL_LF_i = GetIf(has_BvL, BvL_colon_str.Find(Loc("LF"))),
-        BvL_EoL_i = GetIf(has_BvL, GetIfElse(BvL_LF_i > 0, BvL_LF_i, BvL_colon_str.Length)),
-        BvL_uss = GetIf(has_BvL, BvL_colon_str.Substr(0, BvL_EoL_i)),
-        BvL_s = GetIf(has_BvL, StringSubString(BvL_uss, 0).RemoveLeadingWhitespace),
-        BvL = GetIf(has_BvL, RoundFloat(ToNumber(BvL_s))),
-
-        Bvi_png_pattern = "vs_infantry.png",
-        Bvi_png_i = stat_ws_tp.RFind(Bvi_png_pattern) + Bvi_png_pattern.Length + rest_pattern.Length,
-        has_Bvi = Bvi_png_i > (Bvi_png_pattern.Length + rest_pattern.Length),
-        Bvi_png_str = GetIf(has_Bvi, stat_ws_tp.Substr(Bvi_png_i)),
-        Bvi_colon_i = GetIf(has_Bvi, Bvi_png_str.Find(":") + 1),
-        Bvi_colon_str = GetIf(has_Bvi, Bvi_png_str.Substr(Bvi_colon_i)),
-        Bvi_LF_i = GetIf(has_Bvi, Bvi_colon_str.Find(Loc("LF"))),
-        Bvi_EoL_i = GetIf(has_Bvi, GetIfElse(Bvi_LF_i > 0, Bvi_LF_i, Bvi_colon_str.Length)),
-        Bvi_uss = GetIf(has_Bvi, Bvi_colon_str.Substr(0, Bvi_EoL_i)),
-        Bvi_s = GetIf(has_Bvi, StringSubString(Bvi_uss, 0).RemoveLeadingWhitespace),
-        Bvi = GetIf(has_Bvi, RoundFloat(ToNumber(Bvi_s)))
     ) =>
     {
         GetIf(Key == "stat_armour",
@@ -788,6 +762,33 @@ def mod_stats_fatigue(xml):
         GetIf(Key == "scalar_speed", Format("[[img:ui/mod/icons/icon_stat_speed.png]][[/img]]%d  ", RoundFloat(DisplayedValue)) ) +
         GetIf(Key == "stat_melee_attack",
             (
+        stat_ws_tp = ud.StatContextFromKey("stat_weapon_damage").Tooltip.Replace('||', ''),
+        rest_pattern = "]][[/img]]",
+
+        BvL_png_pattern = "vs_large.png",
+        BvL_png_i = stat_ws_tp.RFind(BvL_png_pattern) + BvL_png_pattern.Length + rest_pattern.Length,
+        has_BvL = BvL_png_i > (BvL_png_pattern.Length + rest_pattern.Length),
+        BvL_png_str = GetIf(has_BvL, stat_ws_tp.Substr(BvL_png_i)),
+        BvL_colon_i = GetIf(has_BvL, BvL_png_str.Find(":") + 1),
+        BvL_colon_str = GetIf(has_BvL, BvL_png_str.Substr(BvL_colon_i)),
+        BvL_LF_i = GetIf(has_BvL, BvL_colon_str.Find(Loc("LF"))),
+        BvL_EoL_i = GetIf(has_BvL, GetIfElse(BvL_LF_i > 0, BvL_LF_i, BvL_colon_str.Length)),
+        BvL_uss = GetIf(has_BvL, BvL_colon_str.Substr(0, BvL_EoL_i)),
+        BvL_s = GetIf(has_BvL, StringSubString(BvL_uss, 0).RemoveLeadingWhitespace),
+        BvL = GetIf(has_BvL, RoundFloat(ToNumber(BvL_s))),
+
+        Bvi_png_pattern = "vs_infantry.png",
+        Bvi_png_i = stat_ws_tp.RFind(Bvi_png_pattern) + Bvi_png_pattern.Length + rest_pattern.Length,
+        has_Bvi = Bvi_png_i > (Bvi_png_pattern.Length + rest_pattern.Length),
+        Bvi_png_str = GetIf(has_Bvi, stat_ws_tp.Substr(Bvi_png_i)),
+        Bvi_colon_i = GetIf(has_Bvi, Bvi_png_str.Find(":") + 1),
+        Bvi_colon_str = GetIf(has_Bvi, Bvi_png_str.Substr(Bvi_colon_i)),
+        Bvi_LF_i = GetIf(has_Bvi, Bvi_colon_str.Find(Loc("LF"))),
+        Bvi_EoL_i = GetIf(has_Bvi, GetIfElse(Bvi_LF_i > 0, Bvi_LF_i, Bvi_colon_str.Length)),
+        Bvi_uss = GetIf(has_Bvi, Bvi_colon_str.Substr(0, Bvi_EoL_i)),
+        Bvi_s = GetIf(has_Bvi, StringSubString(Bvi_uss, 0).RemoveLeadingWhitespace),
+        Bvi = GetIf(has_Bvi, RoundFloat(ToNumber(Bvi_s))),
+        
                 r_ma = DisplayedValue,
                 f_ma = RoundFloat(r_ma),
                 f_ma_str = Format("[[img:ui/mod/icons/icon_stat_melee_attack.png]][[/img]]%d", f_ma),
@@ -818,6 +819,33 @@ def mod_stats_fatigue(xml):
         ) +
         GetIf(Key == "stat_weapon_damage",
             (
+        stat_ws_tp = ud.StatContextFromKey("stat_weapon_damage").Tooltip.Replace('||', ''),
+        rest_pattern = "]][[/img]]",
+
+        BvL_png_pattern = "vs_large.png",
+        BvL_png_i = stat_ws_tp.RFind(BvL_png_pattern) + BvL_png_pattern.Length + rest_pattern.Length,
+        has_BvL = BvL_png_i > (BvL_png_pattern.Length + rest_pattern.Length),
+        BvL_png_str = GetIf(has_BvL, stat_ws_tp.Substr(BvL_png_i)),
+        BvL_colon_i = GetIf(has_BvL, BvL_png_str.Find(":") + 1),
+        BvL_colon_str = GetIf(has_BvL, BvL_png_str.Substr(BvL_colon_i)),
+        BvL_LF_i = GetIf(has_BvL, BvL_colon_str.Find(Loc("LF"))),
+        BvL_EoL_i = GetIf(has_BvL, GetIfElse(BvL_LF_i > 0, BvL_LF_i, BvL_colon_str.Length)),
+        BvL_uss = GetIf(has_BvL, BvL_colon_str.Substr(0, BvL_EoL_i)),
+        BvL_s = GetIf(has_BvL, StringSubString(BvL_uss, 0).RemoveLeadingWhitespace),
+        BvL = GetIf(has_BvL, RoundFloat(ToNumber(BvL_s))),
+
+        Bvi_png_pattern = "vs_infantry.png",
+        Bvi_png_i = stat_ws_tp.RFind(Bvi_png_pattern) + Bvi_png_pattern.Length + rest_pattern.Length,
+        has_Bvi = Bvi_png_i > (Bvi_png_pattern.Length + rest_pattern.Length),
+        Bvi_png_str = GetIf(has_Bvi, stat_ws_tp.Substr(Bvi_png_i)),
+        Bvi_colon_i = GetIf(has_Bvi, Bvi_png_str.Find(":") + 1),
+        Bvi_colon_str = GetIf(has_Bvi, Bvi_png_str.Substr(Bvi_colon_i)),
+        Bvi_LF_i = GetIf(has_Bvi, Bvi_colon_str.Find(Loc("LF"))),
+        Bvi_EoL_i = GetIf(has_Bvi, GetIfElse(Bvi_LF_i > 0, Bvi_LF_i, Bvi_colon_str.Length)),
+        Bvi_uss = GetIf(has_Bvi, Bvi_colon_str.Substr(0, Bvi_EoL_i)),
+        Bvi_s = GetIf(has_Bvi, StringSubString(Bvi_uss, 0).RemoveLeadingWhitespace),
+        Bvi = GetIf(has_Bvi, RoundFloat(ToNumber(Bvi_s))),
+        
                 bwd_png_pattern = "stat_damage_base.png",
                 bwd_png_i = stat_ws_tp.RFind(bwd_png_pattern) + bwd_png_pattern.Length + rest_pattern.Length,
                 has_bwd = bwd_png_i > (bwd_png_pattern.Length + rest_pattern.Length),
