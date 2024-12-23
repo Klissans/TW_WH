@@ -574,28 +574,46 @@ def add_unit_info_resistances(xml):
 
 
 def mod_postbattle_stat(xml):
+    # common_list = find_by_id(xml, 'common_list')
+    # common_list['offset'] = "0.00,43.00"
+
     elem = find_by_guid(xml, 'A8F852C0-5761-4850-AA7CC8469B4D72C8')
     elem['interactive'] = 'true'
     elem['disabled'] = 'false'
+    # elem['offset'] = "20.00,27.00"
+    # elem['docking'] = 'Bottom Left'
+    # elem['dock_offset'] = '20.00,0.00'
+    # elem['component_anchor_point'] = '0.00,1.00'
     
+    #component image
+    find_by_guid(xml, '4DBC2352-AB99-4828-948000457436C956').decompose()
+    elem_state = find_by_guid(xml, '58FE73A0-79D1-4C3F-9F3FEF99F862DE40')
+    elem_state['width'] = '55'
+    elem_state['disabled'] = 'false'
+    elem_state.component_text['textxoffset'] = '0.00,0.00'
+    elem_state.component_text['texthalign'] = 'Center'
+    elem_state.imagemetrics.image['width'] = '60'
+    elem_state.imagemetrics.image['offset'] = '0.00,-12.00'
+    
+
     # language=javascript
     s = '''
         (
             reg_key = 'klissan.hui.postbattle_stat',
             reg_value = GetIfElse(RegistryReadString(reg_key).Length == 0, 'gold', RegistryReadString(reg_key)),
-            
+            localised_colon_with_space = GetIfElse(IsLocChinese, Loc("chinese_colon"), ":"),
             tooltip = self.CurrentTooltip.Replace('||', Loc('LF')),
-            kills_colon = tooltip.Find(LocalisedColonWithSpace) + 1,
+            kills_colon = tooltip.Find(localised_colon_with_space) + 1,
             kills_lf = tooltip.Find(Loc('LF')),
             kills_str = '[[img:ui/skins/default/icon_kills.png]][[/img]]' + tooltip.Substr(kills_colon, kills_lf - kills_colon).Replace(' ', ''),
             
             tooltip_dmg = tooltip.Substr(kills_lf + 1),
-            dmg_colon = tooltip_dmg.Find(LocalisedColonWithSpace) + 1,
+            dmg_colon = tooltip_dmg.Find(localised_colon_with_space) + 1,
             dmg_lf = tooltip_dmg.Find(Loc('LF')),
             damage_str = '[[img:ui/mod/icons/icon_explosive_damage.png]][[/img]]' + tooltip_dmg.Substr(dmg_colon, dmg_lf - dmg_colon).Replace(' ', ''),
             
             tooltip_value = tooltip_dmg.Substr(dmg_lf + 1),
-            value_colon = tooltip_value.Find(LocalisedColonWithSpace) + 1,
+            value_colon = tooltip_value.Find(localised_colon_with_space) + 1,
             value_lf = tooltip_value.Find(Loc('LF')),
             value_str = '[[img:ui/mod/icons/icon_stat_damage_base.png]][[/img]]' + tooltip_value.Substr(value_colon, value_lf - value_colon).Replace(' ', '')
         ) =>
@@ -628,11 +646,6 @@ def mod_postbattle_stat(xml):
     # elem = find_by_guid(xml, '5024E82C-F70D-4A9A-92395C5FB4972019')
     # create_context_callback(elem, "ContextCommandLeftClick", "CcoStaticObject", s)
     
-    #component image
-    find_by_guid(xml, '4DBC2352-AB99-4828-948000457436C956').decompose()
-    elem_state = find_by_guid(xml, '58FE73A0-79D1-4C3F-9F3FEF99F862DE40')
-    elem_state.component_text['textxoffset'] = '-2.00,0.00'
-    elem_state['disabled'] = 'false'
     
 def mod_postbattle_stat_campaign(xml):
     elem = find_by_guid(xml, '78D3242B-A88A-4BD7-824F877E7F0B05B0')
@@ -644,19 +657,20 @@ def mod_postbattle_stat_campaign(xml):
         (
             reg_key = 'klissan.hui.postbattle_stat_campaign',
             reg_value = GetIfElse(RegistryReadString(reg_key).Length == 0, 'gold', RegistryReadString(reg_key)),
-
+            localised_colon_with_space = GetIfElse(IsLocChinese, Loc("chinese_colon"), ":"),
+            
             tooltip = self.CurrentTooltip.Replace('||', Loc('LF')),
-            kills_colon = tooltip.Find(LocalisedColonWithSpace) + 1,
+            kills_colon = tooltip.Find(localised_colon_with_space) + 1,
             kills_lf = tooltip.Find(Loc('LF')),
             kills_str = '[[img:ui/skins/default/icon_kills.png]][[/img]]' + tooltip.Substr(kills_colon, kills_lf - kills_colon).Replace(' ', ''),
 
             tooltip_dmg = tooltip.Substr(kills_lf + 1),
-            dmg_colon = tooltip_dmg.Find(LocalisedColonWithSpace) + 1,
+            dmg_colon = tooltip_dmg.Find(localised_colon_with_space) + 1,
             dmg_lf = tooltip_dmg.Find(Loc('LF')),
             damage_str = '[[img:ui/mod/icons/icon_explosive_damage.png]][[/img]]' + tooltip_dmg.Substr(dmg_colon, dmg_lf - dmg_colon).Replace(' ', ''),
 
             tooltip_value = tooltip_dmg.Substr(dmg_lf + 1),
-            value_colon = tooltip_value.Find(LocalisedColonWithSpace) + 1,
+            value_colon = tooltip_value.Find(localised_colon_with_space) + 1,
             value_lf = tooltip_value.Find(Loc('LF')),
             value_str = '[[img:ui/mod/icons/icon_stat_damage_base.png]][[/img]]' + tooltip_value.Substr(value_colon, value_lf - value_colon).Replace(' ', '')
         ) =>
@@ -703,6 +717,19 @@ def mod_stats_fatigue(xml):
         is_battle = IsContextValid(BattleRoot),
         ud = StoredContextFromParent("CcoUnitDetails"),
         buc = ud.BattleUnitContext,
+        main_unit_record = ud.UnitRecordContext,
+        land_unit_record = main_unit_record.UnitLandRecordContext,
+        entity_record = land_unit_record.ManEntityContext,
+        mount_record = land_unit_record.MountRecordContext,
+        engine_record = land_unit_record.EngineRecordContext,
+        articulated_record = land_unit_record.ArticulatedRecordContext,
+        actual_entity_record = GetIfElse(IsContextValid(articulated_record), articulated_record.ArticulatedEntityContext,
+            GetIfElse(IsContextValid(engine_record), engine_record.BattleEntityContext,
+                GetIfElse(IsContextValid(mount_record), mount_record.Entity,
+                    entity_record
+                )
+            )
+        ),
         f_state = GetIf(is_battle, buc.FatigueState),
         cmp = GetIf(is_battle, ScriptObjectContext('fatigue_effects').TableValue.ValueForKey(Key)),
         is_valid_battle_context = is_battle && IsContextValid(buc),
@@ -739,10 +766,12 @@ def mod_stats_fatigue(xml):
     {
         GetIf(Key == "stat_armour",
             (
+                mass_record = RoundFloat(actual_entity_record.Mass),
                 mass = RoundFloat(ud.Mass),
-                mass_str = Format("[[img:ui/mod/icons/icon_stat_mass.png]][[/img]][[col:ui_font_faded_grey_beige]]%d[[/col]]", mass),
+                mass_color = GetIfElse(mass > mass_record, 'green', GetIfElse(mass < mass_record, 'red', 'ui_font_faded_grey_beige')),
+                mass_str = Format("[[img:ui/mod/icons/icon_stat_mass.png]][[/img]][[col:%s]]%d[[/col]]", mass_color, mass),
                 r_armour = DisplayedValue,
-                f_armour = RoundFloat(fatigue_coeff * r_armour),
+                f_armour = RoundFloat(r_armour),
                 f_armour_str = Format("[[img:ui/mod/icons/icon_stat_armour.png]][[/img]]%d", f_armour),
                 armour_roll_lower_cap = kv_rules.ValueForKey('armour_roll_lower_cap'),
                 avg_armour_res = GetIf(f_armour <= 100, RoundFloat((1 + armour_roll_lower_cap) / 2 * f_armour))
@@ -763,11 +792,11 @@ def mod_stats_fatigue(xml):
         GetIf(Key == "stat_morale",
              GetIfElse(buc.CapturePower > 0, Format("[[img:ui/skins/default/icon_capture_point.png]][[/img]][[col:ui_font_faded_grey_beige]]%.1f[[/col]] ", buc.CapturePower), "") + Format("[[img:ui/mod/icons/icon_stat_morale.png]][[/img]]%d  ", RoundFloat(DisplayedValue) )
         ) +
-        GetIf(Key == "scalar_speed", Format("[[img:ui/mod/icons/icon_stat_speed.png]][[/img]]%d  ", RoundFloat(fatigue_coeff * DisplayedValue)) ) +
+        GetIf(Key == "scalar_speed", Format("[[img:ui/mod/icons/icon_stat_speed.png]][[/img]]%d  ", RoundFloat(DisplayedValue)) ) +
         GetIf(Key == "stat_melee_attack",
             (
                 r_ma = DisplayedValue,
-                f_ma = RoundFloat(fatigue_coeff * r_ma),
+                f_ma = RoundFloat(r_ma),
                 f_ma_str = Format("[[img:ui/mod/icons/icon_stat_melee_attack.png]][[/img]]%d", f_ma),
                 f_ma_BvL = f_ma + BvL,
                 f_ma_BvL_str = GetIfElse(has_BvL, Format("[[img:ui/mod/icons/modifier_icon_bonus_vs_large.png]][[/img]]%d", f_ma_BvL), ""),
@@ -781,7 +810,7 @@ def mod_stats_fatigue(xml):
         GetIf(Key == "stat_melee_defence",
             (
                 r_md = DisplayedValue,
-                f_md = RoundFloat(fatigue_coeff * r_md),
+                f_md = RoundFloat(r_md),
                 f_md_str = Format("[[img:ui/mod/icons/icon_stat_defence.png]][[/img]]%d", f_md),
                 has_flanking_immune = IsContextValid(ud.AbilityDetailsList.FirstContext(Key == 'flanking_immune')),
                 flank_md_coeff = GetIfElse(has_flanking_immune, 1.0, kv_rules.ValueForKey('melee_defence_direction_penalty_coefficient_flank')),
@@ -858,12 +887,12 @@ def mod_stats_fatigue(xml):
                 is_charging = charging_png_i > 0,
                 charging_half_str = GetIf(is_charging, stat_morale_tp.Substr(charging_png_i-1)),
                 charging_colon_i = GetIf(is_charging, charging_half_str.Find(": ")),
-                charging_str = GetIfElse(is_charging, EvaluateExpression(Format(func_get_localization, 'charging_str')), ''),
+                charging_str = Format('[[col:ui_font_faded_grey_beige]]%S[[/col]]', GetIfElse(is_charging, EvaluateExpression(Format(func_get_localization, 'charging_str')), '')),
                 braced = ud.BattleUnitContext.StatusList.FirstContext(Key == 'braced'),
-                bracing_str = GetIfElse(IsContextValid(braced), Format('[[img:%S]][[/img]]%S', braced.IconPath, braced.Tooltip), ''),
+                bracing_str = GetIfElse(IsContextValid(braced), Format('[[img:%S]][[/img]][[col:ui_font_faded_grey_beige]]%S[[/col]]', braced.IconPath, braced.Tooltip), ''),
 
                 r_cb = DisplayedValue,
-                f_cb = RoundFloat(fatigue_coeff * DisplayedValue),
+                f_cb = RoundFloat(DisplayedValue),
                 f_cb_str = Format("%S%S [[img:ui/mod/icons/icon_stat_charge_bonus.png]][[/img]]%d  ", charging_str, bracing_str, f_cb)
             ) =>
             {
@@ -1080,10 +1109,44 @@ def mod_stats_fatigue(xml):
             md_flank_red = RoundFloat((1 - md_flank) * 100),
             md_rear_red = RoundFloat((1 - md_rear) * 100),
             ud = StoredContextFromParent("CcoUnitDetails"),
+            main_unit_record = ud.UnitRecordContext,
+            land_unit_record = main_unit_record.UnitLandRecordContext,
+            entity_record = land_unit_record.ManEntityContext,
+            mount_record = land_unit_record.MountRecordContext,
+            engine_record = land_unit_record.EngineRecordContext,
+            articulated_record = land_unit_record.ArticulatedRecordContext,
+            actual_entity_record = GetIfElse(IsContextValid(articulated_record), articulated_record.ArticulatedEntityContext,
+                GetIfElse(IsContextValid(engine_record), engine_record.BattleEntityContext,
+                    GetIfElse(IsContextValid(mount_record), mount_record.Entity,
+                        entity_record
+                    )
+                )
+            ),
             func_get_localization = ScriptObjectContext('hui_context_functions').TableValue.ValueForKey('get_localization').Value
         ) =>
         Tooltip
-        + GetIf(Key == "stat_armour", Format(EvaluateExpression(Format(func_get_localization, 'tooltip_unit_stat_armour')), kv_rules.ValueForKey('armour_roll_lower_cap')))
+        + GetIf(Key == "stat_armour",
+            Format(EvaluateExpression(Format(func_get_localization, 'tooltip_unit_stat_armour')), kv_rules.ValueForKey('armour_roll_lower_cap'))
+            + Loc('LF')
+            + GetIf(IsContextValid(entity_record), Format('Entity: %d' + Loc('LF'), RoundFloat(entity_record.Mass)))
+            + GetIf(IsContextValid(mount_record), Format('Mount: %d' + Loc('LF'), RoundFloat(mount_record.Entity.Mass)))
+            + GetIf(IsContextValid(engine_record), Format('Engine: %d' + Loc('LF'), RoundFloat(engine_record.BattleEntityContext.Mass)))
+            + GetIf(IsContextValid(articulated_record), Format('Articulated: %d' + Loc('LF'), RoundFloat(articulated_record.ArticulatedEntityContext.Mass)))
+        )
+         + GetIf(Key == "scalar_speed", 
+            + Loc('LF') 
+            + Loc('LF') 
+            + Format('Base Walk Speed: %f' + Loc('LF'), actual_entity_record.WalkSpeed) 
+            + Format('Base Charge Speed: %f' + Loc('LF'), actual_entity_record.ChargeSpeed) 
+            + Format('Base Fly Speed: %f' + Loc('LF'), actual_entity_record.FlySpeed) 
+            + Format('Base Fly Charge Speed: %f' + Loc('LF'), actual_entity_record.FlyingChargeSpeed) 
+            + Format('Base Acceleration: %f' + Loc('LF'), actual_entity_record.Acceleration) 
+            + Format('Base Deceleration: %f' + Loc('LF'), actual_entity_record.Deceleration)
+            + Format('Base Turn Speed: %f' + Loc('LF'), actual_entity_record.TurnSpeed) 
+            + Format('Base Strafe Speed: %f' + Loc('LF'), actual_entity_record.StrafeSpeed)
+            + Format('Base Speed Context: %f' + Loc('LF'), actual_entity_record.RunSpeedContext.ValueBase)
+            + Format('Base Speed DB: %f' + Loc('LF'),  DatabaseRecordContext("CcoBattleEntityRecord", actual_entity_record.Key).RunSpeedContext.ValueBase)
+        )
         + GetIf(Key == "stat_melee_attack",
             (
                 mwc = ud.UnitRecordContext.UnitLandRecordContext.PrimaryMeleeWeaponContext,
