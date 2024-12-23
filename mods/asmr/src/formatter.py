@@ -897,7 +897,9 @@ class Formatter:
             if type(projectile['projectile_penetration']['entity_size_cap']) is float:
                 projectile['projectile_penetration']['entity_size_cap'] = ''
             desc += _indentstr(indent) + f"{self.loctr.tr('projectile_penetration')}: {self.highlight(projectile['projectile_penetration']['key'])} ({self.loctr.add_auto('entity_size', projectile['projectile_penetration']['entity_size_cap'])})" + self.endl
-
+        
+        vegetation_ignore_time = f"{projectile['vegetation_ignore_time']}"
+        desc += _indentstr(indent) + f"{self.loctr.tr('projectile_vegetation')}: {self.highlight(vegetation_ignore_time)}" + self.endl
         if projectile['spread'] > 0:
             spread = round(float(projectile['spread']), 2)
             desc += _indentstr(indent) + f"{self.icon['stat_accuracy']}{self.loctr.tr('projectile_spread')}: {self.highlight(spread)}" + self.endl
@@ -1055,8 +1057,9 @@ class Formatter:
         if self.hhelper.handler.isnull(usat):  # ???
             print('None special table', info['key'])
             return ''
-
-
+        
+        key = '_'.join(usat['key'].split('_')[2:])
+        desc += _indentstr(indent) + f"{self.highlight(key)}" + self.endl
         if usat['update_targets_every_frame']:
             desc += _indentstr(indent) + f"{self.loctr.tr('update_targets_frame')}: {self.highlight(self.loctr.tr('update_true'))}" + self.endl
         # duration = usat['active_time']
@@ -1117,6 +1120,7 @@ class Formatter:
         if not math.isclose(duration, -1.0):
             str_per_tick = ""
             ticks_count = int(duration * 1000) // int(freq * 1000)
+            ticks_count += 1
         max_heal = round(ticks_count * heal * 100, 2)
         max_heal_str = f"{self.loctr.tr('max_heal_per_unit')}{str_per_tick}: {self.icon['hp']}{self.colorize(max_heal, 'green')}% ({self.icon['mod_flaming']}{self.colorize(round(max_heal/2, 2), 'green')}%)"
 

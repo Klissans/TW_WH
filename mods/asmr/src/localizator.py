@@ -72,6 +72,7 @@ class Localizator:
                 'shots_per_volley': 'Shots per Volley',
                 'burst_size': 'Burst Size',
                 'shockwave_radius': 'Shockwave Radius',
+                'projectile_vegetation': 'Vegetation Ignore Time',
                 'projectile_penetration': 'Penetration',
                 'projectile_spread': 'Spread',
                 'total_accuracy': 'Total Accuracy',
