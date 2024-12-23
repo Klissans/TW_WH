@@ -306,31 +306,24 @@ def add_unit_info_gold_value(xml):
     
     # language=javascript
     s = '''
-        (
-        exp_cost = GetIfElse(UnitRecordContext.IsRenown, 0, ExperienceLevel * (3 * UnitRecordContext.Cost / 100.0 + 11)),
-        al = GetIf(IsCharacter,
-            AbilityDetailsList
-                .Transform(DatabaseRecordContext("CcoUnitAbilityRecord", Key))
-                .Filter(IsUnitUpgrade)
-                .Transform(DatabaseRecordContext("CcoUnitSpecialAbilityRecord", Key))
-                .Sum(AdditionalMeleeCp + AdditionalMissileCp))
-        ) =>
-        {
             "[[img:ui/skins/default/icon_income.png]][[/img]]"
-                + GetIf(IsBattle, Format('[[col:yellow]]%d[[/col]]', RoundFloat( (UnitRecordContext.Cost + exp_cost + al) * BattleUnitContext.HealthPercent )))
-                + " (" + RoundFloat(UnitRecordContext.Cost + exp_cost + al) + ") "
-        } '''
+                + GetIf(IsBattle, Format('[[col:yellow]]%d[[/col]]', BattleUnitContext.GetGoldValue(true) ))
+                + " (" + BattleUnitContext.GetGoldValue(false) + ") "
+         '''
     set_context_callback(elem, 'ContextTextLabel', s)
     
     # language=javascript
     s = '''
     (
+        base_cost = UnitRecordContext.Cost
+        + GetIf(UnitRecordContext.Key == 'wh3_dlc24_tze_cha_changeling', AbilityDetailsList.FirstContext(Key == 'wh3_dlc24_lord_abilities_formless_horror').AbilityContext.SpawnedMainUnitRecordContext.Cost)
+        + GetIf(UnitRecordContext.Key == 'wh3_dlc24_tze_cha_blue_scribes', 700 + 1500),
         exp_cost = RoundFloat(ExperienceLevel * (3 * UnitRecordContext.Cost / 100.0 + 11))
     ) =>
     {
         "[[img:ui/skins/default/icon_income.png]][[/img]]"
         + Format("%d%S%S",
-            UnitRecordContext.Cost,
+            base_cost,
             GetIf(ExperienceLevel > 0, GetIfElse(UnitRecordContext.IsRenown, "", Format(" [[img:ui/skins/default/experience_%d.png]][[/img]]%d", ExperienceLevel, exp_cost) )),
             GetIf(IsCharacter,
                 Format(Loc('LF') + "%S",
@@ -1255,7 +1248,7 @@ def split_abilities(xml):
     elem = read_xml_component('unit_information/spells_list')
     # language=javascript
     s = '''
-        AbilityDetailsList.Filter(CategoryStateName == "spells")
+        GetIfElse(UnitRecordContext.Key == 'wh3_dlc24_tze_cha_blue_scribes', AbilityDetailsList.Filter(CategoryStateName == "none"), AbilityDetailsList.Filter(CategoryStateName == "spells"))
     '''
     set_context_callback(elem, 'ContextList', s)
     add_element(xml, elem, "list")

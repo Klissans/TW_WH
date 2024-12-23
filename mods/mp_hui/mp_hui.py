@@ -20,7 +20,7 @@ if __name__ == '__main__':
     rpfm = RPFM4Wrapper()
     rpfm.make_package(MOD_NAME, OUTPUT_DIR)
     # os.startfile(r"F:\runcher-v0.7.102-x86_64-pc-windows-msvc\shortcuts\campaign.lnk")
-    os.startfile(r"F:\runcher-v0.7.102-x86_64-pc-windows-msvc\shortcuts\dev.lnk")
+    # os.startfile(r"F:\runcher-v0.7.102-x86_64-pc-windows-msvc\shortcuts\dev.lnk")
     
     # List
     # CcoCustomBattlePlayerSlot
